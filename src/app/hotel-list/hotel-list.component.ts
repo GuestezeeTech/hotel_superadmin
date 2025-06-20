@@ -116,7 +116,7 @@ export class HotelListComponent implements OnInit {
             (item: any) => !('staff_employee_number' in item)
           );
           this.totalPages = resp.result.total_count;
-          //console.log(this.customerList, "this.customerList")
+          console.log(this.customerList, "this.customerList")
 
         }
       },

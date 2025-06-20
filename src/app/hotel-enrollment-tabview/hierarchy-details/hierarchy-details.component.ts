@@ -109,4 +109,12 @@ ngOnInit(): void {
  onViewHierarchy(id:number){
     this.router.navigate(['/view-customer-hierarchy', id])
  }
+
+ // Newly added function to navigate to the next tab
+  nextTab() {
+    let nextTab = document.getElementById('contact-tab3');
+    if (nextTab) {
+      (nextTab as HTMLAnchorElement).click();
+    }
+  }
 }

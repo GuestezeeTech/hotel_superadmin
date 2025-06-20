@@ -13,7 +13,7 @@
              
             <h5>{{data.name}}</h5>
             <label class="switch">
-                <input type="checkbox" [checked]="data.enabled === true"  (change)="onToggleActive($event, data)">
+                <input type="checkbox" [checked]="data.enabled === true"  (change)="onToggleActive($event, data)" disabled>
                 <span class="slider round"></span>
               </label>
       

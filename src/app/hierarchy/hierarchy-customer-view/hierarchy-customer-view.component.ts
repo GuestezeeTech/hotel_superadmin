@@ -1,5 +1,5 @@
 import { DOMAIN_NAME } from './../../app.config';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HierarchyService, HierarchyItem } from '../hierarchy.service';
 import { CommonModule } from '@angular/common';
@@ -31,6 +31,7 @@ export class HierarchyCustomerViewComponent {
   };
   hasTreeItems = false;
   hotelId: any;
+  @ViewChild('contactTab2') contactTab2!: ElementRef;
 
   getLevelBadge(level: number): string {
     if (level === 0) return 'ROOT';
@@ -56,7 +57,7 @@ export class HierarchyCustomerViewComponent {
     // this.hotelId = Number(this.localStorageService.get('UserId'));
     // if (this.hierarchyId != 0) {
     //   //console.log("123")
-      this.updateHierarchyById( this.hotelId)
+    this.updateHierarchyById(this.hotelId)
     // }
 
   }
@@ -187,8 +188,8 @@ export class HierarchyCustomerViewComponent {
   async updateHierarchyById(hierarchyId: number): Promise<void> {
     return new Promise((resolve, reject) => {
       let requestBody = {
-        domain_name:this.authTokenService.getDomain(),
-      user_id: this.authTokenService.getUserId(),
+        domain_name: this.authTokenService.getDomain(),
+        user_id: this.authTokenService.getUserId(),
         extras: {
           find: {
             customer_id: this.hotelId
@@ -243,7 +244,7 @@ export class HierarchyCustomerViewComponent {
 
   updateHierarchyData(obj: any) {
     let requestBody = {
-      domain_name:this.authTokenService.getDomain(),
+      domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
       payload: {
         hierarchy_creation: {
@@ -294,6 +295,12 @@ export class HierarchyCustomerViewComponent {
       }
     )
 
+  }
+
+  back() {
+    this.router.navigate(['/edit-new-hotel', this.hotelId], {
+      queryParams: { tab: 'contact-tab2' }
+    });
   }
 }
 

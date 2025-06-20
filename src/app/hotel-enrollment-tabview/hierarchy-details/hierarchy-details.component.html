@@ -1,0 +1,20 @@
+<!-- <app-alerts></app-alerts> -->
+<div class="section">
+  <div class="row row-cols-1 row-cols-md-3 g-5 mb-5">
+    <div class="col" *ngFor="let hierarchy of hierarchies">
+      <div class="card h-100 text-center"   style="border: 1px solid #EAEAEF;
+    background: linear-gradient(90deg, #f931791a -2.75%, #c100e01a 99.79%);"
+     >
+        <div class="card-header fw-bold" id=`{{hierarchy.name}}`    >{{ hierarchy.name || hierarchy.customer_hierarchy.name || ' '}} {{ hierarchy.id }}</div>
+        <div class="card-body text-start">
+          <button class="isViewBtn button w-100 py-1 my-1 fw-bold"  (click)="onViewHierarchy(hierarchy.customer_id)">
+           
+            View Hierarchy
+          </button>
+          <!-- Condition for choose button -->
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

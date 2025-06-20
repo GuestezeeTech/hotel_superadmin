@@ -1,0 +1,255 @@
+<div class="main">
+    <div class="centered-container">
+        <div class="container" *ngIf="!isExpanded">
+            <!-- Category section -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h5 class="fw-bolder mb-3">Category Summary<span style="color: #9E9E9E; font-size: 15px"
+                            class="fw-normal">
+                            (Overall)</span></h5>
+                    <div class="row">
+                        <div class="ms-3 d-flex justify-content-between category-section border rounded"
+                            style="border-color: #9E9E9E; padding: 10px; width: 635px">
+                            <div class="d-flex align-items-center px-3 py-1">
+                                <img src="../../assets/images/guestezee/platinum.png" alt="Platinum Icon"
+                                    class="me-2 rounded-circle p-2" width="40" style="background-color: #FFFDE7;">
+                                <div>
+                                    <strong class="d-block">087</strong>
+                                    <span>Platinum</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center px-3 py-1" style="border-left: 1px solid #E9E9E9">
+                                <img src="../../assets/images/guestezee/gold.png" alt="Gold Icon"
+                                    class="me-2 rounded-circle p-2" width="40" style="background-color: #FFFDE7;">
+                                <div>
+                                    <strong class="d-block">174</strong>
+                                    <span>Gold</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center px-3 py-1" style="border-left: 1px solid #E9E9E9">
+                                <img src="../../assets/images/guestezee/silver.png" alt="Silver Icon"
+                                    class="me-2 rounded-circle p-2" width="40" style="background-color: #FFFDE7;">
+                                <div>
+                                    <strong class="d-block">325</strong>
+                                    <span>Silver</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center px-3 py-1" style="border-left: 1px solid #E9E9E9">
+                                <img src="../../assets/images/guestezee/bronze.png" alt="Bronze Icon"
+                                    class="me-2 rounded-circle p-2" width="40" style="background-color: #FFFDE7;">
+                                <div>
+                                    <strong class="d-block">564</strong>
+                                    <span>Bronze</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Guest visti graph report -->
+
+                        <!-- Guest visit graph report -->
+                        <div class="row mb-4 mt-4">
+                            <div class="container-fluid"> <!-- Ensures full width -->
+                                <div class="row d-flex justify-content-between"> <!-- Adds horizontal spacing -->
+                                    <!-- Guest Visit Section -->
+                                    <div class="col-md-5 ms-3 border p-3 rounded" style="cursor: pointer;"
+                                        (click)="toggleExpand()">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="fw-bold" style="color: #0B0B12;">Guest Visit</h6>
+                                            <select [(ngModel)]="selectedPeriod" class="form-select form-select-sm"
+                                                style="width: 70px; background-color: #F5F4FD;">
+                                                <option value="Week">Week</option>
+                                                <option value="Month">Month</option>
+                                            </select>
+                                        </div>
+                                        <div style="width: 100%; height: 250px; position: relative;margin-top: 5%">
+                                            <canvas id="guestVisitChart"
+                                                style="width: 100% !important; height: 100% !important;"></canvas>
+                                        </div>
+                                    </div>
+
+                                    <!-- Guest Review Section -->
+                                    <div class="col-md-6 border p-3 rounded" >
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="fw-bold" style="color: #0B0B12;">Guest Review</h6>
+                                            <select [(ngModel)]="selectedPeriod" class="form-select form-select-sm"
+                                                style="width: 70px; background-color: #F5F4FD;">
+                                                <option value="Week">Week</option>
+                                                <option value="Month">Month</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between">
+                                            <!-- Doughnut Chart -->
+                                            <div
+                                                class="d-flex justify-content-center align-items-center position-relative mt-3">
+                                                <canvas id="guestReviewChart" style="max-width: 180px;"></canvas>
+                                                <div class="position-absolute fw-bold"
+                                                    style="color: #0B0B12; font-size: 18px;">
+                                                    {{ getTotalCount() }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Legend Section -->
+                                            <div class="mt-3">
+                                                <div *ngFor="let review of guestReviews"
+                                                    class="d-flex align-items-center mb-2">
+                                                    <span class="rounded-circle d-inline-block me-2"
+                                                        [style.backgroundColor]="review.color"
+                                                        style="width: 12px; height: 12px;"></span>
+                                                    <span class="fw-semibold"
+                                                        style="color: #0B0B12; font-size: 13px;">{{ review.day }} - {{
+                                                        review.count }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4  expiry-section">
+                    <div class="d-flex justify-content-between mt-1">
+                        <h5 class="fw-bolder mb-3">Expiry Details</h5>
+                        <div style="position: relative; display: flex;">
+                            <button (click)="navigateToExpiry()"
+                                style="background-color: white; color: #1A1A1AE5; padding: 2px 4px; border-radius: 5px; font-weight: 700; border: none; font-size: 13px; border: 1px solid #8F9899; height: 60%;">See
+                                more</button>
+                            <div>
+                                <!-- Filter Icon -->
+                                <i class="fas fa-filter filter-icon" alt="Filter" (click)="toggleDropdown()"
+                                    style="width: 30px; height: 30px; cursor: pointer; margin-left:30%; margin-top: 15%; color: white; -webkit-text-stroke: 1px black;"></i>
+                            </div>
+
+                            <!-- Dropdown -->
+                            <div *ngIf="isDropdownOpen"
+                                style="position: absolute; top: 70%; right: 0; background: white; border-radius: 8px; 
+                                   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); padding: 10px; min-width: 100px; z-index: 100;">
+                                <div style="display: flex; align-items: center; padding: 5px; cursor: pointer;"
+                                    (click)="selectFilter(2)">
+                                    <img src="../../assets/images/guestezee/week.png" alt="2 Days"
+                                        style="width: 15px; object-fit: cover; height: 15px; object-fit: cover; margin-right: 8px;">
+                                    <span>2 Days</span>
+                                </div>
+                                <div style="display: flex; align-items: center; padding: 5px; cursor: pointer;"
+                                    (click)="selectFilter(7)">
+                                    <img src="../../assets/images/guestezee/day.png" alt="7 Days"
+                                        style="width: 15px; object-fit: cover; height: 15px; object-fit: cover; margin-right: 8px;">
+                                    <span>7 Days</span>
+                                </div>
+                                <div style="display: flex; align-items: center; padding: 5px; cursor: pointer;"
+                                    (click)="selectFilter(30)">
+                                    <img src="../../assets/images/guestezee/month.png" alt="30 Days"
+                                        style="width: 15px; object-fit: cover; height: 15px; object-fit: cover; margin-right: 8px;">
+                                    <span>30 Days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="list-group">
+                        <li *ngFor="let expiry of expiryDetails"
+                            class="list-group-item d-flex align-items-center justify-content-between"
+                            [ngClass]="{ 'border-danger': expiry.isUrgent }"
+                            style="display: flex; align-items: center; justify-content: space-between;">
+
+                            <!-- Left: Hotel Image & Name -->
+                            <div style="display: flex; align-items: center;">
+                                <img [src]="expiry.image" alt="Hotel Logo"
+                                    style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;">
+                                <strong style="margin-left: 10px;font-size: 14px;">{{ expiry.hotel }}</strong>
+                            </div>
+
+                            <!-- Right: Expiry Date -->
+                            <div style="text-align: right;">
+                                <span style="color: #8F9899; font-size: 12px;">Expiry Date</span><br>
+                                <span style="color: red; font-weight: bold; font-size: 13px;">{{ expiry.date }}</span>
+                            </div>
+
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-8 px-3 py-1 rounded">
+                    <div class="d-flex justify-content-between align-items-center ">
+                        <h6 class="fw-bolder">Hotel Reviews</h6>
+                        <button (click)="navigateToReviews()"
+                            style="background-color: #F5F4FD; color: #1A1A1AE5; padding: 4px 8px; border-radius: 5px; font-weight: 700; border: none; font-size: 13px">See
+                            more</button>
+                    </div>
+                    <table class="table hotel-reviews">
+                        <thead>
+                            <tr>
+                                <th>Hotel Name</th>
+                                <th>Date</th>
+                                <th style="text-align: center">Rating Average</th>
+                                <th>Reviews</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let review of hotelReviews">
+                                <td>{{ review.name }}</td>
+                                <td>{{ review.date }}</td>
+                                <td class="gold" style="text-align: center">{{ review.rating }}</td>
+                                <td>{{ review.reviews }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-4 ps-0 pe-3 py-1 rounded">
+                    <h6 style="margin-bottom: 7%" class="fw-bolder">Hotel Members Status</h6>
+                    <table class="table hotel-members">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Count</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let status of memberStatus" [ngClass]="{
+                                'active': status.status === 'Active',
+                                'in-active': status.status === 'In Active',
+                                'pending': status.status === 'Pending'}"
+                                [ngStyle]="{ 'border-bottom': status.status === 'Pending' ? '1px solid #dee2e6' : 'none' }">
+                                <td><button [ngClass]="{
+                                    'active': status.status === 'Active',
+                                    'in-active': status.status === 'In Active',
+                                    'pending': status.status === 'Pending'
+                                }">
+                                        {{ status.status }}
+                                    </button>
+
+                                </td>
+                                <td>{{ status.count }}</td>
+                                <td>{{ status.revenue }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="container" *ngIf="isExpanded">
+            <!-- Guest Visit Section -->
+            <div class="border p-3 rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex">
+                        <i class="fas fa-arrow-left me-2" style="margin-top: 2.5%; cursor: pointer;" (click)="toggleExpand()"></i>
+                        <h6 class="fw-bold" style="color: #0B0B12;">Guest Visit</h6>
+                    </div>
+                    <select [(ngModel)]="selectedPeriod" class="form-select form-select-sm"
+                        style="width: 70px; background-color: #F5F4FD;">
+                        <option value="Week">Week</option>
+                        <option value="Month">Month</option>
+                    </select>
+                </div>
+                <div style="width: 100%; margin-top: 5%">
+                    <canvas id="guestVisitChart" style="width: 100% !important; height: 350px"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

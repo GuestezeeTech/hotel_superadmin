@@ -1,0 +1,72 @@
+<div class="sidenav">
+    <hr style="width: 80%;" class="center-hr"   /> <!-- Horizontal line below the menu -->
+    <ul style="padding: 6px 6px 6px 32px;">
+       <li class="list_container"  [class.active]="isDashboardActive()" *ngIf="userAccess?.DASHBOARD?.has_read_permission==true" >
+           <img src="../../assets/images/guestezee/layout.png" >
+           <a routerLink="/dashboard" (click)="sendValue('Dashboard')">Dashboard</a>
+         </li>
+         <li  class="list_container" [class.active]="isHotelActive()" *ngIf="userAccess?.CUSTOMERS?.has_read_permission==true">
+           <img src="../../assets/images/guestezee/hotel (2).png" >
+           <a  routerLink="/hotel-list"  (click)="sendValue('Hotels')" >Hotels</a>
+         </li>
+         <!-- <li style="display: flex; align-items: center; gap: 8px;">
+           <img src="../../assets/images/guestezee/" style="height: 20px;">
+           <a href="#">Marketing</a>
+         </li> -->
+         <li  class="list_container" [class.active]="isPaymentActive()" *ngIf="userAccess?.PAYMENT?.has_read_permission==true">
+           <img src="../../assets/images/guestezee/check.png" >
+           <a routerLink="/payment-tab-view"  (click)="sendValue('Payment')">Payment</a>
+         </li>
+         <li  class="list_container"  [class.active]="isUserAccessActive()"  *ngIf="userAccess?.USERACCESS?.has_read_permission==true">
+           <img src="../../assets/images/guestezee/secure-access (1).png" >
+           <a  (click)="toggleSubmenu()"   data-toggle="collapse" data-target="#demo" >User Access</a>
+           
+         </li>
+       
+          <li id="demo" class="collapse sub-menu" style="text-align: center" >
+            <div class="submenu">
+            <a class="submenu-item"></a>
+            <a class="submenu-item"></a>
+            <a class="submenu-item"  routerLink="/role-list" style=" color: #B1B1B1"   (click)="sendValue('Roles')">Roles</a>
+            <a  class="submenu-item" routerLink="/user-list" style=" color: #B1B1B1"   (click)="sendValue('Users')">Users</a>
+            <a class="submenu-item" routerLink="/staff" style=" color: #B1B1B1" (click)="sendValue('Staff')">Staff</a>        </div>
+      </li>
+        
+  
+         <li  class="list_container" [class.active]="isSystemSettingsActive()"  *ngIf="userAccess?.SYSTEMSETTINGS?.has_read_permission==true"  >
+          
+           <img src="../../assets/images/guestezee/setting.png" >
+           <a  (click)="sendValue('System Settings')" style="white-space: nowrap;"   data-toggle="collapse" data-target="#sys_settings">System Settings</a>
+           <!-- @if (isSubmenuOpen) {
+            <ul  class="submenu">
+              <li><a href="#" (click)="sendValue('General Settings')">General Settings</a></li>
+              <li><a href="#" (click)="sendValue('Security Settings')">Security Settings</a></li>
+              <li><a href="#" (click)="sendValue('Backup & Restore')">Backup & Restore</a></li>
+          </ul>
+           }
+            -->
+        
+         </li>
+         <li id="sys_settings" class="collapse sub-menu" style="text-align: center" >
+          <div class="submenu">
+          <a class="submenu-item"></a>
+          <a class="submenu-item"></a>
+          <a class="submenu-item"  routerLink="/service-list" style=" color: #B1B1B1"   (click)="sendValue('Service Settings')">Service Settings</a>
+          <a  class="submenu-item" routerLink="/hierarchy-list" style=" color: #B1B1B1"   (click)="sendValue('Hierarchy')">Hierarchy</a>
+          <a  class="submenu-item" routerLink="/tech-info-list" style=" color: #B1B1B1"   (click)="sendValue('Technical Info')">Technical Info</a>
+      </div>
+    </li>
+<!-- 
+    <li class="list_container" [class.active]="isHotelActive()">
+      <img src="../../assets/images/guestezee/bookings.png">
+      <a routerLink="/bookings" (click)="sendValue('Bookings')">Bookings</a>
+    </li>
+
+    <li class="list_container">
+      <img src="../../assets/images/guestezee/taskManagement.png" style="height: 20px;">
+      <a routerLink="/task-management">Task Management</a>
+    </li> -->
+    </ul>
+   
+   
+ </div>

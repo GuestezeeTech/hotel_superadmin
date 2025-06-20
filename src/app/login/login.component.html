@@ -1,0 +1,55 @@
+<app-alerts></app-alerts>
+
+<div class="container-fluid" style=" background-color: #FFFEFA; backdrop-filter: blur(638.83px);">
+    <div class="row">
+        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  p-0">
+          
+            <img src="../../assets/images/guestezee/login-img.png" class="img-fluid" class="login-page_img" >
+
+          
+                
+         
+        </div>
+        <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7 justify-content-center" style="text-align: center;">
+           
+                <img src="../../assets/images/guestezee/logo.png" class="img-fluid" class="login_logo_img" >
+                <h3 style="font-weight: 700;margin-top: 3%;">Welcome back !</h3>
+                <div class="login_content_container">
+                  <p style="width: 70%;color: #878E96;font-size: 16px" >We kindly request that you provide your Email address and password in order to gain access to our incredible platform</p>
+
+                </div>
+                <div class="login_form_container">
+                  <form  [formGroup]="loginForm" (ngSubmit)="onSubmit()" style="width: 80%;margin-top: 4%;" >
+                    <div class="form-group" >
+                    
+                      <input type="text" class="form-control login_content_color" id="usr" name="username" placeholder="Email"   formControlName="email">
+                      <div *ngIf="loginForm.controls['email'].invalid && loginForm.controls['email'].touched" class="error-message" style="color: red;">
+                        Please enter a valid email address.
+                      </div>
+                    </div>
+                    <div class="form-group" style="position: relative;" >
+                     <span>
+                      <input [type]="passwordVisible ? 'text' : 'password'" class="form-control login_content_color" id="pwd" name="password"  placeholder="Password"  formControlName="password">
+                      <div *ngIf="loginForm.controls['password'].invalid && loginForm.controls['password'].touched" class="error-message" style="color: red;">
+                        Password is required and must be at least 6 characters long.
+                      </div>
+                     </span>
+                     <span>
+                      <i       [class]="passwordVisible ? 'fa fa-eye eye-icon' : 'fa fa-eye-slash eye-icon'"  class="fa fa-eye-slash eye-icon" style="color: #878E96;" (click)="togglePasswordVisibility()"></i>
+                      <!-- <i class="fa fa-eye eye-icon" ></i> -->
+
+                     </span>
+                     
+                      
+                      <!-- <img  src="../../assets/images/guestezee/eye-closed.png" id="togglePassword" alt="toggle visibility" class="eye-icon"> -->
+
+                    </div>
+                    <button type="submit" class="btn btn-primary login_button"  style="width: 100%;">Login</button>
+                  </form>
+                </div>
+                
+
+           
+        </div>
+      </div>
+  </div>

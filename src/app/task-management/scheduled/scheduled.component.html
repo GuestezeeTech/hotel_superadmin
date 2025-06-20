@@ -1,0 +1,26 @@
+<table class="scheduled-table table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Room No</th>
+            <th>Service</th>
+            <th>Department</th>
+            <th>Order Time</th>
+            <th>Scheduled Time</th>
+            <th>Add Assignee</th>
+            <th>Assignee</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let order of scheduledOrders">
+            <td >{{ order.name }}</td>
+            <td>{{ order.roomNo }}</td>
+            <td>{{ order.service }}</td>
+            <td>{{ order.department }}</td>
+            <td>{{ order.orderTime }}</td>
+            <td style="color: #E70909">{{ order.escalateTime }}</td>
+            <td ><button [disabled]="!order.isAssigned" style="color: #545460; border: none !important; cursor: pointer; background-color: white !important; text-decoration: underline;" (click)="onAddAssignee(order)">{{ order.action }}</button></td>
+            <td>{{ order.assignee }}</td>
+        </tr>
+    </tbody>
+</table>

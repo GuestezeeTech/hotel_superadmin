@@ -1,0 +1,32 @@
+<div class="container">
+    <div class="card" *ngFor="let data of ecomData">
+        <div style="display: flex;" (click)="viewDetails(data.id)">
+            <div>
+                <!-- <i class="fas fa-lock icon" style="color: #ffcc00;"></i> -->
+                 <img src="../../../assets/images/guestezee/lock.png">
+                <i class="fas fa-cog settings outlined-icon" style="font-size: 26px;    font-weight: 600;"></i>
+             
+
+            </div>
+        </div>
+        <div style="display: flex;justify-content: space-between;margin-top: 5%;">
+             
+            <h5>{{data.name}}</h5>
+            <label class="switch">
+                <input type="checkbox" [checked]="data.enabled === true"  (change)="onToggleActive($event, data)">
+                <span class="slider round"></span>
+              </label>
+      
+        
+    </div>
+    </div>
+  
+
+    
+    <!-- <div class="card">
+    
+        <h5>Square</h5>
+        <i class="fas fa-cog settings"></i>
+        <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+    </div> -->
+</div>

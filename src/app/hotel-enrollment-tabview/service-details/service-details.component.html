@@ -1,0 +1,85 @@
+<app-alerts></app-alerts>
+
+<div class="section">
+    <h3 style="font-size: 20px;font-weight: 600;">Hotel Services <a style="font-size: 14px;color: #A0A0A0;">(click on the services you won't provide in your Hotel)</a></h3>
+    <div class="container mt-5">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs flex-wrap custom_tablist_color" id="myTabs" role="tablist">
+          <li class="nav-item Custom-tab-spacing" role="presentation">
+            <a class="nav-link active" id="general-tab" data-toggle="tab" href="#generalservices" role="tab" aria-controls="generalservices" aria-selected="true" (click)="firstTabCount()">General Services</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link Custom-tab-spacing" id="inroom-tab" data-toggle="tab" href="#amenities" role="tab" aria-controls="amenities" aria-selected="false" (click)="tabCount()">In Room Amenities</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link Custom-tab-spacing" id="other-tab" data-toggle="tab" href="#otherservices" role="tab" aria-controls="otherservices" aria-selected="false"   (click)="thirdTabCount()">Other Services</a>
+          </li>
+         
+        </ul>
+      
+        <!-- Tab Content -->
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="generalservices" role="tabpanel" aria-labelledby="generalservices-tab">
+            <div class="services-container" >
+                <div class="service-item " *ngFor="let service of getServicesByType('FO')"
+                [class.selected]="isSelected(service.id)"
+                (click)="GetSelectedService(service.name)"
+                  >
+                  {{ service.name }}</div>
+                
+            </div>
+            <h3 style="font-size: 20px;font-weight: 600;">Exempted Services <a style="font-size: 14px;color: #A0A0A0;">(click on the services you won't provide in your Hotel)</a></h3>
+            <div class="services-container" >
+              <div class="service-item " *ngFor="let service of apiSelectedServices"   [class.selected]="isServiceActive(service)"
+              
+             
+                >
+                {{ service.name }}</div>
+              
+          </div>
+          </div>
+          <div class="tab-pane fade" id="amenities" role="tabpanel" aria-labelledby="profile-tab">
+            <div class="services-container">
+             
+              <div class="service-item" *ngFor="let service of getServicesByType('EHK')"   [class.selected]="isSelected(service.id)"
+              (click)="GetSelectedService(service.names)">{{ service.name }}</div>
+            
+          </div>
+          <h3 style="font-size: 20px;font-weight: 600;">Exempted Services <a style="font-size: 14px;color: #A0A0A0;">(click on the services you won't provide in your Hotel)</a></h3>
+          <div class="services-container" >
+            <div class="service-item " *ngFor="let service of apiSelectedServices"  [class.selected]="isServiceTypeIIActive(service)"
+           
+            
+              >
+              {{ service.name }}</div>
+            
+        </div>
+          </div>
+          <div class="tab-pane fade" id="otherservices" role="tabpanel" aria-labelledby="contact-tab">
+          
+              <div class="services-container" >
+                <div class="service-item " *ngFor="let service of getServicesByType('Other')"
+                [class.selected]="isSelected(service.id)"
+                (click)="GetSelectedService(service.names)"
+                  >
+                  {{ service.name }}</div>
+          </div>
+          <h3 style="font-size: 20px;font-weight: 600;">Exempted Services <a style="font-size: 14px;color: #A0A0A0;">(click on the services you won't provide in your Hotel)</a></h3>
+          <div class="services-container" >
+            <div class="service-item " *ngFor="let service of apiSelectedServices"
+            [class.selected]="isServiceTypeIIIActive(service)"
+           
+              >
+              {{ service.name }}</div>
+            
+        </div>
+           
+       
+       
+        </div>
+    </div>
+   
+    <div style="display: flex;justify-content: flex-end;">
+      <button type="submit" class="cancel_bt" >cancel</button>&nbsp;&nbsp;
+      <button type="submit" class="save_bt"  (click)="customerUpdate()"  >Save & Continue</button>
+     </div>

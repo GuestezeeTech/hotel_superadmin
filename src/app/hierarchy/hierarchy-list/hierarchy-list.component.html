@@ -1,0 +1,70 @@
+
+
+<div class="main" style="    margin-left: 18%;
+    margin-top: 2%;">
+ 
+
+  
+    <div class="centered-container">
+
+
+<div class="section">
+     <button type="button" class="save_bt" style="float: right;" (click)="createNewHierarchy()">Create New Hierarchy</button>
+  <div class="row row-cols-1 row-cols-md-3 g-5 mb-5">
+
+
+    
+    <div class="col" *ngFor="let hierarchy of allhierarchyData">
+      <div class="card h-100 text-center" style="margin-top: 13%;"
+        >
+
+        <div class="card-header fw-bold">  {{ hierarchy.name ? hierarchy.name : 'Please add a name' }}</div>
+        <div class="card-body text-start">
+          <button class="isViewBtn button w-100 py-1 my-1 fw-bold" (click)="viewHierarchy(hierarchy.id)">
+            View Hierarchy
+          </button>
+          <button class="isChooseBtn button w-100 py-1 my-1 fw-bold"   data-toggle="modal" data-target="#myModal" (click)="getid(hierarchy.id)"
+          >
+           {{ hierarchy.name ? 'Edit Name' : 'Add' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+  <button type="button" class="cancel_bt">Cancel</button>&nbsp;&nbsp;
+  <button type="button" class="save_bt">Save & Continue</button>
+</div> -->
+</div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h5 class="modal-title">Enter the Hierarchy name</h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+         <div class="form-group">
+  <!-- <label for="usr">Name:</label> -->
+  <input type="text" class="form-control" id="usr"   [(ngModel)]="hierarchyName" name="hierarchyName" placeholder="enter the new name">
+</div>
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="updateHierarchyData()" style="background-color:#800020;color: white;">save</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>

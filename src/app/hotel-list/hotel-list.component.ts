@@ -176,7 +176,10 @@ export class HotelListComponent implements OnInit {
       {
         this.hotellistservice.getCustomerByName(searchBody).subscribe(resp => {
           if (resp.status_code === 200) {
-            this.customerList = resp.result.data;
+            // this.customerList = resp.result.data;
+            this.customerList = resp.result.data.filter(
+              (item: any) => !('staff_employee_number' in item)
+            );
             this.totalPages = resp.result.total_count
           }
           else {

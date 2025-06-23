@@ -1,10 +1,10 @@
-import { Component,OnInit ,Input,OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges } from '@angular/core';
 
 import { AlertsComponent } from '../../shared/alerts/alerts.component';
 
 import { TechnicalInfoService } from '../technical-info.service';
-import {FormGroup, FormControl,FormBuilder,FormArray} from '@angular/forms';
-import {ReactiveFormsModule, Validators} from '@angular/forms';
+import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthTokenService } from '../../auth-services/auth-token.service';
 import { ENDPOINTS } from '../../app.config';
@@ -16,171 +16,86 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 @Component({
   selector: 'app-tech-info-content',
   standalone: true,
-  imports: [AlertsComponent,CommonModule],
+  imports: [AlertsComponent, CommonModule],
   templateUrl: './tech-info-content.component.html',
   styleUrl: './tech-info-content.component.scss'
 })
+
 export class TechInfoContentComponent implements OnChanges {
-    @Input() filterType: string = '';
-  ecomData:any;
-  overallData:any;
-  tech_info_id:any;
-    options = {
+  @Input() filterType: string = '';
+  ecomData: any;
+  overallData: any;
+  tech_info_id: any;
+  options = {
     autoClose: true,
     keepAfterRouteChange: false
   };
-  constructor(
-  private fb:FormBuilder,
-  private authTokenService:AuthTokenService,
-  private technicalInfoService:TechnicalInfoService,
-  private alertService:AlertsService,
-  private router:Router,
-  private route:ActivatedRoute
 
-){}
-ngOnInit(): void {
+  constructor(
+    private fb: FormBuilder,
+    private authTokenService: AuthTokenService,
+    private technicalInfoService: TechnicalInfoService,
+    private alertService: AlertsService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
+
+  ngOnInit(): void {
     //console.log('Filter type changed:', this.filterType);
-     this.route.paramMap.subscribe(params => {
-    const id = params.get('id');
-    //console.log('Reactive ID:', id);
-    this.tech_info_id = Number(id);
-   
-  });
-  this.ecomIntegrationSettingsGetAll();
-   
-  
-}
- ngOnChanges() {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      //console.log('Reactive ID:', id);
+      this.tech_info_id = Number(id);
+    });
+    this.ecomIntegrationSettingsGetAll();
+  }
+
+  ngOnChanges() {
     //console.log('Tab selected:', this.filterType);
     //  this.ecomIntegrationSettingsGetAll();
-     if(this.filterType=="pos"){
-        this.ecomData =  this.overallData.filter((item:any) =>( item.type =="pos" ));
-
-     }
-     if(this.filterType=="P"){
-        this.ecomData =  this.overallData.filter((item:any) =>(item.type =="lock" ));
-
-     }
-     if(this.filterType=="SMS"){
-        this.ecomData =  this.overallData.filter((item:any) =>( item.type =="SMS"));
-
-     }
-       if(this.filterType=="Payment"){
-        this.ecomData =  this.overallData.filter((item:any) =>( item.type =="Payment"));
-
-     }
-     if(this.filterType=="other"){
-        this.ecomData =  this.overallData.filter((item:any) =>( item.type =="Payment"));
-
-     }
-    // Call filtering logic here
-  }
-ecomIntegrationSettingsGetAll(){
-
-    
-  return new Promise((resolve, reject) => {
-    let requestBody = {
-      domain_name: this.authTokenService.getDomain(),
-      user_id: this.authTokenService.getUserId(),
-      extras: {
-        find: {
-          customer_id: this.tech_info_id
-        }
-      }
-    };
-
-    this.technicalInfoService.apiCall(requestBody,ENDPOINTS.GET_ALL_API_INT_SETTINGS).subscribe(
-      resp => {
-       
-        if (resp) {
-          let respdata =  resp.result.data[0].customer_technical_info;
-          this.overallData= resp.result.data[0].customer_technical_info;
-          //console.log(respdata,"respdata");
-         
-          this.ecomData = respdata.filter((item:any) => item.type ==this.filterType);
-        
-          //console.log( this.ecomData," this.ecomData")
-          
-        
-     
-
-
-
-    
-
-          
-        
-         
-        }
-      },
-      err => {
-        // this.loaderService.emitComplete();
-        if (err.error.statusCode === 403) {
-          this.alertService.error('Session Time Out! Please login Again', this.options);
-          this.router.navigate([`/login`], { skipLocationChange: false });
-        } else if (err.error.message) {
-          this.alertService.error(err.error.message, this.options);
-        } else {
-          this.alertService.error('Something bad happened. Please try again!', this.options);
-        }
-        reject(err);  // Reject promise if there is an error
-      }
-    );
-  });
-
-
-
-
-}
-viewDetails(id:number){
-   this.router.navigate(['/edit-tech-info',id])
-}
-onToggleActive(event: Event, item: any): void {
-  const isChecked = (event.target as HTMLInputElement).checked;
-
-  const updatedData = {
-    ...item,
-    is_active: isChecked
-  };
-
-  // Call your update API here
-  this.updateItemStatus(updatedData,updatedData.id);
-}
-updateItemStatus(updatedData: any,id:number): void {
-  delete updatedData._id
-
-          let createobj =
-      {
-     domain_name: this.authTokenService.getDomain(),
-      user_id: this.authTokenService.getUserId(),
-    "payload": {
-        updatedData
-    },
-    "extras": {
-        "find": {
-            "id": id
-        }
+    if (this.filterType == "pos") {
+      this.ecomData = this.overallData.filter((item: any) => (item.type == "pos"));
     }
-}
+    if (this.filterType == "lock") {
+      this.ecomData = this.overallData.filter((item: any) => (item.type == "lock"));
+    }
+    // Newly changed & commented
+    if (this.filterType == "other") {
+      this.ecomData = this.overallData.filter((item: any) => (item.type == "other"));
+    }
+    // if (this.filterType == "SMS") {
+    //   this.ecomData = this.overallData.filter((item: any) => (item.type == "SMS"));
+    // }
+    // if (this.filterType == "Payment") {
+    //   this.ecomData = this.overallData.filter((item: any) => (item.type == "Payment"));
+    // }
+    // Call filtering logic here
+    console.log('Filtered Data:', this.ecomData);
+  }
 
-this.technicalInfoService.apiCall(createobj,ENDPOINTS.EDIT_APIINTEGRATION_SETTINGS).subscribe(
-        resp => {
-       //console.log("test","123")
-          if (resp) {
-           
-              this.router.navigate(['/tech-info-list'])
-           
-      
-      
-  
-            
-          
-        
+  ecomIntegrationSettingsGetAll() {
+    return new Promise((resolve, reject) => {
+      let requestBody = {
+        domain_name: this.authTokenService.getDomain(),
+        user_id: this.authTokenService.getUserId(),
+        extras: {
+          find: {
+            customer_id: this.tech_info_id
           }
-
+        }
+      };
+      this.technicalInfoService.apiCall(requestBody, ENDPOINTS.GET_ALL_API_INT_SETTINGS).subscribe(
+        resp => {
+          if (resp) {
+            let respdata = resp.result.data[0].customer_technical_info;
+            this.overallData = resp.result.data[0].customer_technical_info;
+            //console.log(respdata,"respdata");
+            this.ecomData = respdata.filter((item: any) => item.type == this.filterType);
+            //console.log( this.ecomData," this.ecomData");
+          }
         },
         err => {
-        
+          // this.loaderService.emitComplete();
           if (err.error.statusCode === 403) {
             this.alertService.error('Session Time Out! Please login Again', this.options);
             this.router.navigate([`/login`], { skipLocationChange: false });
@@ -189,9 +104,75 @@ this.technicalInfoService.apiCall(createobj,ENDPOINTS.EDIT_APIINTEGRATION_SETTIN
           } else {
             this.alertService.error('Something bad happened. Please try again!', this.options);
           }
-         
+          reject(err);  // Reject promise if there is an error
         }
       );
-  // Replace with your actual API service
-}
+    });
+
+
+
+
+  }
+  viewDetails(id: number) {
+    this.router.navigate(['/edit-tech-info', id])
+  }
+  onToggleActive(event: Event, item: any): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+
+    const updatedData = {
+      ...item,
+      is_active: isChecked
+    };
+
+    // Call your update API here
+    this.updateItemStatus(updatedData, updatedData.id);
+  }
+  updateItemStatus(updatedData: any, id: number): void {
+    delete updatedData._id
+
+    let createobj =
+    {
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      "payload": {
+        updatedData
+      },
+      "extras": {
+        "find": {
+          "id": id
+        }
+      }
+    }
+
+    this.technicalInfoService.apiCall(createobj, ENDPOINTS.EDIT_APIINTEGRATION_SETTINGS).subscribe(
+      resp => {
+        //console.log("test","123")
+        if (resp) {
+
+          this.router.navigate(['/tech-info-list'])
+
+
+
+
+
+
+
+        }
+
+      },
+      err => {
+
+        if (err.error.statusCode === 403) {
+          this.alertService.error('Session Time Out! Please login Again', this.options);
+          this.router.navigate([`/login`], { skipLocationChange: false });
+        } else if (err.error.message) {
+          this.alertService.error(err.error.message, this.options);
+        } else {
+          this.alertService.error('Something bad happened. Please try again!', this.options);
+        }
+
+      }
+    );
+    // Replace with your actual API service
+  }
 }

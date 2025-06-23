@@ -22,8 +22,9 @@
     </ul>
 
     <!-- Tab Content -->
-    <div class="tab-content" id="myTabContent" >
-      <div class="tab-pane fade show active disabled-section" id="generalservices" role="tabpanel" aria-labelledby="generalservices-tab" >
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active disabled-section" id="generalservices" role="tabpanel"
+        aria-labelledby="generalservices-tab">
         <div class="services-container">
           <div class="service-item " *ngFor="let service of getServicesByType('FO')"
             [class.selected]="isSelected(service.id)" (click)="GetSelectedService(service.name)">
@@ -82,6 +83,7 @@
   <!-- Newly commented & added -->
   <!-- <button type="submit" class="cancel_bt" >cancel</button>&nbsp;&nbsp; -->
   <!-- <button type="submit" class="save_bt"  (click)="customerUpdate()"  >Save & Continue</button> -->
-   <button type="submit" class="save_bt" *ngIf="this.activeTab == 1 || this.activeTab == 2" (click)="nextTab()">Next Service</button>
+  <button type="submit" class="save_bt" *ngIf="this.activeTab == 1 || this.activeTab == 2" (click)="nextTab()">Next
+    Service</button>
   <button type="submit" class="save_bt" *ngIf="this.activeTab == 3" (click)="nextTab()">Next Tab</button>
 </div>

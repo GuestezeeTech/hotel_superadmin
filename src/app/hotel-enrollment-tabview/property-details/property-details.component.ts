@@ -706,4 +706,11 @@ export class PropertyDetailsComponent {
     }
   }
 
+  previousTab() {
+    let nextTab = document.getElementById('home-tab');
+    if (nextTab) {
+      (nextTab as HTMLAnchorElement).click();
+    }
+  }
+
 }

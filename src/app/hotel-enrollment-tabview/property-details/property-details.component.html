@@ -1,5 +1,4 @@
 <app-alerts></app-alerts>
-
 <form [formGroup]="customerProprtyDetailsForm" (ngSubmit)="onSubmit()">
   <div class="section">
     <h3 style="font-size: 20px;font-weight: 600;">Contact Details</h3>
@@ -76,18 +75,11 @@
           Brand / Franchise is required.
         </span>
       </div>
-
-
-
-
-
     </div>
   </div>
-
   <div class="section">
     <h3 style="font-size: 20px;font-weight: 600;">Property Address</h3>
     <div style="display: grid;grid-template-columns: repeat(3, 1fr);row-gap: 3%;">
-
       <div class="form-group form1_div">
         <label>Door No</label>
         <input class="input_box" type="text" formControlName="property_doorno" />
@@ -104,13 +96,10 @@
           Address is required.
         </span>
       </div>
-
-
       <div class="form-group form1_div">
         <label>Country</label>
         <select class="input_box" formControlName="property_country" (click)="onItemsSelect($event)">
           <option *ngFor="let country of countryDropdownList" [value]="country.country">{{country.country}}</option>
-
         </select>
         <span
           *ngIf="customerProprtyDetailsForm.controls['property_country'].invalid && customerProprtyDetailsForm.controls['property_country'].touched">
@@ -121,7 +110,6 @@
         <label>State</label>
         <select class="input_box" formControlName="property_state">
           <option *ngFor="let states of statesDropdownList" [value]="states.state">{{states.state}}</option>
-
         </select>
         <span
           *ngIf="customerProprtyDetailsForm.controls['property_state'].invalid && customerProprtyDetailsForm.controls['property_state'].touched">
@@ -159,12 +147,6 @@
           Pincode is required
         </span>
       </div>
-
-
-
-
-
-
     </div>
   </div>
   <div class="section">
@@ -188,12 +170,6 @@
           ❌ Invalid GST Format (e.g., 27ABCDE1234F1Z5)
         </div>
       </div>
-
-
-
-
-
-
     </div>
   </div>
   <div class="section">
@@ -227,11 +203,6 @@
           <label class="form-check-label" for="radio1"></label>
         </div>
       </div>
-
-
-
-
-
     </div>
   </div>
   <div class="section" *ngIf="customerdata?.property_details?.kyc_documents?.uploaded_documents.length > 0">
@@ -244,16 +215,9 @@
           <label class="form-check-label" for="radio1"
             *ngFor="let doc of customerdata?.property_details?.kyc_documents?.uploaded_documents"
             style="display: flex;">{{doc.document_name}} -&nbsp; <a href="{{doc.document_url}}">download</a>
-
           </label>
         </div>
       </div>
-
-
-
-
-
-
     </div>
   </div>
   <div class="section" *ngIf="customerdata?.property_details?.kyc_documents?.uploaded_documents?.length ==undefined">
@@ -262,30 +226,20 @@
       <div class="form-group form1_div">
         <div class="form-check" style="line-height: 2.5rem;">
           <label class="form-check-label" for="radio1">Company status - Not Yet Uploaded
-            <!-- <label class="form-check-label" for="radio1" *ngFor="let doc of customerdata?.property_details?.kyc_documents?.uploaded_documents" style="display: flex;">{{doc.document_name}} -&nbsp; <a href="{{doc.document_url}}">download</a>
- -->
+            <!-- <label class="form-check-label" for="radio1" *ngFor="let doc of customerdata?.property_details?.kyc_documents?.uploaded_documents" style="display: flex;">{{doc.document_name}} -&nbsp; <a href="{{doc.document_url}}">download</a>-->
           </label>
         </div>
       </div>
-
-
-
-
-
-
     </div>
   </div>
-
   <div style="display: flex;justify-content: flex-end;">
     <!-- Newly commented & added -->
     <!-- <button type="submit" class="cancel_bt" (click)="cancel()">cancel</button>&nbsp;&nbsp; -->
     <!-- <button type="submit" class="save_bt"  (click)="onSubmit()"  [disabled]="customerProprtyDetailsForm.invalid">Next</button> -->
+    <button type="submit" class="save_bt mr-3" (click)="previousTab()">Previous Tab</button>
     <button type="submit" class="save_bt" (click)="nextTab()">Next Tab</button>
   </div>
 </form>
-
-
-
 <div class="popup-overlay" *ngIf="isVisible">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content confetti-background">

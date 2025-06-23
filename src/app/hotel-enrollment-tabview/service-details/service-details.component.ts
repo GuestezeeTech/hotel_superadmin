@@ -430,4 +430,26 @@ export class ServiceDetailsComponent implements OnInit {
     }
   }
 
+  previousTab() {
+    if (this.activeTab == 1) {
+      let nextTab = document.getElementById('profile-tab');
+      if (nextTab) {
+        (nextTab as HTMLAnchorElement).click();
+      }
+    }
+    else if (this.activeTab == 2) {
+      var tab = document.getElementById("general-tab")
+      if (tab != undefined) {
+        tab.click();
+      }
+    }
+    else {
+      let nextTab = document.getElementById('inroom-tab');
+      if (nextTab) {
+        (nextTab as HTMLAnchorElement).click();
+      }
+    }
+
+  }
+
 }

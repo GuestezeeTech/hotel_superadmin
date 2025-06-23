@@ -83,7 +83,9 @@
   <!-- Newly commented & added -->
   <!-- <button type="submit" class="cancel_bt" >cancel</button>&nbsp;&nbsp; -->
   <!-- <button type="submit" class="save_bt"  (click)="customerUpdate()"  >Save & Continue</button> -->
+  <button type="submit" class="save_bt mr-3"  *ngIf="this.activeTab == 1 " (click)="previousTab()">Previous Tab</button>
+  <button type="submit" class="save_bt mr-3"  *ngIf="this.activeTab == 2 || this.activeTab == 3" (click)="previousTab()">Previous Service Tab</button>
   <button type="submit" class="save_bt" *ngIf="this.activeTab == 1 || this.activeTab == 2" (click)="nextTab()">Next
-    Service</button>
+    Service Tab</button>
   <button type="submit" class="save_bt" *ngIf="this.activeTab == 3" (click)="nextTab()">Next Tab</button>
 </div>

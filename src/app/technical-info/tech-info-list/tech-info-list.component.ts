@@ -53,6 +53,26 @@ export class TechInfoListComponent {
     }
   }
 
+  previousTab() {
+    switch (this.activeTab) {
+      case 1:
+        let nextTab = document.getElementById('contact-tab2');
+        if (nextTab) {
+          (nextTab as HTMLAnchorElement).click();
+        }
+        break;
+      case 2:
+        this.selectTab('lock');
+        this.firstTabCount();
+        break;
+      case 3:
+        this.selectTab('pos');
+        this.secondTabCount();
+    }
+
+  }
+
+
   addTechnicalInfo() {
     this.router.navigate(['/add-technical-info'])
   }

@@ -82,7 +82,7 @@ export class PaymentDetailsComponent implements OnInit {
     this.paymentDetailsService.orderDetailsGetById(requestData).subscribe(
       resp => {
         if (resp) {
-          this.orderData = resp.result.data.filter((order:any) => order.status === "Confirmed");
+          this.orderData = resp.result.data.filter((order:any) => order.status === "Order Confirmed");
           this.hotelId = resp.result.data[0].customer_id;
           this.getCustomerById();
         }
@@ -113,7 +113,7 @@ export class PaymentDetailsComponent implements OnInit {
            
             
   
-            //console.log(this.customerdata, "RESPDATA");
+            console.log(this.customerdata, "RESPDATA");
             //console.log(Array.isArray(this.customerdata)); 
            
           }
@@ -134,7 +134,7 @@ export class PaymentDetailsComponent implements OnInit {
     });
   }
   downloadInvoice(id:number){
-      window.open("https://guestezee.ecbee.net:5520/api/Email/DownloadEnrollmentInvoicePdf?domain_name=" + this.authTokenService.getDomain() + "&order_id=" + id + "", '_blank')
+      window.open("https://www.guestezee.com:5520/api/Email/DownloadEnrollmentInvoicePdf?domain_name=" + this.authTokenService.getDomain() + "&order_id=" + id + "", '_blank')
 
   }
 

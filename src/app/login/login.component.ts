@@ -74,9 +74,9 @@ export class LoginComponent implements OnInit {
       this.validateForm = false;
       this.loginData = {
         domain_name: DOMAIN_NAME,
-        // username: this.loginForm.value.email,
-       username: this.loginForm.value.email + '-' + DOMAIN_NAME
-        ,
+        username: this.loginForm.value.email,
+      //  username: this.loginForm.value.email + '-' + DOMAIN_NAME
+      //   ,
 
         password: this.loginForm.value.password
       }

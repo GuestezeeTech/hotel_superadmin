@@ -72,7 +72,8 @@ export class PaymentListComponent implements OnInit{
           this.paymentListService.getAllOrderDetails(requestData).subscribe(
             resp => {
               if (resp) {
-                this.orderData = resp.result.data.filter((order:any) => order.status === "Confirmed");
+                this.orderData = resp.result.data.filter((order:any) => order.status === "Order Confirmed");
+                // console.log('this.orderData', this.orderData);
                 // Create a Map to track the latest order per customer
                 const latestOrdersMap = new Map();
 
@@ -460,7 +461,7 @@ const output = `${startYear} - ${endYear}`;
           this.paymentListService.apiCall(requestData,ENDPOINTS.GET_ORDER_BY_ID).subscribe(
             resp => {
               if (resp) {
-                this.customerOrderData = resp.result.data.filter((order:any) => order.status === "Confirmed");
+                this.customerOrderData = resp.result.data.filter((order:any) => order.status === "Order Confirmed");
                 //console.log( this.customerOrderData,"this.customerOrderData");
                 const latestOrder =  this.customerOrderData.reduce((latest, order) => 
   new Date(order.orderConfirmDate) > new Date(latest.orderConfirmDate) ? order : latest

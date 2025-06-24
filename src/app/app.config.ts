@@ -6,10 +6,11 @@ import { routes } from './app.routes';
 import { environment } from '../environments/environment.prod';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes),provideHttpClient() ]
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient()]
 };
 export const API_URL = environment.devURL
-export const DOMAIN_NAME = "https://guestezee.ecbee.net"
+export const API_URL1 = "https://www.guestezee.com"
+export const DOMAIN_NAME = "https://www.guestezee.com"
 export const ENDPOINTS = {
   GETNEWACCESSTOKEN: API_URL + ':5200/refreshtoken',
   VARIABLES: API_URL + ':5413/variables/create',
@@ -486,35 +487,35 @@ export const ENDPOINTS = {
   GET_ALL_EVENTELIGIBILITY: API_URL + ':6993/eligibility/getall',
   FORMS_GETALL: API_URL + ':6899/forms/getall',
   ORDER_UPDATION: API_URL + ':5456/order/upsert',
-  HDFC_PAYMENT : API_URL + ":5621/api/payment/generateHDFCLink",
-  GETBYID_ORDERS: API_URL+':9475/order/getbyid',
-  DELETE_CUSTOMER:API_URL+":5430/customer/delete",
+  HDFC_PAYMENT: API_URL + ":5621/api/payment/generateHDFCLink",
+  GETBYID_ORDERS: API_URL + ':9475/order/getbyid',
+  DELETE_CUSTOMER: API_URL + ":5430/customer/delete",
 
 
 
 
   //newly added services
-  CREATE_SERVICE: API_URL+':7780/services/create',
-  UPDATE_SERVICE: API_URL+':7780/services/update',
-  DELETE_SERVICE: API_URL+':7780/services/delete',
-  GETALL_SERVICE: API_URL+':9979/services/getall',
-  GETBYID_SERVICE: API_URL+':9979/services/getbyid',
+  CREATE_SERVICE: API_URL1 + ':7780/services/create',
+  UPDATE_SERVICE: API_URL1 + ':7780/services/update',
+  DELETE_SERVICE: API_URL1 + ':7780/services/delete',
+  GETALL_SERVICE: API_URL1 + ':9979/services/getall',
+  GETBYID_SERVICE: API_URL1 + ':9979/services/getbyid',
 
-   CREATE_HIERARCHY: API_URL+':3391/hierarchy/create',
-   UPDATE_HIERARCHY: API_URL+':3391/hierarchy/update',
-   DELETE_HIERARCHY: API_URL+':3391/hierarchy/delete',
-   GETALL_HIERARCHY: API_URL+':3390/hierarchy/getall',
-   GETBYID_HIERARCHY: API_URL+':3390/hierarchy/getbyid',
-
-
-
-  ADD_RENEWAL: API_URL+':3391/hierarchy/create',
-  UPDATE_RENEWAL: API_URL+':3391/hierarchy/update',
-  DELETE_RENEWAL: API_URL+':3391/hierarchy/delete',
-  GETALL_RENEWAL: API_URL+':3390/hierarchy/getall',
-  GETBYID_RENEWAL: API_URL+':3390/hierarchy/getbyid',
+  CREATE_HIERARCHY: API_URL1 + ':3391/hierarchy/create',
+  UPDATE_HIERARCHY: API_URL1 + ':3391/hierarchy/update',
+  DELETE_HIERARCHY: API_URL1 + ':3391/hierarchy/delete',
+  GETALL_HIERARCHY: API_URL1 + ':3390/hierarchy/getall',
+  GETBYID_HIERARCHY: API_URL1 + ':3390/hierarchy/getbyid',
 
 
-  GET_LOGIN_CUSTOMER: API_URL + ':9526/customer/getbyid',
+
+  ADD_RENEWAL: API_URL1 + ':3391/hierarchy/create',
+  UPDATE_RENEWAL: API_URL1 + ':3391/hierarchy/update',
+  DELETE_RENEWAL: API_URL1 + ':3391/hierarchy/delete',
+  GETALL_RENEWAL: API_URL1 + ':3390/hierarchy/getall',
+  GETBYID_RENEWAL: API_URL1 + ':3390/hierarchy/getbyid',
+
+
+  GET_LOGIN_CUSTOMER: API_URL1 + ':9526/customer/getbyid',
 
 }

@@ -102,7 +102,8 @@ export class LoginComponent implements OnInit {
               this.localService.set('domainName', resp.user.domain_name);
               this.router.navigate([`/hotel-list`], { skipLocationChange: false });
 
-              
+              // Newly added
+              this.localService.set('password', this.loginForm.value.password);
             
               this.getUserRolesAndAccess(resp.user.id).then(
                 respData => {

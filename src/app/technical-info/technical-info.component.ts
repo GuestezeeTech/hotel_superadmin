@@ -126,7 +126,7 @@ constructor(
             "type": this.techInfoForm.get('type')?.value,
             "title":this.techInfoForm.get('name')?.value,
             "api_url":this.techInfoForm.get('api_url')?.value,
-            "is_enabled":this.techInfoForm.get('is_enabled')?.value,
+            "is_enabled":this.techInfoForm.get('is_enable')?.value,
             "logo":   this.service_image,
             "description": "",
             "attributes": this.techInfoDataForm.value.technicalInfo
@@ -163,6 +163,8 @@ this.technicalInfoService.apiCall(createobj,ENDPOINTS.CREATE_APIINTEGRATION_SETT
           } else if (err.error.message) {
             this.alertService.error(err.error.message, this.options);
           } else {
+            console.log('Err:', err.error.message)
+            console.log('Err1:', err)
             this.alertService.error('Something bad happened. Please try again!', this.options);
           }
          
@@ -185,7 +187,7 @@ this.technicalInfoService.apiCall(createobj,ENDPOINTS.CREATE_APIINTEGRATION_SETT
             "type": this.techInfoForm.get('type')?.value,
             "title":this.techInfoForm.get('name')?.value,
             "api_url":this.techInfoForm.get('api_url')?.value,
-            "is_enabled":this.techInfoForm.get('is_enabled')?.value,
+            "is_enabled":this.techInfoForm.get('is_enable')?.value,
             "logo":   this.service_image,
             "description": "",
             "attributes": this.techInfoDataForm.value.technicalInfo

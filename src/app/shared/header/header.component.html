@@ -4,19 +4,13 @@
       <img src="../../../assets/images/guestezee/menu.png" alt="Menu Icon">&nbsp;&nbsp;{{selectedMenu }}
     </h1>
   </div>
- 
   <!-- User Info Section -->
   <div class="user-info d-flex align-items-center"  #userInfo>
     <img class="notification-icon" src="../../../assets/images/guestezee/notify.png" alt="Notification" (click)="toggleNotification()">
-   
       <img class="profile-icon" [src]="profile_image" alt="Profile" class="rounded-circle border"
       style="width: 40px; height: 40px; object-fit: cover;cursor: pointer;" (click)="toggleLogout()">
- 
- 
- 
-    <span class="username d-none d-md-inline;cursor: pointer;" (click)="toggleLogout()">{{profile_name}}</span> <!-- Display username only on medium screens and larger -->
+    <span class="username d-md-inline;cursor: pointer;" (click)="toggleLogout()">{{profile_name}}</span> 
   </div>
- 
   <div *ngIf="showAccount" class="position-absolute profile-settings border rounded-3 shadow-sm  mt-2" style="top: 90%; right: 1.5%; width: 10%; background-color: #fff;    z-index: 1000;">
     <button class="btn d-flex align-items-center shadow-none border-0 pt-2 ps-2 pe-3" (click)="navigateToProfile()">
       <i class="fas fa-user-circle me-2" style="color: #800020; font-size: 15px;"></i>
@@ -27,6 +21,6 @@
       <span style="font-size: 15px; font-weight: 600;">Logout</span>
     </button>
   </div>
- 
+
 </header>
 <app-notification *ngIf="showNotification" (close)="toggleNotification()"></app-notification>

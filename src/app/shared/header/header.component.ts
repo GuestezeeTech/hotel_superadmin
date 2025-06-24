@@ -52,6 +52,7 @@ export class HeaderComponent implements OnInit {
     this.profileService.profileName$.subscribe(name => {
       this.profile_name = name;
     });
+    
  
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))

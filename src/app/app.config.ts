@@ -154,7 +154,7 @@ export const ENDPOINTS = {
   GET_ALL_USERS: API_URL + ":9400/user/getall",
   GET_USERS_BY_ID: API_URL + ":9400/user/getbyid",
   UPDATE_USER: API_URL + ":5403/user/update",
-  UPDATE_PASSWORD: API_URL + ":5403/user/updatepassword",
+  UPDATE_PASSWORD: API_URL + ":5403/user/update",
   UPDATE_PASSWORD1: API_URL + ":5447/customer/ams-forgot-password",
   DELETE_USER: API_URL + ":5403/user/delete",
   CHECK_EXISTINGUSER: API_URL + ":9978/ams/check-user",

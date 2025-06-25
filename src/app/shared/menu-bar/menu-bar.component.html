@@ -35,10 +35,10 @@
       </li> -->
 
 
-    <!-- <li  class="list_container" [class.active]="isSystemSettingsActive()"  *ngIf="userAccess?.SYSTEMSETTINGS?.has_read_permission==true"  >
+    <li  class="list_container" [class.active]="isSystemSettingsActive()"  *ngIf="userAccess?.SYSTEMSETTINGS?.has_read_permission==true"  >
           
            <img src="../../assets/images/guestezee/setting.png" >
-           <a  (click)="sendValue('System Settings')" style="white-space: nowrap;"   data-toggle="collapse" data-target="#sys_settings">System Settings</a> -->
+           <a  (click)="sendValue('System Settings')" style="white-space: nowrap;"   data-toggle="collapse" data-target="#sys_settings">System Settings</a>
     <!-- @if (isSubmenuOpen) {
             <ul  class="submenu">
               <li><a href="#" (click)="sendValue('General Settings')">General Settings</a></li>
@@ -48,8 +48,8 @@
            }
             -->
 
-    <!-- </li> -->
-    <!-- <li id="sys_settings" class="collapse sub-menu" style="text-align: center" >
+    </li>
+    <li id="sys_settings" class="collapse sub-menu" style="text-align: center" >
           <div class="submenu">
           <a class="submenu-item"></a>
           <a class="submenu-item"></a>
@@ -57,7 +57,7 @@
           <a  class="submenu-item" routerLink="/hierarchy-list" style=" color: #B1B1B1"   (click)="sendValue('Hierarchy')">Hierarchy</a>
           <a  class="submenu-item" routerLink="/add-technical-info" style=" color: #B1B1B1"   (click)="sendValue('Technical Info')">Technical Info</a>
       </div>
-    </li> -->
+    </li>
     <!-- 
     <li class="list_container" [class.active]="isHotelActive()">
       <img src="../../assets/images/guestezee/bookings.png">

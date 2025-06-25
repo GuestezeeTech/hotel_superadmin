@@ -20,7 +20,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   templateUrl: './tech-info-content.component.html',
   styleUrl: './tech-info-content.component.scss'
 })
-
 export class TechInfoContentComponent implements OnChanges {
   @Input() filterType: string = '';
   ecomData: any;
@@ -30,7 +29,6 @@ export class TechInfoContentComponent implements OnChanges {
     autoClose: true,
     keepAfterRouteChange: false
   };
-
   constructor(
     private fb: FormBuilder,
     private authTokenService: AuthTokenService,
@@ -38,60 +36,82 @@ export class TechInfoContentComponent implements OnChanges {
     private alertService: AlertsService,
     private router: Router,
     private route: ActivatedRoute
-  ) { }
 
+  ) { }
   ngOnInit(): void {
-    //console.log('Filter type changed:', this.filterType);
+    console.log('Filter type changed:', this.filterType);
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
-      //console.log('Reactive ID:', id);
+      console.log('Reactive ID:', id);
       this.tech_info_id = Number(id);
+
     });
     this.ecomIntegrationSettingsGetAll();
-  }
 
+
+  }
   ngOnChanges() {
-    //console.log('Tab selected:', this.filterType);
-    //  this.ecomIntegrationSettingsGetAll();
+    console.log('Tab selected:', this.filterType);
+    this.ecomIntegrationSettingsGetAll();
     if (this.filterType == "pos") {
       this.ecomData = this.overallData.filter((item: any) => (item.type == "pos"));
+
     }
-    if (this.filterType == "lock") {
+    if (this.filterType == "P" || this.filterType == "lock") {
       this.ecomData = this.overallData.filter((item: any) => (item.type == "lock"));
+
     }
-    // Newly changed & commented
+    if (this.filterType == "SMS") {
+      this.ecomData = this.overallData.filter((item: any) => (item.type == "SMS"));
+
+    }
+    if (this.filterType == "Payment") {
+      this.ecomData = this.overallData.filter((item: any) => (item.type == "Payment"));
+
+    }
     if (this.filterType == "other") {
       this.ecomData = this.overallData.filter((item: any) => (item.type == "other"));
-    }
-    // if (this.filterType == "SMS") {
-    //   this.ecomData = this.overallData.filter((item: any) => (item.type == "SMS"));
-    // }
-    // if (this.filterType == "Payment") {
-    //   this.ecomData = this.overallData.filter((item: any) => (item.type == "Payment"));
-    // }
-    // Call filtering logic here
-    console.log('Filtered Data:', this.ecomData);
-  }
 
+    }
+    // Call filtering logic here
+  }
   ecomIntegrationSettingsGetAll() {
+
+
     return new Promise((resolve, reject) => {
       let requestBody = {
         domain_name: this.authTokenService.getDomain(),
         user_id: this.authTokenService.getUserId(),
         extras: {
           find: {
-            customer_id: this.tech_info_id
+            // customer_id: this.tech_info_id
           }
         }
       };
+
       this.technicalInfoService.apiCall(requestBody, ENDPOINTS.GET_ALL_API_INT_SETTINGS).subscribe(
         resp => {
+
           if (resp) {
-            let respdata = resp.result.data[0].customer_technical_info;
-            this.overallData = resp.result.data[0].customer_technical_info;
-            //console.log(respdata,"respdata");
-            this.ecomData = respdata.filter((item: any) => item.type == this.filterType);
-            //console.log( this.ecomData," this.ecomData");
+            let respdata = resp.result.data;
+            this.overallData = respdata.filter((item: any) => (item.customer_id == undefined));;
+
+            console.log(this.overallData, "respdata");
+
+            this.ecomData = this.overallData.filter((item: any) => item.type == this.filterType);
+
+            console.log(this.ecomData, " this.ecomData")
+
+
+
+
+
+
+
+
+
+
+
           }
         },
         err => {
@@ -146,7 +166,7 @@ export class TechInfoContentComponent implements OnChanges {
 
     this.technicalInfoService.apiCall(createobj, ENDPOINTS.EDIT_APIINTEGRATION_SETTINGS).subscribe(
       resp => {
-        //console.log("test","123")
+        console.log("test", "123")
         if (resp) {
 
           this.router.navigate(['/tech-info-list'])

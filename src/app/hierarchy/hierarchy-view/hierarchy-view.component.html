@@ -2,9 +2,9 @@
   <button (click)="onAddRoot()" class="add-root-btn">Add Root Level</button>
 
   <!-- DEBUG: Show raw data -->
-  <pre style="background:#fffbe6; color:#333; padding:10px; border:1px solid #ffe58f; margin-bottom:1rem; max-width:100%; overflow:auto;">
+  <!-- <pre style="background:#fffbe6; color:#333; padding:10px; border:1px solid #ffe58f; margin-bottom:1rem; max-width:100%; overflow:auto;">
     {{ getHierarchyData() | json }}
-  </pre>
+  </pre> -->
 
   <div class="hierarchy-container">
     <ng-template #recursiveCard let-item let-level="level">

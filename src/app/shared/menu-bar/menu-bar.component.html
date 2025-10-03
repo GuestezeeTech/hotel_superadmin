@@ -1,10 +1,10 @@
 <div class="sidenav">
   <hr style="width: 80%;" class="center-hr" /> <!-- Horizontal line below the menu -->
   <ul style="padding: 6px 6px 6px 32px;">
-    <!-- <li class="list_container"  [class.active]="isDashboardActive()" *ngIf="userAccess?.DASHBOARD?.has_read_permission==true" >
+    <li class="list_container"  [class.active]="isDashboardActive()" *ngIf="userAccess?.DASHBOARD?.has_read_permission==true" >
            <img src="../../assets/images/guestezee/layout.png" >
            <a routerLink="/dashboard" (click)="sendValue('Dashboard')">Dashboard</a>
-         </li> -->
+         </li>
     <li class="list_container" [class.active]="isHotelActive()"
       *ngIf="userAccess?.CUSTOMERS?.has_read_permission==true">
       <img src="../../assets/images/guestezee/hotel (2).png">

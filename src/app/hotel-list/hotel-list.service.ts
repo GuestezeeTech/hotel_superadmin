@@ -13,7 +13,8 @@ import { Observable } from 'rxjs';
 })
 export class HotelListService {
   private data = new BehaviorSubject('');
-  currentData = this.data.asObservable()
+  currentData = this.data.asObservable();
+   private baseUrl = 'https://www.guestezee.com:5520/api/Email';
 
   constructor(
     private http: HttpClient,
@@ -73,6 +74,9 @@ export class HotelListService {
   }
   postApiCall(dataObj: any, api_endpoint: any): Observable<any>{
     return this.http.post(api_endpoint, dataObj, { headers: new HttpHeaders().set('Content-Type', 'application/json').set('authorization', 'Bearer ' + this.authTokenService.getAccessAPIToken())});
+  }
+   sendWelcomeEmail(payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/welcometocle`, payload);
   }
 }
 

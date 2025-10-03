@@ -517,5 +517,6 @@ export const ENDPOINTS = {
 
 
   GET_LOGIN_CUSTOMER: API_URL1 + ':9526/customer/getbyid',
+  GET_PROPERTY_SIZE: API_URL + ':1216/propertysize/getall',
 
 }

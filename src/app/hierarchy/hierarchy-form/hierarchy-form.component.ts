@@ -163,6 +163,7 @@ updatedData:any;
      
       const isTopLevelChecked = this.items.at(0).value.isTopLevel;
       if (this.isEditMode && this.editId !== undefined) {
+        console.log("top");
         // Update the item in service
         const all = this.hierarchyService.getHierarchyData();
         const idx = all.findIndex(i => i.id === this.editId);
@@ -177,6 +178,7 @@ updatedData:any;
         }
       } 
       else {
+         console.log("top1")
         if (this.showTopLevelOption && isTopLevelChecked && this.parentId !== undefined) {
        
           //console.log( formData[0].department," formData[0].department")

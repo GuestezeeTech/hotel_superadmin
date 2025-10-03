@@ -1,8 +1,11 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit ,OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // For validating forms
 import Chart from 'chart.js/auto';
 import { Router } from '@angular/router';
+import { AuthTokenService } from '../auth-services/auth-token.service';
+import { DashboardService } from './dashboard.service';
+import { ENDPOINTS } from '../app.config';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,7 +14,11 @@ import { Router } from '@angular/router';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent {
+
+export class DashboardComponent implements OnInit {
+  propertySize:any=[];
+  label:any= ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  visitdata:any=[20, 400, 900, 250, 310, 390, 240];
   hotelReviews = [
     { name: 'Taj Coromandel (Chennai)', date: '12/Feb/2024', rating: 4.5, reviews: '30 Review' },
     { name: 'Novotel', date: '12/Feb/2024', rating: 5.0, reviews: '30 Review' },
@@ -19,12 +26,12 @@ export class DashboardComponent {
     { name: 'Novotel (OMR)', date: '12/Feb/2024', rating: 4.8, reviews: '30 Review' }
   ];
 
-  expiryDetails = [
-    { image: '../../assets/images/guestezee/hotel1.png', hotel: 'Novotel (OMR)', date: '10/Feb/25', isUrgent: true },
-    { image: '../../assets/images/guestezee/hotel2.png', hotel: 'Novotel (ECR)', date: '14/Feb/25', isUrgent: false },
-    { image: '../../assets/images/guestezee/hotel1.png', hotel: 'Pullman (Delhi)', date: '14/Feb/25', isUrgent: false },
-    { image: '../../assets/images/guestezee/hotel2.png', hotel: 'Pullman (Chennai)', date: '14/Feb/25', isUrgent: false },
-    { image: '../../assets/images/guestezee/hotel1.png', hotel: 'Pullman (Mumbai)', date: '15/Feb/25', isUrgent: false }
+  expiryDetails:any = [
+    // { image: '../../assets/images/guestezee/hotel1.png', hotel: 'Novotel (OMR)', date: '10/Feb/25', isUrgent: true },
+    // { image: '../../assets/images/guestezee/hotel2.png', hotel: 'Novotel (ECR)', date: '14/Feb/25', isUrgent: false },
+    // { image: '../../assets/images/guestezee/hotel1.png', hotel: 'Pullman (Delhi)', date: '14/Feb/25', isUrgent: false },
+    // { image: '../../assets/images/guestezee/hotel2.png', hotel: 'Pullman (Chennai)', date: '14/Feb/25', isUrgent: false },
+    // { image: '../../assets/images/guestezee/hotel1.png', hotel: 'Pullman (Mumbai)', date: '15/Feb/25', isUrgent: false }
   ];
 
   memberStatus = [
@@ -35,7 +42,7 @@ export class DashboardComponent {
 
   isDropdownOpen = false;
 
-  selectedPeriod: string = 'Week';
+  selectedPeriod: string = 'Month';
 
   chart!: Chart;
 
@@ -49,65 +56,79 @@ export class DashboardComponent {
     { day: 'Sat', count: 58, color: '#D7BEF6' }
   ];
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,
+    private authTokenService:AuthTokenService,
+    private dashboardService:DashboardService
+  ) { }
 
 
   ngAfterViewInit() {
-    this.renderChart();
-    this.createChart();
+    //  this.renderChart();
+    // this.createChart();
   }
+ngOnInit(): void {
+  this.getPropertySize();
+  
+}
+renderChart() {
+  console.log(this.visitdata, 'this.visitdata');
+  const canvas = document.getElementById('guestVisitChart') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d');
+  let maxValue = 100;
+  const yMax = Math.ceil(maxValue / 10) * 10;
 
-  renderChart() {
-    const canvas = document.getElementById('guestVisitChart') as HTMLCanvasElement;
-    const ctx = canvas.getContext('2d');
-
-    if (ctx) {
-      // Creating gradient fill (No transparency at bottom)
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#D98E16'); // Dark Orange at top
-      gradient.addColorStop(1, '#FFFAF0'); // Light Cream (Not transparent)
-
-      this.chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-          datasets: [{
-            label: 'Guest Visits',
-            data: [20, 400, 900, 250, 310, 390, 240], // Adjusted dataset
-            borderColor: '#D98E16', // Line color
-            backgroundColor: gradient, // Fixed gradient
-            fill: true, // Enable fill area
-            borderWidth: 0, // Ensures sharp edges
-            pointRadius: 0, // Remove circle points
-            borderJoinStyle: 'miter', // Ensures sharp edges
-            tension: 0, // No curve, keeps edges sharp
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: {
-              grid: { display: false }, // Hides x-axis grid
-              border: { display: false }, // Hides x-axis border line
-              ticks: { align: 'center', color: '#1C1C1C' } // Keeps text aligned properly
-            },
-            y: {
-              min: 0, // Starts from 0
-              max: 1000, // Matches reference image scale
-              ticks: { stepSize: 200, color: '#000' }, // Y-axis increments of 200
-              grid: { color: 'rgba(0,0,0,0.1)' }, // Light y-axis grid lines
-              border: { display: false } // Hides y-axis border line
-            }
-          },
-          plugins: {
-            legend: { display: false },
-
-          } // Hide legend
-        }
-      });
+  if (ctx) {
+    // 🔴 Destroy existing chart if already created
+    if (this.chart) {
+      this.chart.destroy();
     }
+
+    // Creating gradient fill
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#D98E16'); // Dark Orange at top
+    gradient.addColorStop(1, '#D98E16'); // Light Cream
+
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: this.label,
+        datasets: [{
+          label: 'Guest Visits',
+          data: this.visitdata,
+          borderColor: '#D98E16',
+          backgroundColor: gradient,
+          fill: true,
+          borderWidth: 0,
+          pointRadius: 0,
+          borderJoinStyle: 'miter',
+          tension: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: { align: 'center', color: '#1C1C1C' }
+          },
+          y: {
+            min: 0,
+            max: yMax,
+            ticks: { stepSize: 10, color: '#000' },
+            grid: { color: 'rgba(0,0,0,0.1)' },
+            border: { display: false }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
   }
+}
+
 
   getTotalCount(): number {
     return this.guestReviews.reduce((sum, review) => sum + review.count, 0);
@@ -164,6 +185,36 @@ export class DashboardComponent {
         this.createChart();
       }
     }, 100);
+  }
+   getPropertySize() {
+    // this.loaderService.emitLoading();
+    // MAKE A SERVICE CALL HERE...
+    let requestBody = {
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      "extras": {
+        "find": {
+
+        }
+      }
+    }
+     this.dashboardService.postApiCall(requestBody, ENDPOINTS.GET_PROPERTY_SIZE).subscribe(resp => {
+          if (resp.success === 1 && resp.status_code === 200) {
+            this.propertySize = resp.result.data[0];
+            this.guestReviews= resp.result.data[0].review_activity;
+            this.createChart();
+            this.label= resp.result.data[0].guest_visit.labels;
+            this.visitdata =  resp.result.data[0].guest_visit.data;
+            this.renderChart();
+
+            // this.expiryDetails =resp.result.data[0].expiry_details;
+            console.log( this.propertySize," this.propertySize")
+            // this.adminUserData = resp.result.data[0];
+            // alert(`Hi ${guestName}, your request has been escalated to ${this.adminUserData.first_name}`);
+          } else {
+            //console.warn('Failed to fetch updated profile data.');
+          }
+        });
   }
 
 }

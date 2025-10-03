@@ -41,39 +41,32 @@ export class HierarchyService {
     return ++this.currentId;
   }
 
-  setHierarchyData(data: HierarchyItem[], isTree: boolean = false, parentId?: number) {
-    const currentData = this.hierarchyData.value;
+ setHierarchyData(data: HierarchyItem[], isTree: boolean = false, parentId?: number) {
+  const currentData = this.hierarchyData.value;
 
-      // Update currentId to max existing ID before adding new data
-  const maxCurrentId = currentData.reduce((maxId, item) => Math.max(maxId, item.id), 0);
-   
-  if (maxCurrentId > this.currentId) {
-    this.currentId = maxCurrentId;
-    //console.log(  this.currentId,"  this.currentId")
-  }
-    
-    // Normalize parentId for root items
-    const normalizedParentId = (parentId === null || parentId === 0) ? undefined : parentId;
-    // Always add new data at the end
-    const newData = data.map(item => ({
-      ...item,
-      isTreeItem: isTree,
-      id:item.id !== undefined ? item.id : this.getNextId(),
-      parentId: item.parentId !== undefined ? item.parentId : normalizedParentId
+  const normalizedParentId = (parentId === null || parentId === 0) ? undefined : parentId;
 
-    }));
-      const editId = newData.reduce((maxId, item) => Math.max(maxId, item.id), 0);
-        this.currentId = editId;
+  const newData = data.map(item => ({
+    ...item,
+    isTreeItem: isTree,
+    id: item.id ?? this.getNextId(),
+    parentId: item.parentId ?? normalizedParentId
+  }));
 
-if(currentData.length==0||currentData.length==undefined ){
-    //console.log('[setHierarchyData] Adding new data:', newData);
-    //console.log('[setHierarchyData] Adding new data:',  this.currentId);
+  // 🔑 Merge without duplicates: replace if same id exists
+  const merged = [...currentData];
+  newData.forEach(item => {
+    const idx = merged.findIndex(x => x.id === item.id);
+    if (idx > -1) {
+      merged[idx] = { ...merged[idx], ...item }; // update
+    } else {
+      merged.push(item); // insert
+    }
+  });
 
+  this.hierarchyData.next(merged);
 }
-  
-    // Simply append the new data to the existing data
-    this.hierarchyData.next([...currentData, ...newData]);
-  }
+
 clearHierarchyData(): void {
   this.hierarchyData.next([]); // Clears all hierarchy items
 }

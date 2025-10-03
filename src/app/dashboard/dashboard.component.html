@@ -14,7 +14,7 @@
                                 <img src="../../assets/images/guestezee/platinum.png" alt="Platinum Icon"
                                     class="me-2 rounded-circle p-2" width="40" style="background-color: #FFFDE7;">
                                 <div>
-                                    <strong class="d-block">087</strong>
+                                    <strong class="d-block">{{propertySize.category_summary?.Platinum}}</strong>
                                     <span>Platinum</span>
                                 </div>
                             </div>
@@ -22,7 +22,7 @@
                                 <img src="../../assets/images/guestezee/gold.png" alt="Gold Icon"
                                     class="me-2 rounded-circle p-2" width="40" style="background-color: #FFFDE7;">
                                 <div>
-                                    <strong class="d-block">174</strong>
+                                    <strong class="d-block">{{propertySize.category_summary?.Gold}}</strong>
                                     <span>Gold</span>
                                 </div>
                             </div>
@@ -30,7 +30,7 @@
                                 <img src="../../assets/images/guestezee/silver.png" alt="Silver Icon"
                                     class="me-2 rounded-circle p-2" width="40" style="background-color: #FFFDE7;">
                                 <div>
-                                    <strong class="d-block">325</strong>
+                                    <strong class="d-block">{{propertySize.category_summary?.Silver}}</strong>
                                     <span>Silver</span>
                                 </div>
                             </div>
@@ -38,7 +38,7 @@
                                 <img src="../../assets/images/guestezee/bronze.png" alt="Bronze Icon"
                                     class="me-2 rounded-circle p-2" width="40" style="background-color: #FFFDE7;">
                                 <div>
-                                    <strong class="d-block">564</strong>
+                                    <strong class="d-block">{{propertySize.category_summary?.Bronze}}</strong>
                                     <span>Bronze</span>
                                 </div>
                             </div>
@@ -56,8 +56,8 @@
                                             <h6 class="fw-bold" style="color: #0B0B12;">Guest Visit</h6>
                                             <select [(ngModel)]="selectedPeriod" class="form-select form-select-sm"
                                                 style="width: 70px; background-color: #F5F4FD;">
-                                                <option value="Week">Week</option>
-                                                <option value="Month">Month</option>
+                                                <!-- <option value="Week">Week</option> -->
+                                                <option value="Month" selected>Month</option>
                                             </select>
                                         </div>
                                         <div style="width: 100%; height: 250px; position: relative;margin-top: 5%">
@@ -72,7 +72,7 @@
                                             <h6 class="fw-bold" style="color: #0B0B12;">Guest Review</h6>
                                             <select [(ngModel)]="selectedPeriod" class="form-select form-select-sm"
                                                 style="width: 70px; background-color: #F5F4FD;">
-                                                <option value="Week">Week</option>
+                                                <!-- <option value="Week">Week</option> -->
                                                 <option value="Month">Month</option>
                                             </select>
                                         </div>
@@ -111,9 +111,9 @@
                     <div class="d-flex justify-content-between mt-1">
                         <h5 class="fw-bolder mb-3">Expiry Details</h5>
                         <div style="position: relative; display: flex;">
-                            <button (click)="navigateToExpiry()"
+                            <!-- <button (click)="navigateToExpiry()"
                                 style="background-color: white; color: #1A1A1AE5; padding: 2px 4px; border-radius: 5px; font-weight: 700; border: none; font-size: 13px; border: 1px solid #8F9899; height: 60%;">See
-                                more</button>
+                                more</button> -->
                             <div>
                                 <!-- Filter Icon -->
                                 <i class="fas fa-filter filter-icon" alt="Filter" (click)="toggleDropdown()"
@@ -147,22 +147,23 @@
                     </div>
 
                     <ul class="list-group">
-                        <li *ngFor="let expiry of expiryDetails"
+                        <li *ngFor="let expiry of  propertySize.expiry_details"
                             class="list-group-item d-flex align-items-center justify-content-between"
-                            [ngClass]="{ 'border-danger': expiry.isUrgent }"
+                            
                             style="display: flex; align-items: center; justify-content: space-between;">
-
+<!-- [ngClass]="{ 'border-danger': expiry.isUrgent }" -->
                             <!-- Left: Hotel Image & Name -->
                             <div style="display: flex; align-items: center;">
-                                <img [src]="expiry.image" alt="Hotel Logo"
-                                    style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;">
-                                <strong style="margin-left: 10px;font-size: 14px;">{{ expiry.hotel }}</strong>
+                                <i class="fa-solid fa-hotel"></i>
+                                <!-- <img [src]="expiry.image" alt="Hotel Logo"
+                                    style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;"> -->
+                                <strong style="margin-left: 10px;font-size: 14px;">{{ expiry.name }}</strong>
                             </div>
 
                             <!-- Right: Expiry Date -->
                             <div style="text-align: right;">
                                 <span style="color: #8F9899; font-size: 12px;">Expiry Date</span><br>
-                                <span style="color: red; font-weight: bold; font-size: 13px;">{{ expiry.date }}</span>
+                                <span style="color: red; font-weight: bold; font-size: 13px;">{{ expiry.subscription_end_date }}</span>
                             </div>
 
                         </li>
@@ -175,9 +176,9 @@
                 <div class="col-md-8 px-3 py-1 rounded">
                     <div class="d-flex justify-content-between align-items-center ">
                         <h6 class="fw-bolder">Hotel Reviews</h6>
-                        <button (click)="navigateToReviews()"
+                        <!-- <button (click)="navigateToReviews()"
                             style="background-color: #F5F4FD; color: #1A1A1AE5; padding: 4px 8px; border-radius: 5px; font-weight: 700; border: none; font-size: 13px">See
-                            more</button>
+                            more</button> -->
                     </div>
                     <table class="table hotel-reviews">
                         <thead>
@@ -189,10 +190,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let review of hotelReviews">
-                                <td>{{ review.name }}</td>
+                            <tr *ngFor="let review of propertySize.hotel_reviews">
+                                <td>{{ review.hotelname }}</td>
                                 <td>{{ review.date }}</td>
-                                <td class="gold" style="text-align: center">{{ review.rating }}</td>
+                                <td class="gold" style="text-align: center">{{ review.ratingaverage }}</td>
                                 <td>{{ review.reviews }}</td>
                             </tr>
                         </tbody>
@@ -209,17 +210,20 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let status of memberStatus" [ngClass]="{
-                                'active': status.status === 'Active',
-                                'in-active': status.status === 'In Active',
-                                'pending': status.status === 'Pending'}"
-                                [ngStyle]="{ 'border-bottom': status.status === 'Pending' ? '1px solid #dee2e6' : 'none' }">
+                            <tr *ngFor="let status of propertySize.hotel_member_status" [ngClass]="{
+                                'active': status.status === 'active',
+                                'in-active': status.status === 'inactive',
+                                'pending': status.status === 'pending'}"
+                                [ngStyle]="{ 'border-bottom': status.status === 'pending' ? '1px solid #dee2e6' : 'none' }">
                                 <td><button [ngClass]="{
-                                    'active': status.status === 'Active',
-                                    'in-active': status.status === 'In Active',
-                                    'pending': status.status === 'Pending'
+                                    'active': status.status === 'active',
+                                    'in-active': status.status === 'inactive',
+                                    'pending': status.status === 'pending'
                                 }">
-                                        {{ status.status }}
+                                      {{ status.status === 'active' ? 'Active' 
+  : status.status === 'inactive' ? 'In Active' 
+  : status.status === 'pending' ? 'Pending' 
+  : status.status }}
                                     </button>
 
                                 </td>
@@ -241,7 +245,7 @@
                     </div>
                     <select [(ngModel)]="selectedPeriod" class="form-select form-select-sm"
                         style="width: 70px; background-color: #F5F4FD;">
-                        <option value="Week">Week</option>
+                        <!-- <option value="Week">Week</option> -->
                         <option value="Month">Month</option>
                     </select>
                 </div>

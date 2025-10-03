@@ -308,6 +308,8 @@ export class HotelListComponent implements OnInit {
         return this.customerUpdate(this.selectedStatus);  // Once function12 completes, call function1
       })
       .then(() => {
+        this.sendEmail();
+
         //console.log("Both functions executed sequentially.");
       })
       .catch((error) => {
@@ -316,7 +318,23 @@ export class HotelListComponent implements OnInit {
 
   }
 
+sendEmail() {
+    const payload = {
+      username:  this.customerdata.first_name,
+      email: this.customerdata.email,
+      name:this.customerdata.first_name,
+      domain_name: 'https://www.guestezee.com'
+    };
 
+    this.hotellistservice.sendWelcomeEmail(payload).subscribe({
+      next: (res) => {
+        console.log('Email API response:', res);
+      },
+      error: (err) => {
+        console.error('Email API error:', err);
+      }
+    });
+  }
 
 
 

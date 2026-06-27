@@ -1,64 +1,74 @@
-
 <div class="main">
-   
-    <div class="centered-container">
-        <div class="container mt-5">
-            <!-- Tabs Navigation -->
-            <ul class="nav nav-tabs flex-wrap" id="myTabs" role="tablist">
-              <li class="nav-item Custom-tab-spacing" role="presentation">
-                <a class="nav-link active" id="subscription-tab" data-toggle="tab" href="#subscription" role="tab" aria-controls="subscription" aria-selected="true" (click)="sendSubscription()">Subscription</a>
-              </li>
-              <!-- <li class="nav-item" role="presentation" >
+
+  <div class="centered-container">
+    <div class="search-wrap">
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-bar" placeholder="Search by hotel name, category,member id, brand name"
+          [(ngModel)]="searchTerm">
+      </div>
+    </div>
+    <div class="">
+      <!-- Tabs Navigation -->
+      <ul class="nav nav-tabs flex-wrap" id="myTabs" role="tablist">
+        <li class="nav-item Custom-tab-spacing" role="presentation">
+          <!-- Newly added & commented for tab name -->
+          <!--  <a class="nav-link active" id="subscription-tab" data-toggle="tab" href="#subscription" role="tab"
+            aria-controls="subscription" aria-selected="true" (click)="sendSubscription()">Subscription</a> -->
+          <a class="nav-link active" id="subscription-tab" data-toggle="tab" href="#subscription" role="tab"
+            aria-controls="subscription" aria-selected="true" (click)="sendSubscription()">Payment</a>
+          <!-- End of newly added & commented for tab name -->
+        </li>
+        <!-- <li class="nav-item" role="presentation" >
                 <a class="nav-link Custom-tab-spacing" id="commission-tab" data-toggle="tab" href="#commission" role="tab" aria-controls="commission" aria-selected="false" (click)="sendCommission()">Commission</a>
               </li> -->
-            
-             
-            </ul>
-          
-            <!-- Tab Content -->
-            <div class="tab-content" id="myTabContent">
-              <div class="tab-pane fade show active" id="subscription" role="tabpanel" aria-labelledby="subscription-tab">
-               <app-payment-list ></app-payment-list>
 
 
+      </ul>
 
-           
-              </div>
-              <div class="tab-pane fade" id="commission" role="tabpanel" aria-labelledby="commission-tab">
-                <!-- <app-property-details></app-property-details> -->
-                <app-payment-list [data]="dataForTab"></app-payment-list>
-              </div>
-          
-              <div class="tab-pane fade" id="contact4" role="tabpanel" aria-labelledby="contact-tab4">
-                <h3>Settings</h3>
-                <app-payment-list  ></app-payment-list>
-              </div>
-            </div>
+      <!-- Tab Content -->
+      <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="subscription" role="tabpanel" aria-labelledby="subscription-tab">
+          <app-payment-list [searchTerm]="searchTerm"></app-payment-list>
+
+          <!--<app-payment-list ></app-payment-list> -->
+
         </div>
+        <div class="tab-pane fade" id="commission" role="tabpanel" aria-labelledby="commission-tab">
+          <!-- <app-property-details></app-property-details> -->
+          <app-payment-list [data]="dataForTab"></app-payment-list>
+        </div>
+
+        <div class="tab-pane fade" id="contact4" role="tabpanel" aria-labelledby="contact-tab4">
+          <h3>Settings</h3>
+          <app-payment-list></app-payment-list>
+        </div>
+      </div>
     </div>
+  </div>
 
 
 
 </div>
 
 <div class="popup-overlay" id="popup">
-    <div class="popup-box">
-      <h3>Add Assignee to Room No:300</h3>
-      <div class="top-row">
-        <label>Select Assignee</label>
-        <span class="count">4/6</span>
-      </div>
-  
-      <div class="assignee-list">
-        <span class="chip yellow">Vivek</span>
-        <span class="chip yellow">Vijay</span>
-        <span class="chip green selected">Aswin</span>
-        <span class="chip red">Diwakar</span>
-        <span class="chip green">Aravind</span>
-        <span class="chip red">Ajay</span>
-      </div>
-  
-      <button class="assign-btn">Assign Duty</button>
-      <button class="cancel-btn" onclick="closePopup()">Cancel</button>
+  <div class="popup-box">
+    <h3>Add Assignee to Room No:300</h3>
+    <div class="top-row">
+      <label>Select Assignee</label>
+      <span class="count">4/6</span>
     </div>
+
+    <div class="assignee-list">
+      <span class="chip yellow">Vivek</span>
+      <span class="chip yellow">Vijay</span>
+      <span class="chip green selected">Aswin</span>
+      <span class="chip red">Diwakar</span>
+      <span class="chip green">Aravind</span>
+      <span class="chip red">Ajay</span>
+    </div>
+
+    <button class="assign-btn">Assign Duty</button>
+    <button class="cancel-btn" onclick="closePopup()">Cancel</button>
   </div>
+</div>

@@ -1,15 +1,20 @@
 <div class="main">
   <app-alerts></app-alerts>
+
   <!-- <app-header></app-header> -->
   <div class="centered-container">
     <form [formGroup]="techInfoForm">
       <div class="section">
-        <h3 style="font-size: 20px;font-weight: 600;">Add Technical Info </h3>
+        <h3 style="font-size: 20px;font-weight: 600;">{{ tech_info_id ? 'Edit' : 'Add' }} Technical Info </h3>
+        <!-- <div *ngIf="!tech_info_id" class="tech-hint-note">
+          <i class="fas fa-info-circle"></i>
+          <span><strong>Note:</strong> Technical info should not be enabled while creating.</span>
+        </div> -->
         <div class="row">
           <div class="col-6">
-            <div style="display: grid;grid-template-columns: repeat(1, 1fr);row-gap: 3%;">
+            <div style="display: grid; grid-template-columns: repeat(1, 1fr);row-gap: 3%;">
               <div class="form-group form1_div">
-                <div class="custom-file-upload">
+                <!-- <div class="custom-file-upload">
                   <input type="file" formControlName="image" class="input_box" id="iconUpload" #fileInput
                     (change)="imageupload($event)" />
                   <label for="iconUpload" class="upload-label">
@@ -21,8 +26,8 @@
 
                       </div>
                       <div>
-                        <!-- <div class="file-name">Choose file...</div> -->
-                        <div class="file-info">Maximum File size • 2Mb</div>
+                  <div class="file-name">Choose file...</div>
+                  <div class="file-info">Maximum File size • 2Mb</div>
                       </div>
                     </div>
                     <div class="upload-actions">
@@ -35,161 +40,170 @@
 
                 <span *ngIf="techInfoForm.get('image')?.invalid && techInfoForm.get('image')?.touched">
                   upload icon
-                </span>
+                </span> -->
+                <label class="form-label fw-semibold" style="font-size: 13px;">Image</label>
+                <div class="d-flex align-items-center justify-content-between px-3 py-2 border bg-white shadow-sm"
+                  style="height: 55px; border-radius: 12px; border-color: #dee2eb !important;">
+
+                  <div class="d-flex align-items-center">
+                    <!-- Orange Indicator Badge -->
+                    <span class="badge rounded-2 me-2 px-2 py-2"
+                      style="background-color: #800020; font-size: 10px; font-weight: 800; min-width: 50px; color:white">Image</span>
+                    <!-- Status/Placeholder Text -->
+                    <span class="small fw-medium" style="font-family: 'Urbanist', sans-serif; color: black">
+                      {{ iconPreview ? 'Uploaded' : 'Choose file...' }}
+                    </span>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-3 pe-1">
+                    <!-- Trash and Eye icons appear only when a file is uploaded -->
+                    <i class="fa-solid fa-trash" *ngIf="iconPreview"
+                      style="font-size: 16px; cursor: pointer; color: #800020"
+                      (click)="$event.stopPropagation(); removeIcon()" title="Delete"></i>
+                    <i class="fa-solid fa-eye" *ngIf="iconPreview"
+                      style="font-size: 16px; cursor: pointer; color: #800020"
+                      (click)="$event.stopPropagation(); togglePreview()" title="View"></i>
+                    <!-- Always visible upload icon, disabled when already uploaded -->
+                    <i class="fa-solid fa-cloud-arrow-up" [style.color]="iconPreview ? '#cccccc' : '#800020'"
+                      [style.cursor]="iconPreview ? 'not-allowed' : 'pointer'"
+                      [style.pointer-events]="iconPreview ? 'none' : 'auto'" style="font-size: 18px;"
+                      (click)="!iconPreview && openLogofile()"></i>
+                  </div>
+
+                  <input type="file" #iconInput (change)="logoupload($event)" accept="image/*" hidden>
+                </div>
+                <p *ngIf="!iconPreview"
+                  style="font-size: 12px; color: #666; font-style: italic; margin-bottom: 0; margin-top: 4px;">
+                  Icon size should exactly be 150 x 150 pixels (Max Size 2MB | JPG, JPEG, PNG)</p>
+                <p *ngIf="iconError" style="font-size: 12px; color: #dc3545; margin-bottom: 0; margin-top: 4px;">{{
+                  iconError }}</p>
+
+                <!-- Inline Image Preview -->
+                <div *ngIf="showInlinePreview && iconPreview"
+                  class="mt-2 p-3 border bg-white shadow-sm d-flex flex-column align-items-center"
+                  style="border-radius: 12px !important; border-color: #dee2eb !important;">
+                  <img [src]="iconPreview" class="img-fluid" alt="Preview"
+                    style="max-height: 250px; object-fit: contain; border-radius: 8px;">
+                </div>
               </div>
-
-              <div class="form-group form1_div">
-                <label>Name</label>
-                <input class="input_box" type="text" formControlName="name" placeholder="name" style="width: 100%;" />
-                <span *ngIf="techInfoForm.get('name')?.invalid && techInfoForm.get('name')?.touched">
-                  service name is required.
-                </span>
-              </div>
-              <div class="form-group form1_div">
-                <label>Type</label>
-                <input class="input_box" type="text" formControlName="type" placeholder="type" style="width: 100%;" />
-                <span *ngIf="techInfoForm.get('type')?.invalid && techInfoForm.get('type')?.touched">
-                  service type is required.
-                </span>
-              </div>
-              <div class="form-group form1_div">
-                <label>API Url</label>
-                <input class="input_box" type="text" formControlName="api_url" placeholder="api url"
-                  style="width: 100%;" />
-                <span *ngIf="techInfoForm.get('api_url')?.invalid && techInfoForm.get('api_url')?.touched">
-                  api_url is required.
-                </span>
-              </div>
-
-
-
-
-
 
             </div>
 
-
-          </div>
-          <div class="col-12" style="display: flex;margin-top: 2%;">
-
-
-
-
             <div class="form-group form1_div">
-              <label>Enable</label>&nbsp;&nbsp;
+              <label>Name</label>
+              <span>*</span>
+              <input class="input_box" type="text" formControlName="name" placeholder="Enter service name"
+                style="width: 100%;" />
+              <span class="text-danger small"
+                *ngIf="techInfoForm.get('name')?.invalid && techInfoForm.get('name')?.touched">
+                <span *ngIf="techInfoForm.get('name')?.hasError('required')">Service name is required.</span>
+                <span *ngIf="techInfoForm.get('name')?.hasError('pattern')">Invalid name (only spaces not
+                  allowed).</span>
+              </span>
+            </div>
+            <div class="form-group form1_div">
+              <label>Type</label>
+              <span>*</span>
+              <select class="input_box" formControlName="type" style="width: 100%;">
+                <option value="" disabled selected>Select type</option>
+                <option value="lock">Lock</option>
+                <option value="pos">Pos</option>
+              </select>
+              <span class="text-danger small"
+                *ngIf="techInfoForm.get('type')?.invalid && techInfoForm.get('type')?.touched">
+                <span *ngIf="techInfoForm.get('type')?.hasError('required')">Service type is required.</span>
+              </span>
+            </div>
+            <div class="form-group form1_div">
+              <label>API Url</label>
+              <input class="input_box" type="text" formControlName="api_url" placeholder="https://api.example.com"
+                style="width: 100%;" />
+              <span class="text-danger small"
+                *ngIf="techInfoForm.get('api_url')?.invalid && techInfoForm.get('api_url')?.touched">
+                <!-- <span *ngIf="techInfoForm.get('api_url')?.hasError('required')">API URL is required.</span> -->
+                <span *ngIf="techInfoForm.get('api_url')?.hasError('pattern')">Invalid API URL format. Use http:// or
+                  https://</span>
+              </span>
+            </div>
+          </div>
+          <!-- <div class="col-12" style="display: flex;margin-top: 2%;"> -->
+          <div class="col-12" style="display: flex; align-items: center; margin-top: 2%;">
+            <div class="form-group form1_div">
+              <label>Active</label>&nbsp;&nbsp;
               <label class="switch">
-                <input type="checkbox" formControlName="is_enable">
+                <input type="checkbox" formControlName="is_active">
                 <span class="slider round"></span>
               </label>
-              <span *ngIf="techInfoForm.controls['is_enable'].invalid && techInfoForm.controls['is_enable'].touched">
+              <span *ngIf="techInfoForm.controls['is_active'].invalid && techInfoForm.controls['is_active'].touched">
                 service type is required.
               </span>
             </div>
-
-
-
-
-
-
-
-            <p>
-
-            </p>
+            <p></p>
 
             <!-- {{this.techInfoDataForm.value | json}} -->
 
-            <button
+            <!-- <button
               style="background-color: #800020;     height: 70%;color: white; padding:6px 18px; border-radius: 5px;   border: none;white-space: nowrap;"
+              (click)="addEmployee()">Add Field</button> -->
+            <button
+              style="background-color: #800020; color: white; padding: 8px 18px; border-radius: 5px; border: none; white-space: nowrap; margin-bottom: 10px;"
               (click)="addEmployee()">Add Field</button>
 
           </div>
-
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       </div>
-
-
-
     </form>
     <div class="row">
       <form [formGroup]="techInfoDataForm" class="col-10">
-
         <div formArrayName="technicalInfo">
-
           <div *ngFor="let employee of employees().controls; let empIndex=index">
-
-            <div [formGroupName]="empIndex"
-              style="padding: 10px; margin: 5px;display: grid;grid-template-columns: repeat(2, 1fr);row-gap: 3%;    border-radius: 10px;">
-
-
-              <div class="form-group form1_div">
-                <label> {{empIndex +1}}.Label</label>
-                <input class="input_box" type="text" placeholder="label name" formControlName="key" />
-              </div>
-
-
-
-              <div class="form-group form1_div">
-                <label> {{empIndex+1}}.Key Value</label>
-                <input class="input_box" type="text" placeholder="enter the key value" formControlName="value" />
-                <i class="fa-regular fa-square-minus" (click)="removeEmployee(empIndex)" style="
-    margin-left: 1%;"></i>
-
-              </div>
-
-
-
-
-
-
-
+            <!-- <div [formGroupName]="empIndex"
+            style="padding: 10px; margin: 5px;display: grid;grid-template-columns: repeat(2, 1fr);row-gap: 3%;    border-radius: 10px;">
+            <div class="form-group form1_div">
+              <label> {{empIndex +1}}.Label</label>
+              <input class="input_box" type="text" placeholder="label name" formControlName="key" />
             </div>
-
+            <div class="form-group form1_div">
+              <label> {{empIndex+1}}.Key Value</label>
+              <input class="input_box" type="text" placeholder="enter the key value" formControlName="value" />
+              <i class="fa-regular fa-square-minus" (click)="removeEmployee(empIndex)" style="
+  margin-left: 1%;"></i>
+            </div>
+          </div> -->
+            <div [formGroupName]="empIndex"
+              style="padding: 10px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr auto; column-gap: 20px; align-items: flex-end; border-radius: 10px;">
+              <div class="form-group" style="width: 100%;">
+                <label> {{empIndex +1}}.Key Label</label>
+                <input class="input_box" type="text" placeholder="label name" formControlName="key"
+                  style="width: 100%;" />
+              </div>
+              <div class="form-group" style="width: 100%;">
+                <label> {{empIndex+1}}.Key Value</label>
+                <input class="input_box" type="text" placeholder="enter the key value" formControlName="value"
+                  style="width: 100%;" />
+              </div>
+              <div style="padding-bottom: 12px;">
+                <i class="fa-regular fa-square-minus" (click)="removeEmployee(empIndex)"
+                  style="color: #800020; cursor: pointer; font-size: 20px;"></i>
+              </div>
+            </div>
           </div>
         </div>
 
         <p>
-          <!-- <button type="submit">Submit</button> -->
         </p>
 
       </form>
 
-      <div>
 
-
-
+      <!-- <button (click)="removeEmployee(empIndex)" style="width: 20%;margin-top: 4%;    float: inline-end;">Remove</button> -->
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <!-- <button class="cancel_bt" style="float: inline-end; margin-top: -2%; margin-right: 10px;" type="button" (click)="goBack()">Cancel</button> -->
+        <button class="cancel_bt" type="button" (click)="goBack()">Cancel</button>
+        <!-- <button class="save_bt" style=" float: inline-end;margin-top: -2%;" [disabled]="!techInfoForm.valid" (click)="saveData()">Save</button> -->
+        <button class="save_bt" [disabled]="!techInfoForm.valid || !techInfoDataForm.valid"
+          (click)="saveData()">Save</button>
       </div>
-
-
-
-
-
-
-
-
     </div>
-
-
-
-    <!-- <button (click)="removeEmployee(empIndex)" style="width: 20%;margin-top: 4%;    float: inline-end;">Remove</button> -->
-    <button class="save_bt" style=" float: inline-end;margin-top: -2%;" [disabled]="!techInfoForm.valid"
-      (click)="saveData()">Save</button>
-
   </div>
+</div>

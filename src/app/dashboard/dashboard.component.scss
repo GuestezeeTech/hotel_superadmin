@@ -8,7 +8,7 @@ body {
     min-height: 100vh;
     width: 96%;
     margin: 0 auto;
-    padding: 20px 0 20px 20px;
+    padding: 20px 10px 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     margin-top: 1%;
@@ -98,10 +98,13 @@ body {
 .in-active {
     border-radius: 10px;
     border: none;
-    width: 75px;
+    min-width: 85px;
     font-weight: 500;
-    padding-left: 10px;
-    padding-right: 10px;
+    // padding-left: 10px;
+    // padding-right: 10px;
+    padding: 3px 12px;
+    white-space: nowrap;
+    text-align: center;
 }
 
 
@@ -120,6 +123,10 @@ body {
     background-color: #f5e4c0 !important;
 }
 
+// .expiry-section .list-group {
+//     max-height: 500px;
+//     overflow-y: auto;
+// }
 
 .expiry-section {
     background-color: #F8F9FA;
@@ -136,6 +143,31 @@ body {
     }
 }
 
+/* Custom Scrollbar for dynamic flex columns */
+.custom-scrollbar {
+    padding-right: 5px;
+
+    /* Styling for WebKit Browsers */
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+}
+
+
 .border-danger {
     border: 1px solid #FF3E42 !important;
     background-color: #FFECEC !important;
@@ -144,7 +176,20 @@ body {
 select {
     font-size: 13px;
     padding: 2px 4px;
+
     option {
         font-size: 13px;
     }
+}
+
+.see-more-btn {
+    background: #f1f1f1;
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+.see-more-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

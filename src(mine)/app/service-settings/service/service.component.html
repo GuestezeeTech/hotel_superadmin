@@ -1,0 +1,287 @@
+
+<div class="main">
+    <app-alerts></app-alerts>
+    <!-- <app-header></app-header> -->
+    <div class="centered-container">
+<form [formGroup]="serviceForm"   >
+<div class="section">
+      <h3 style="font-size: 20px;font-weight: 600;">Create Services </h3>
+      <div style="display: grid;grid-template-columns: repeat(2, 1fr);row-gap: 3%;">
+      <div class="form-group form1_div">
+        <label >Service Name</label>
+        <input class="input_box" type="text" formControlName="service_name" placeholder="service name"  />
+        <span *ngIf="serviceForm.get('service_name')?.invalid && serviceForm.get('service_name')?.touched">
+            service name is required.
+        </span>
+      </div>
+
+
+      
+      <div class="form-group form1_div">
+        <label>Department</label>
+        <select class="input_box" formControlName="department">
+            <option *ngFor="let dept of departments" [value]="dept"> {{ dept }}</option>
+         
+          </select>
+        <!-- <input class="input_box" type="text" formControlName="last_name" placeholder="last_name" /> -->
+        <span *ngIf="serviceForm.controls['department'].invalid && serviceForm.controls['department'].touched">
+        Department is required.
+        </span>
+      </div>
+    </div>
+      <div class="form-group form1_div">
+        <label>Description</label>
+        <textarea class="form-control" id="exampleTextarea" formControlName="description"   rows="4" placeholder="Enter your message here" style="background-color:white ;"></textarea>
+    
+        <span *ngIf="serviceForm.controls['description'].invalid && serviceForm.controls['description'].touched">
+            description is required.
+        </span>
+      </div>
+
+
+      <div class="form-group form1_div">
+        <div style="    border: 1px solid #E1E2EB;
+        width: 11%;
+        padding: 8px;
+        border-radius: 5px;">
+            <label >Active</label>&nbsp;&nbsp;&nbsp;
+            <label class="switch">
+                <input type="checkbox" formControlName="is_active"    checked>
+                <span class="slider round"></span>
+              </label>
+
+        </div>
+     
+        <!-- <input class="input_box" type="number" formControlName="phone_number" /> -->
+        <!-- <span *ngIf="serviceForm.controls['phone_number'].invalid && serviceForm.controls['phone_number'].touched">
+          Phone Number is required.
+        </span>
+        <div *ngIf="serviceForm.get('phone_number')?.hasError('invalidPhone') && serviceForm.get('phone_number')?.touched" class="error">
+          ❌ Invalid Phone Number (must be 10 digits & start with 6-9)
+        </div> -->
+      </div>
+
+      <div style="display: grid;grid-template-columns: repeat(2, 1fr);row-gap: 3%;">
+
+        <div class="form-group form1_div">
+            <label >Service Type</label>
+            <select class="input_box" formControlName="service_type" (change)="selectedServiceType($event)" >
+                <option *ngFor="let type of serviceTypes" [value]="type" >{{type}}</option>
+              
+                
+                
+              </select>
+            <span *ngIf="serviceForm.controls['service_type'].invalid && serviceForm.controls['service_type'].touched">
+                service type is required.
+            </span>
+          </div>
+          <div class="form-group form1_div"  *ngIf="showHoursBefore">
+            <label>Hours Before</label> 
+            <input class="input_box" type="text" formControlName="hours_before" />
+
+            <span *ngIf="serviceForm.controls['hours_before'].invalid && serviceForm.controls['hours_before'].touched">
+              
+                 is required.
+            </span>
+           <div *ngIf="serviceForm.get('hours_before')?.touched && serviceForm.get('hours_before')?.hasError('required')" style="color: red;">
+      Hours before is required when Scheduled service is selected.
+    </div>
+          </div>
+      </div>
+
+
+
+      <div style="display: grid;grid-template-columns: repeat(2, 1fr);row-gap: 3%;">
+
+        <div class="form-group form1_div">
+            <label >Time Bound</label>&nbsp;&nbsp;
+            <label class="switch">
+                <input type="checkbox" formControlName="is_time_bound"    (change)="toggleTimeBound($event)">
+                <span class="slider round"></span>
+              </label>
+            <span *ngIf="serviceForm.controls['is_time_bound'].invalid && serviceForm.controls['is_time_bound'].touched">
+                service type is required.
+            </span>
+          </div>
+          <div class="form-group form1_div" *ngIf="timeBoundEnabled">
+            <label>Minutes</label>
+            <input class="input_box" type="text" formControlName="time_bound_value" />
+
+            <span *ngIf="serviceForm.controls['time_bound_value'].invalid && serviceForm.controls['time_bound_value'].touched">
+              
+                 is required.
+            </span>
+            <div *ngIf="
+  serviceForm.get('time_bound_value')?.touched &&
+  serviceForm.get('time_bound_value')?.hasError('required')
+" class="error">
+  Time Bound Value is required when time bound is selected.
+</div>
+         
+          </div>
+      </div>
+  
+
+      <div class="form-group form1_div">
+        <div style="    border: 1px solid #E1E2EB;
+        width: 14%;
+        padding: 8px;
+        border-radius: 5px;">
+            <label >Quantity</label>&nbsp;&nbsp;&nbsp;
+            <label class="switch">
+                <input type="checkbox" formControlName="quantity"   (change)="toggleChanged($event)"   >
+                <span class="slider round"></span>
+              </label>
+
+        </div>
+     
+     
+      </div>
+
+
+      <div style="display: grid;grid-template-columns: repeat(2, 1fr);row-gap: 3%;" *ngIf="quantityEnabled">
+        <div class="form-group form1_div">
+          <label >Minimum:</label>
+          <input class="input_box" type="text" formControlName="minimum_quantity" placeholder="enter minimum quantity"  />
+          <span *ngIf="serviceForm.get('minimum_quantity')?.invalid && serviceForm.get('minimum_quantity')?.touched">
+             enter minimum quantity
+          </span>
+              <div *ngIf="serviceForm.get('minimum_quantity')?.touched && serviceForm.get('minimum_quantity')?.hasError('required')">
+      Minimum quantity is required.
+    </div>
+        </div>
+  
+  
+        
+        <div class="form-group form1_div">
+          <label>Maximum:</label>
+          <input class="input_box" type="text" formControlName="maximum_quantity" placeholder="enter maxiimum quantity"  />
+          <span *ngIf="serviceForm.get('maximum_quantity')?.invalid && serviceForm.get('maximum_quantity')?.touched">
+            enter maxiimum quantity
+          </span>
+           <div *ngIf="serviceForm.get('maximum_quantity')?.touched && serviceForm.get('maximum_quantity')?.hasError('required')">
+      Maximum quantity is required.
+    </div>
+        </div>
+      </div>
+     
+      <div style="display: grid;grid-template-columns: repeat(2, 1fr);row-gap: 3%;" >
+      <div class="form-group form1_div">
+      
+        <div class="custom-file-upload">
+            <input  
+              type="file" #iconInput
+              formControlName="icon"
+              class="input_box"
+              id="iconUpload"
+              accept="image/*"    (change)="logoupload($event)"
+            />
+            <label  class="upload-label">
+              <div class="file-preview">
+                <div class="icon-tag">ICON</div>
+                <div>
+                  <div class="file-name"  *ngIf="logo_image==undefined">Choose file...</div>
+                  <div class="file-name"  *ngIf="logo_image!=undefined">uploaded</div>
+                  <div class="file-info">Maximum File size • 2Mb</div>
+                </div>
+              </div>
+              <div class="upload-actions">
+                <i class="fas fa-trash-alt" (click)="deleteIcon()"></i>
+                <a [href]="logo_image" target="_blank" rel="noopener">
+                   <i class="fas fa-eye"></i>
+
+                </a>
+               
+                <i class="fas fa-upload"  *ngIf="logo_image==undefined || logo_image=='' " (click)="openLogofile()"></i>
+                   <i
+          class="fas fa-check-circle"
+          *ngIf="logo_image!=undefined &&  logo_image!=''"
+          style="color: green"
+          title="Uploaded"
+        ></i>
+              </div>
+            </label>
+          </div>
+          
+        <span *ngIf="serviceForm.get('icon')?.invalid && serviceForm.get('icon')?.touched"  >
+         upload icon
+        </span>
+        <!-- your hidden file input + trigger icon here… -->
+
+<!-- error messages for icon control -->
+<div class="error-messages">
+  <!-- file too large -->
+  <div
+    *ngIf="
+      serviceForm.get('icon')?.hasError('sizehigh') &&
+      (serviceForm.get('icon')?.touched || serviceForm.touched)
+    "
+    class="text-danger"
+  >
+    File is too big. Maximum size is 2 MB.
+  </div>
+
+  <!-- wrong file type -->
+  <div
+    *ngIf="
+      serviceForm.get('icon')?.hasError('type') &&
+      (serviceForm.get('icon')?.touched || serviceForm.touched)
+    "
+    class="text-danger"
+  >
+    Invalid file type. Only JPG, PNG, GIF are allowed.
+  </div>
+</div>
+
+      </div>
+      <div class="form-group form1_div">
+      
+        <div class="custom-file-upload">
+            <input 
+              type="file" #imageInput
+              formControlName="image"
+              class="input_box "  (change)="imageupload($event)"
+              id="imageupload"      accept="image/*"
+              
+            />
+            <label class="upload-label">
+              <div class="file-preview">
+                <div class="icon-tag">Image</div>
+                <div>
+                  <div class="file-name"  *ngIf="service_image==undefined">Choose file...</div>
+                  <div class="file-name"  *ngIf="service_image!=undefined">Uploaded...</div>
+                  <div class="file-info">Maximum File size • 2Mb</div>
+                </div>
+              </div>
+              <div class="upload-actions">
+                <i class="fas fa-trash-alt"  (click)="deleteImage()"></i>
+                     <a [href]="service_image" target="_blank" rel="noopener">
+                        <i class="fas fa-eye"></i>
+
+                     </a>
+              
+                <i class="fas fa-upload"   (click)="openImagefile()"  *ngIf="service_image==undefined  ||  service_image=='' " ></i>
+                   <i
+          class="fas fa-check-circle"
+          *ngIf="service_image!=undefined &&  service_image!='' "
+          style="color: green"
+          title="Uploaded"
+        ></i>
+              </div>
+            </label>
+          </div>
+          
+        <span *ngIf="serviceForm.get('image')?.invalid && serviceForm.get('image')?.touched" (change)="imageupload($event)">
+         upload icon
+        </span>
+      </div>
+    </div>
+    <button class="btn  ms-2 fw-semibold"
+    style="color: white; background-color: #800020;float: right;"  (click)="saveDta()" >Save</button> 
+   
+    </div>
+
+    
+   
+    </form>
+    </div></div>

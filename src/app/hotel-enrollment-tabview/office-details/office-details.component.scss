@@ -29,6 +29,8 @@
   }
   .body {
     font-family: urbanist;
+    font-size: 13px;
+    font-weight: 400;
     
 }
 .label{
@@ -57,6 +59,13 @@
   background: #b35a78; /* Lighter color */
   cursor: not-allowed; /* Show not-allowed cursor */
   opacity: 0.6; /* Reduce opacity */
+}
+
+input:disabled, 
+select:disabled, 
+textarea:disabled,
+.form-check-input:disabled {
+  cursor: not-allowed !important;
 }
 label{
   font-family: urbanist;
@@ -87,7 +96,4 @@ span{
   font-size: 13px;
   font-family: urbanist;
 
-}
-.input_box {
-  font-weight: bold;
-}
+}

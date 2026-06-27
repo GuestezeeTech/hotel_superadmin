@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { AuthTokenService } from '../../auth-services/auth-token.service';
 import { AlertsService } from '../../shared/alerts/alerts.service';
 import { ENDPOINTS } from '../../app.config';
-
 // Newly added
 import { LocalStorageService } from '../../auth-services/local-storage.service';
 import { LoaderService } from './../../shared/loader/loader.service';
@@ -31,6 +30,7 @@ export class HierarchyCustomerViewComponent {
   };
   hasTreeItems = false;
   hotelId: any;
+  customerId: any;
   @ViewChild('contactTab2') contactTab2!: ElementRef;
 
   getLevelBadge(level: number): string {
@@ -51,14 +51,127 @@ export class HierarchyCustomerViewComponent {
   ngOnInit() {
     const id = this.activatedRoute.snapshot.paramMap.get('id');
     this.hotelId = Number(id);
-    //console.log(this.hierarchyId)
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.customerId = Number(params['customerId']);
+    });
+    this.updateHierarchyById(this.hotelId);
+  }
 
-    // Newly added
-    // this.hotelId = Number(this.localStorageService.get('UserId'));
-    // if (this.hierarchyId != 0) {
-    //   //console.log("123")
-    this.updateHierarchyById(this.hotelId)
-    // }
+  async updateHierarchyById(hierarchyId: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let requestBody = {
+        domain_name: this.authTokenService.getDomain(),
+        user_id: this.authTokenService.getUserId(),
+        extras: {
+          find: {
+            id: this.hotelId //newly changed from customer_id to customer_member_id
+          }
+        }
+      };
+      this.hierarchyService.apiCall(requestBody, ENDPOINTS.GETBYID_HIERARCHY).subscribe(
+        resp => {
+          //console.log("test", "123")
+          //console.log(resp.result.data, "resp")
+          if (resp) {
+            //console.log(resp.result.data, "resp")
+            this.hierarchyData = resp.result.data[0].hierarchy;
+            //console.log(this.hierarchyData, "this.hierarchyData")
+            const hierarchyItems1: HierarchyItem[] = this.hierarchyData.map((item: any) => ({
+              id: item.id,
+              designation: item.designation,
+              escalationTime: item.escalationTime,
+              department: item.department,
+              isTopLevel: item.isTopLevel,
+              isTreeItem: true,
+              parentId: item.parentId
+            }));
+            const hierarchyItems: HierarchyItem[] = hierarchyItems1.map(item =>
+              Object.fromEntries(
+                Object.entries(item).filter(([_, v]) => v !== undefined)
+              ) as HierarchyItem
+            );
+            //console.log(this.parentId, "this.parentid", hierarchyItems);
+            this.hierarchyService.clearHierarchyData();
+            //console.log('Cleared hierarchy data');
+            this.hierarchyService.setHierarchyData(hierarchyItems);
+            //console.log('Set new hierarchy data');
+            //console.log(this.hierarchyService.getHierarchyData())
+            resolve();  // Resolve promise when data is set
+          }
+        },
+        err => {
+          if (err.error.statusCode === 403) {
+            this.alertService.error('Session Time Out! Please login Again', this.options);
+            this.router.navigate([`/login`], { skipLocationChange: false });
+          } else if (err.error.message) {
+            this.alertService.error(err.error.message, this.options);
+          } else {
+            this.alertService.error('Something bad happened. Please try again!', this.options);
+          }
+          reject(err);  // Reject promise if there is an error
+        }
+      );
+    });
+  }
+
+  back() {
+    this.router.navigate(['/edit-new-hotel', this.customerId], {
+      queryParams: { tab: 'hierarchy-tab' }
+    });
+  }
+
+  updateHierarchyData(obj: any) {
+    let requestBody = {
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      payload: {
+        hierarchy_creation: {
+          "hierarchy": obj
+        }
+      },
+      extras: {
+        find: {
+          id: this.hierarchyId
+        }
+      }
+    }
+    //console.log("123")
+    this.hierarchyService.apiCall(requestBody, ENDPOINTS.UPDATE_HIERARCHY).subscribe(
+      resp => {
+
+        if (resp) {
+          if (resp.success === 1 && resp.status_code === 200) {
+            this.hierarchyService.clearHierarchyData();
+            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+              this.router.navigate(['/view-customer-hierarchy', this.hierarchyId]);
+            });
+          }
+          else if (resp.success === 0) {
+            if (resp.message) {
+              this.alertService.error(resp.message, this.options);
+            }
+          }
+          else if (resp.message && resp.status_code !== 200) {
+            this.alertService.error(resp.message, this.options);
+          }
+          else {
+            this.alertService.error('Something bad happened. Please try again!', this.options);
+          }
+        }
+      },
+      err => {
+        if (err.error.statusCode === 403) {
+          this.alertService.error('Session Time Out! Please login Again', this.options)
+          this.router.navigate([`/login`], { skipLocationChange: false });
+        }
+        else if (err.error.message) {
+          this.alertService.error(err.error.message, this.options)
+        }
+        else {
+          this.alertService.error('Something bad happened. Please try again!', this.options);
+        }
+      }
+    )
 
   }
 
@@ -185,122 +298,6 @@ export class HierarchyCustomerViewComponent {
   }
 
 
-  async updateHierarchyById(hierarchyId: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let requestBody = {
-        domain_name: this.authTokenService.getDomain(),
-        user_id: this.authTokenService.getUserId(),
-        extras: {
-          find: {
-            customer_id: this.hotelId
-          }
-        }
-      };
-      this.hierarchyService.apiCall(requestBody, ENDPOINTS.GETBYID_HIERARCHY).subscribe(
-        resp => {
-          //console.log("test", "123")
-          //console.log(resp.result.data, "resp")
-          if (resp) {
-            //console.log(resp.result.data, "resp")
-            this.hierarchyData = resp.result.data[0].hierarchy;
-            //console.log(this.hierarchyData, "this.hierarchyData")
-            const hierarchyItems1: HierarchyItem[] = this.hierarchyData.map((item: any) => ({
-              id: item.id,
-              designation: item.designation,
-              escalationTime: item.escalationTime,
-              department: item.department,
-              isTopLevel: item.isTopLevel,
-              isTreeItem: true,
-              parentId: item.parentId
-            }));
-            const hierarchyItems: HierarchyItem[] = hierarchyItems1.map(item =>
-              Object.fromEntries(
-                Object.entries(item).filter(([_, v]) => v !== undefined)
-              ) as HierarchyItem
-            );
-            //console.log(this.parentId, "this.parentid", hierarchyItems);
-            this.hierarchyService.clearHierarchyData();
-            //console.log('Cleared hierarchy data');
-            this.hierarchyService.setHierarchyData(hierarchyItems);
-            //console.log('Set new hierarchy data');
-            //console.log(this.hierarchyService.getHierarchyData())
-            resolve();  // Resolve promise when data is set
-          }
-        },
-        err => {
-          if (err.error.statusCode === 403) {
-            this.alertService.error('Session Time Out! Please login Again', this.options);
-            this.router.navigate([`/login`], { skipLocationChange: false });
-          } else if (err.error.message) {
-            this.alertService.error(err.error.message, this.options);
-          } else {
-            this.alertService.error('Something bad happened. Please try again!', this.options);
-          }
-          reject(err);  // Reject promise if there is an error
-        }
-      );
-    });
-  }
 
-  updateHierarchyData(obj: any) {
-    let requestBody = {
-      domain_name: this.authTokenService.getDomain(),
-      user_id: this.authTokenService.getUserId(),
-      payload: {
-        hierarchy_creation: {
-          "hierarchy": obj
-        }
-      },
-      extras: {
-        find: {
-          id: this.hierarchyId
-        }
-      }
-    }
-    //console.log("123")
-    this.hierarchyService.apiCall(requestBody, ENDPOINTS.UPDATE_HIERARCHY).subscribe(
-      resp => {
-
-        if (resp) {
-          if (resp.success === 1 && resp.status_code === 200) {
-            this.hierarchyService.clearHierarchyData();
-            this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-              this.router.navigate(['/view-customer-hierarchy', this.hierarchyId]);
-            });
-          }
-          else if (resp.success === 0) {
-            if (resp.message) {
-              this.alertService.error(resp.message, this.options);
-            }
-          }
-          else if (resp.message && resp.status_code !== 200) {
-            this.alertService.error(resp.message, this.options);
-          }
-          else {
-            this.alertService.error('Something bad happened. Please try again!', this.options);
-          }
-        }
-      },
-      err => {
-        if (err.error.statusCode === 403) {
-          this.alertService.error('Session Time Out! Please login Again', this.options)
-          this.router.navigate([`/login`], { skipLocationChange: false });
-        }
-        else if (err.error.message) {
-          this.alertService.error(err.error.message, this.options)
-        }
-        else {
-          this.alertService.error('Something bad happened. Please try again!', this.options);
-        }
-      }
-    )
-
-  }
-
-  back() {
-    this.router.navigate(['/edit-new-hotel', this.hotelId], {
-      queryParams: { tab: 'contact-tab2' }
-    });
-  }
 }
 

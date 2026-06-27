@@ -6,11 +6,18 @@
   </div>
   <!-- User Info Section -->
   <div class="user-info d-flex align-items-center" #userInfo>
-    <img class="notification-icon" src="../../../assets/images/guestezee/notify.png" alt="Notification"
-      (click)="toggleNotification()">
-    <img class="profile-icon" [src]="profile_image" alt="Profile" class="rounded-circle border"
-      style="width: 40px; height: 40px; object-fit: cover;cursor: pointer;" (click)="toggleLogout()">
-    <span class="username d-md-inline;cursor: pointer;" (click)="toggleLogout()">{{profile_name}}</span>
+    <!-- <img class="notification-icon" src="../../../assets/images/guestezee/notify.png" alt="Notification"
+      (click)="toggleNotification()"> -->
+       <!-- <img class="profile-icon" [src]="" alt="Profile" class="rounded-circle border"
+      style="width: 40px; height: 40px; object-fit: cover; cursor: pointer;" (click)="toggleLogout()"> -->
+    <img class="profile-icon border" [src]="profile_image || 'https://images.ecbee.net/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp'" alt="Profile"
+      style="width: 40px; height: 40px; object-fit: contain; background-color: #ffffff; border-radius: 4px; cursor: pointer;" (click)="toggleLogout()">
+       <!-- <span class="username d-md-inline;" style="cursor: pointer;" (click)="toggleLogout()">{{profile_name}}</span>
+    <span><i class="bi bi-chevron-down" style="cursor: pointer; color:black; margin:0; padding:0; font-size: 12px;" (click)="toggleLogout()"></i></span> -->
+    <div class="d-flex align-items-center" style="gap: 5px; cursor: pointer;" (click)="toggleLogout()">
+      <span class="username d-md-inline">{{profile_name}}</span>
+      <i class="bi bi-chevron-down" style="color:black; font-size: 12px;"></i>
+    </div>
   </div>
   <div *ngIf="showAccount" class="position-absolute profile-settings border rounded-3 shadow-sm  mt-2"
     style="top: 90%; right: 1.5%; width: 10%; background-color: #fff;    z-index: 1000;">

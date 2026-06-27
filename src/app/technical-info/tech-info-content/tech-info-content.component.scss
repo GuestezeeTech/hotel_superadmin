@@ -8,12 +8,14 @@ body {
 }
 
 .container {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  width: 100%;
 }
 
 .card {
-  width: 250px;
+  width: 100%;
   background: white;
   padding: 20px;
   border-radius: 10px;

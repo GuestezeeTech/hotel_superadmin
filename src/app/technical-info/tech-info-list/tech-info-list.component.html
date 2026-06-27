@@ -1,7 +1,15 @@
 <div class="main">
+
   <div class="centered-container">
-    <!-- Newl removed -->
-    <!-- <button type="button" class="save_bt" style="float: right;" (click)="addTechnicalInfo()"  >Add Technical Info</button> -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+      <!-- <button type="button" class="save_bt" style="float: right; margin-bottom: 20px;" (click)="addTechnicalInfo()">Add Technical Info</button> -->
+      <button type="button" class="save_bt" (click)="addTechnicalInfo()">Add Technical Info</button>
+    </div>
+    <!--  <div class="tech-hint-note-outer"
+      style="display: flex; align-items: center; gap: 10px; width: fit-content; margin: 10px 0 15px auto; padding: 10px 20px; background-color: #fff5f5; border-left: 5px solid #800020; border-radius: 4px; font-size: 14px; color: #800020; font-family: urbanist; font-weight: 500; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); position: relative; z-index: 1000;">
+      <i class="fas fa-info-circle" style="color: #800020; font-size: 18px; flex-shrink: 0;"></i>
+      <span><strong>Note:</strong> Technical info should not be enabled while creating.</span>
+    </div> -->
     <div class="container">
       <!-- Tabs Navigation -->
       <ul class="nav nav-tabs flex-wrap" id="myTabs" role="tablist">
@@ -36,34 +44,42 @@
       <!-- Tab Content -->
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="lock" role="tabpanel" aria-labelledby="lock-tab">
-          <app-tech-info-content *ngIf="selectedTab" [filterType]="selectedTab"></app-tech-info-content>
+          <app-tech-info-content *ngIf="selectedTab === 'lock'" [filterType]="selectedTab"></app-tech-info-content>
         </div>
         <div class="tab-pane fade" id="pos" role="tabpanel" aria-labelledby="pos-tab">
-          <app-tech-info-content *ngIf="selectedTab" [filterType]="selectedTab"></app-tech-info-content>
+          <app-tech-info-content *ngIf="selectedTab === 'pos'" [filterType]="selectedTab"></app-tech-info-content>
         </div>
         <div class="tab-pane fade" id="sms" role="tabpanel" aria-labelledby="sms-tab">
-          <app-tech-info-content *ngIf="selectedTab" [filterType]="selectedTab"></app-tech-info-content>
+          <app-tech-info-content *ngIf="selectedTab === 'SMS'" [filterType]="selectedTab"></app-tech-info-content>
         </div>
         <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
-          <app-tech-info-content *ngIf="selectedTab" [filterType]="selectedTab"></app-tech-info-content>
+          <app-tech-info-content *ngIf="selectedTab === 'Payment'" [filterType]="selectedTab"></app-tech-info-content>
         </div>
         <!-- <div class="tab-pane fade" id="logistics" role="tabpanel" aria-labelledby="logistics-tab">
                 <app-tech-info-content  *ngIf="selectedTab" [filterType]="selectedTab"></app-tech-info-content>
               </div> -->
         <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">
-          <app-tech-info-content *ngIf="selectedTab" [filterType]="selectedTab"></app-tech-info-content>
+          <app-tech-info-content *ngIf="selectedTab === 'other'" [filterType]="selectedTab"></app-tech-info-content>
         </div>
       </div>
     </div>
     <div style="display: flex;justify-content: flex-end;" class="mt-3">
       <!-- Newly added -->
-      <button type="submit" class="save_bt mr-3" *ngIf="this.activeTab == 1 " (click)="previousTab()">Previous
+      <!-- <button type="submit" class="save_bt mr-3" *ngIf="this.activeTab == 1 " (click)="previousTab()">Previous
         Tab</button>
       <button type="submit" class="save_bt mr-3" *ngIf="this.activeTab == 2 || this.activeTab == 3"
-        (click)="previousTab()">Previous Info Tab</button>
+        (click)="previousTab()">Previous Info Tab</button> -->
+      <!-- <button type="submit" class="save_bt" *ngIf="this.activeTab == 1 || this.activeTab == 2" (click)="nextTabInfo()">Next
+            Info Tab</button>
+          <button type="submit" class="save_bt" *ngIf="this.activeTab == 3" (click)="nextTab()">Next Tab</button> -->
+      <!-- Newly commnted out because no need of buttons here in this page -->
+      <!--  <button type="submit" class="cancel_bt mr-3" *ngIf="this.activeTab == 1 " (click)="previousTab()">Back</button>
+      <button type="submit" class="cancel_bt mr-3" *ngIf="this.activeTab == 2 || this.activeTab == 3"
+        (click)="previousTab()">Back</button>
       <button type="submit" class="save_bt" *ngIf="this.activeTab == 1 || this.activeTab == 2"
-        (click)="nextTabInfo()">Next
-        Info Tab</button>
+        (click)="nextTabInfo()">Save & Continue</button>
+      <button type="submit" class="save_bt" *ngIf="this.activeTab == 3" (click)="nextTab()">Save & Continue</button> -->
+      <!-- End of newly commented out -->
     </div>
   </div>
 </div>

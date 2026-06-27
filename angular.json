@@ -26,10 +26,9 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              
-                "src/assets",
-                "src/favicon.ico"
-              
+              "src/assets",
+              "src/favicon.ico",
+              "src/email-template"
             ],
             "styles": [
               "src/styles.scss",
@@ -47,8 +46,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4.5kb",
-                  "maximumError": "4.6kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "10kb"
                 }
               ],
               "outputHashing": "all"
@@ -87,7 +86,8 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/assets",
-              "src/favicon.ico"
+              "src/favicon.ico",
+              "src/email-template"
             ],
             "styles": [
               "src/styles.scss",

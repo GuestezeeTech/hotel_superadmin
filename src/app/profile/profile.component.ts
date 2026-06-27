@@ -12,6 +12,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormGroup } from '@angular/forms';
 import { ProfileService } from './profile.service';
 import { AlertsComponent } from "../shared/alerts/alerts.component";
+import { ViewChild, ElementRef } from '@angular/core';
 
 
 @Component({
@@ -22,6 +23,7 @@ import { AlertsComponent } from "../shared/alerts/alerts.component";
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnInit {
+  @ViewChild('fileuploadinput') fileuploadinput!: ElementRef;
   // For online/offline
   isOnline: boolean = true;
   // Modal
@@ -44,11 +46,12 @@ export class ProfileComponent implements OnInit {
   isExitModalOpen: boolean = false;
   validateForm2: Boolean = false;
   validateImage: Boolean = false;
-  // Newly added
+  isLogoutModalOpen: boolean = false;
   options = {
     autoClose: true,
     keepAfterRouteChange: false
   };
+  passwordErrorMessage: string = '';
 
   constructor(
     private localService: LocalStorageService,
@@ -76,7 +79,8 @@ export class ProfileComponent implements OnInit {
     this.userRegistartionForm = this.formBuilder.group({
       first_name: ['', [Validators.maxLength(40), Validators.pattern("^[a-zA-Z][a-z A-Z]*$")]],
       last_name: ['', [Validators.maxLength(40), Validators.pattern("^[a-zA-Z][a-z A-Z]*$")]],
-      profile_image: '../../assets/images/guestezee/profile.png',
+      // profile_image: '../../assets/images/guestezee/profile.png',
+      profile_image: 'https://images.ecbee.net/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp',
       imageFile: [''],
     });
 
@@ -84,6 +88,11 @@ export class ProfileComponent implements OnInit {
       current_password: ['', [Validators.minLength(6), Validators.required]],
       new_password: ['', [Validators.minLength(6), Validators.required]],
       confirm_password: ['', [Validators.minLength(6), Validators.required]],
+    });
+
+    // Clear custom modal errors when user starts typing
+    this.passwordUpdateForm.valueChanges.subscribe(() => {
+      this.passwordErrorMessage = '';
     });
   }
 
@@ -104,97 +113,118 @@ export class ProfileComponent implements OnInit {
   imageName: string = '';
   enableEdit: boolean = true;
   imgFile: File | null = null;
-  profile_image: string | null = '../../assets/images/guestezee/profile.png';
+  //  profile_image: string | null = '../../assets/images/guestezee/profile.png';
+  profile_image: string | null = 'https://images.ecbee.net/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp';
 
   imageupload(event: any): void {
+    let dragEvent = false;
+    let file_data = { name: "", size: 0 };
+    let originalFile: File | null = null;
 
-    let dragEvent = false
-    let file_data = { name: "", size: 0 }
-    //CHECKING DRAG EVENT OR UPLOAD EVENT
     if (event.target && event.target.files && event.target.files[0]) {
+      originalFile = event.target.files[0];
+      file_data = event.target.files[0];
+    } else if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+      originalFile = event.dataTransfer.files[0];
+      file_data = event.dataTransfer.files[0];
+      dragEvent = true;
+    }
 
-      file_data = event.target.files[0]
+    if (!originalFile) {
+      return;
     }
-    else {
-      file_data = event.dataTransfer.files[0]
-      dragEvent = true
-    }
+
     this.validateImage = true;
-    var reader = new FileReader();
-
-    this.imageName = file_data.name
-    let splitFileName = this.imageName.split(".")
-    //CHECKING FILE NAME
-    // if (splitFileName.length == 0) {
-    //   this.userRegistartionForm.controls['imageFile'].setErrors({ 'invalid': true });
-    //   return
-    // }
-
-    // if (file_data.size == 0) {
-    //   this.userRegistartionForm.controls['imageFile'].setErrors({ 'sizezero': true });
-    //   return
-    // }
+    this.imageName = file_data.name;
+    let splitFileName = this.imageName.split(".");
 
     if (Math.round((file_data.size / 1000)) > 2000) {
       this.userRegistartionForm.controls['imageFile'].setErrors({ 'sizehigh': true });
-      return
+      this.alertService.error("File size must be less than 2MB.", this.options);
+      if (event.target) {
+        event.target.value = '';
+      }
+      return;
     }
 
-    //CHECKING FILE TYPE
     if (!["jpg", "jpeg", "png", "gif", "JPG", "JPEG", "PNG", "GIF"].includes(splitFileName[splitFileName.length - 1])) {
       this.userRegistartionForm.controls['imageFile'].setErrors({ 'type': true });
-      return
+      this.alertService.error("Invalid image format. Allowed types: JPG, JPEG, PNG, GIF.", this.options);
+      if (event.target) {
+        event.target.value = '';
+      }
+      return;
     }
-    // this.userRegistartionForm.controls['imageFile'].setErrors({ 'invalid': false });
-    // this.userRegistartionForm.controls['imageFile'].setErrors({ 'sizezero': false });
+
     this.userRegistartionForm.controls['imageFile'].setErrors({ 'type': false });
     this.userRegistartionForm.controls['imageFile'].setErrors({ 'sizehigh': false });
 
+    // Validate dimensions: must be exactly 200 x 200 pixels to look good in header profile
+    const img = new Image();
+    img.src = window.URL.createObjectURL(originalFile);
+    img.onload = () => {
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+      window.URL.revokeObjectURL(img.src);
 
-    reader.onload = (evt: any) => {
-      this.previewImgUrl = evt.target.result;
-      this.userRegistartionForm.controls['imageFile'].setValue(evt.target.result)
-      this.imgFile = event.target.files[0];
-    }
-
-    //BASED ON EVENT READ FILE
-    if (!dragEvent) {
-      reader.readAsDataURL(event.target.files[0]);
-      this.imgFile = event.target.files[0];
-
-    }
-    else {
-      reader.readAsDataURL(event.dataTransfer.files[0]);
-      this.imgFile = event.dataTransfer.files[0];
-    }
-
-
-    let headers = new HttpHeaders().set("source", "Brand").set("domain_name", this.authTokenService.getDomain())
-    let formData_imageCate = new FormData();
-    if (this.imgFile !== null) {
-      formData_imageCate.append('upload', this.imgFile)
-    }
-    this.profileService.sendImage(formData_imageCate, headers).subscribe(resp => {
-      if (resp && resp.success === 1 && resp.status_code === 200) {
-        let imgVariable = resp.result.data[0];
-        if (this.imgFile !== null) {
-          this.profile_image = imgVariable.location;
-          //console.log("this.logoImage" + this.profile_image)
-          // Store profile image in localStorage
-
-          this.profileUpdate(this.profile_image)
+      if (width !== 200 || height !== 200) {
+        this.userRegistartionForm.controls['imageFile'].setErrors({ 'dimensions': true });
+        this.alertService.error(`Image dimensions must be exactly 200 × 200 pixels. (Uploaded image: ${width} × ${height} pixels)`, this.options);
+        if (event.target) {
+          event.target.value = '';
         }
+        return;
       }
-    })
+
+      // Valid size - proceed with preview and upload original file to maintain quality
+      this.imgFile = originalFile;
+
+      const reader = new FileReader();
+      reader.onload = (evt: any) => {
+        this.previewImgUrl = evt.target.result;
+        this.userRegistartionForm.controls['imageFile'].setValue(evt.target.result);
+      };
+      reader.readAsDataURL(originalFile);
+
+      let headers = new HttpHeaders().set("source", "Brand").set("domain_name", this.authTokenService.getDomain());
+      let formData_imageCate = new FormData();
+      formData_imageCate.append('upload', originalFile);
+
+      this.profileService.sendImage(formData_imageCate, headers).subscribe(resp => {
+        if (resp && resp.success === 1 && resp.status_code === 200) {
+          let imgVariable = resp.result.data[0];
+          this.profile_image = imgVariable.location;
+          this.profileUpdate(this.profile_image, "Profile image uploaded successfully!");
+        }
+        if (event.target) {
+          event.target.value = '';
+        }
+      }, error => {
+        this.alertService.error("Error uploading profile image.", this.options);
+        if (event.target) {
+          event.target.value = '';
+        }
+      });
+    };
+
+    img.onerror = () => {
+      window.URL.revokeObjectURL(img.src);
+      this.alertService.error('Invalid image file.', this.options);
+      if (event.target) {
+        event.target.value = '';
+      }
+    };
   }
 
   deleteImage() {
-    this.profile_image = '../../assets/images/guestezee/profile.png';
-    this.profileUpdate(this.profile_image);
+    this.profile_image = 'https://images.ecbee.net/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp';
+    this.profileUpdate(this.profile_image, "Profile image deleted successfully!");
     this.userRegistartionForm.controls['imageFile'].setErrors({ 'type': false });
     this.userRegistartionForm.controls['imageFile'].setErrors({ 'sizehigh': false });
+    if (this.fileuploadinput) {
+      this.fileuploadinput.nativeElement.value = '';
+    }
     this.closeExitModal();
-
   }
 
   getAdminProfileDetails() {
@@ -207,8 +237,6 @@ export class ProfileComponent implements OnInit {
     };
 
     this.profileService.postApiCall(jsonObj, ENDPOINTS.GETBYID_ADMINUSERS).subscribe(resp => {
-      //console.log("Fetched Profile Data:", resp);
-
       if (resp.success === 1 && resp.status_code === 200) {
         this.adminUserData = {
           ...resp.result.data[0],
@@ -216,12 +244,9 @@ export class ProfileComponent implements OnInit {
         };
 
         if (!this.adminUserData) {
-          //console.error("No admin user data returned!");
           return;
         }
 
-        //console.log("Updated Profile Details:", this.adminUserData);
-        //console.log(this.adminUserData)
         if (this.adminUserData) {
           this.userRegistartionForm.patchValue({
             first_name: this.adminUserData.first_name || '',
@@ -230,25 +255,16 @@ export class ProfileComponent implements OnInit {
           });
 
           this.localService.set('profile_image', this.adminUserData.profile_image);
-          // Update the profile image using BehaviorSubject
           this.profileService.updateProfileImage(this.adminUserData.profile_image);
-          this.profile_image = this.adminUserData.profile_image || '../../assets/images/guestezee/profile.png';
-
-          // Update the profile image using BehaviorSubject
-
+          this.profile_image = this.adminUserData.profile_image || 'https://images.ecbee.net/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp';
           this.profileService.updateProfileName(this.adminUserData.first_name + ' ' + this.adminUserData.last_name);
           console.log('Name:', this.localService.get('profile_name'));
         }
       }
-      else {
-        //console.warn("Failed to fetch updated profile data.");
-      }
-    })
+    });
   }
 
-  profileUpdate(profile_image: any) {
-
-    //console.log("profile_image", profile_image)
+  profileUpdate(profile_image: any, successMessage: string = "Profile updated successfully!") {
     if (this.userRegistartionForm.valid) {
       let formData = {
         first_name: this.userRegistartionForm.value.first_name,
@@ -267,98 +283,173 @@ export class ProfileComponent implements OnInit {
         }
       };
 
-      //console.log("Updating profile with data:", updateData);
       this.profileService.postApiCall(updateData, ENDPOINTS.UPDATE_USER).subscribe(resp => {
         if (resp.success == 1) {
-          //console.log("Update Success:", resp);
-          // alert("Profile updated successfully!")
-          this.alertService.success("Profile updated successfully!", this.options);
+          this.alertService.success(successMessage, this.options);
           this.getAdminProfileDetails();
-
         } else {
-          //console.warn("Update Failed:", resp.message);
           this.alertService.error(resp.message, this.options);
         }
       }, err => {
-        //console.error("Update Error:", err);
         this.alertService.error("Error updating profile: " + (err.error?.message || "Please try again!"), this.options);
       });
     }
   }
 
 
+  /*  savePasswordChanges() {
+     if (this.passwordUpdateForm.valid) {
+       this.validateForm2 = true;
+       // Newly added
+       const storedPassword = this.localService.get('password');
+       const currentPassword = this.p['current_password'].value;
+       // Check if current password matches the stored password
+       if (storedPassword !== currentPassword) {
+         this.p['current_password'].setErrors({ incorrect: true });
+         this.alertService.error("Current Password is incorrect.", this.options);
+         return;
+       }
+       // Ensure passwords match
+       if (this.p['new_password'].value !== this.p['confirm_password'].value) {
+         this.p['confirm_password'].setErrors({ matchError: true });
+         this.alertService.error("New Password and Confirm Password do not match.", this.options);
+         return;
+       }
+       // let formData = {
+       //   new_password: this.p['new_password'].value,
+       // old_password: this.p['current_password'].value
+       // };
+ 
+       // Clone adminUserData and exclude _id
+       let { _id, ...updatableUserData } = this.adminUserData;
+       // Update password only
+       updatableUserData.password = this.p['new_password'].value;
+       // let updatedProfileData = {
+       //   ...this.adminUserData,
+       //   password: this.p['new_password'].value
+       // };
+       let jsonObj = {
+         domain_name: this.authService.getDomain(),
+         user_id: this.authService.getUserId(),
+         payload: {
+           user_updation: updatableUserData
+         },
+         extras: {
+           find: {
+             id: this.authService.getUserId()
+           }
+         }
+       };
+       this.profileService.updatePassword(jsonObj).subscribe(
+         resp => {
+           if (resp?.success === 1) {
+             this.passwordUpdateForm.reset();
+             this.isPasswordModalOpen = false;
+             this.alertService.success("Password updated successfully!", this.options);
+             this.localService.set('password', this.p['new_password'].value);
+             // setTimeout(() => {
+             //   this.alertService.clear(); // Clears the alert message
+             // }, 2000);
+           } else {
+             this.alertService.error(resp?.message || "Something went wrong.", this.options);
+             console.log('Err:', resp.message)
+             // setTimeout(() => {
+             //   this.alertService.clear(); // Clears the alert message
+             // }, 2000);
+           }
+         },
+         err => {
+           this.alertService.error("Error updating password: " + (err.error?.message || "Please try again!"), this.options);
+           // setTimeout(() => {
+           //   this.alertService.clear(); // Clears the alert message
+           // }, 2000);
+         }
+       );
+     } else {
+       this.passwordUpdateForm.markAllAsTouched();
+       this.validateForm2 = true;
+     }
+   } */
   savePasswordChanges() {
-    if (this.passwordUpdateForm.valid) {
-      this.validateForm2 = true;
-      // Newly added
-      const storedPassword = this.localService.get('password');
-      const currentPassword = this.p['current_password'].value;
-      // Check if current password matches the stored password
-      if (storedPassword !== currentPassword) {
-        this.p['current_password'].setErrors({ incorrect: true });
-        this.alertService.error("Current Password is incorrect.", this.options);
-        return;
-      }
-      // Ensure passwords match
-      if (this.p['new_password'].value !== this.p['confirm_password'].value) {
-        this.p['confirm_password'].setErrors({ matchError: true });
-        this.alertService.error("New Password and Confirm Password do not match.", this.options);
-        return;
-      }
-      // let formData = {
-      //   new_password: this.p['new_password'].value,
-      // old_password: this.p['current_password'].value
-      // };
 
-      // Clone adminUserData and exclude _id
-      let { _id, ...updatableUserData } = this.adminUserData;
-      // Update password only
-      updatableUserData.password = this.p['new_password'].value;
-      // let updatedProfileData = {
-      //   ...this.adminUserData,
-      //   password: this.p['new_password'].value
-      // };
-      let jsonObj = {
-        domain_name: this.authService.getDomain(),
-        user_id: this.authService.getUserId(),
-        payload: {
-          user_updation: updatableUserData
-        },
-        extras: {
-          find: {
-            id: this.authService.getUserId()
-          }
-        }
-      };
-      this.profileService.updatePassword(jsonObj).subscribe(
-        resp => {
-          if (resp?.success === 1) {
-            this.passwordUpdateForm.reset();
-            this.isPasswordModalOpen = false;
-            this.alertService.success("Password updated successfully!", this.options);
-            this.localService.set('password', this.p['new_password'].value);
-            // setTimeout(() => {
-            //   this.alertService.clear(); // Clears the alert message
-            // }, 2000);
-          } else {
-            this.alertService.error(resp?.message || "Something went wrong.", this.options);
-            console.log('Err:', resp.message)
-            // setTimeout(() => {
-            //   this.alertService.clear(); // Clears the alert message
-            // }, 2000);
-          }
-        },
-        err => {
-          this.alertService.error("Error updating password: " + (err.error?.message || "Please try again!"), this.options);
-          // setTimeout(() => {
-          //   this.alertService.clear(); // Clears the alert message
-          // }, 2000);
-        }
-      );
-    } else {
+    this.passwordErrorMessage = '';
+
+    if (!this.passwordUpdateForm.valid) {
       this.passwordUpdateForm.markAllAsTouched();
       this.validateForm2 = true;
+      return;
     }
+
+    const storedPassword = this.localService.get('password');
+    const currentPassword = this.p['current_password'].value;
+    const newPassword = this.p['new_password'].value;
+    const confirmPassword = this.p['confirm_password'].value;
+
+    // Current password validation
+    if (storedPassword !== currentPassword) {
+      this.passwordErrorMessage = 'Current password is incorrect.';
+      return;
+    }
+
+    // Current and New password same validation
+    if (currentPassword === newPassword) {
+      this.passwordErrorMessage =
+        'New password must be different from the current password.';
+      return;
+    }
+
+    // Confirm password validation
+    /*  if (newPassword !== confirmPassword) {
+       this.p['confirm_password'].setErrors({ matchError: true });
+       this.passwordErrorMessage =
+         'New Password and Confirm Password do not match.';
+       return;
+     } */
+    if (newPassword !== confirmPassword) {
+      return;
+    }
+
+    // API Call
+    let { _id, ...updatableUserData } = this.adminUserData;
+
+    updatableUserData.password = newPassword;
+
+    let jsonObj = {
+      domain_name: this.authService.getDomain(),
+      user_id: this.authService.getUserId(),
+      payload: {
+        user_updation: updatableUserData
+      },
+      extras: {
+        find: {
+          id: this.authService.getUserId()
+        }
+      }
+    };
+
+    this.profileService.updatePassword(jsonObj).subscribe(
+      resp => {
+        if (resp?.success === 1) {
+          this.passwordUpdateForm.reset();
+          this.passwordErrorMessage = '';
+          this.isPasswordModalOpen = false;
+
+          this.alertService.success(
+            'Password updated successfully!',
+            this.options
+          );
+
+          this.localService.set('password', newPassword);
+        } else {
+          this.passwordErrorMessage =
+            resp?.message || 'Something went wrong.';
+        }
+      },
+      err => {
+        this.passwordErrorMessage =
+          err.error?.message || 'Error updating password. Please try again.';
+      }
+    );
   }
 
   toggleStatus() {
@@ -367,13 +458,18 @@ export class ProfileComponent implements OnInit {
 
   openPasswordModal() {
     this.passwordUpdateForm.reset();
+    this.passwordErrorMessage = '';
     this.isPasswordModalOpen = true;
   }
 
-  closePasswordModal(event: Event) {
-    if (event.target === event.currentTarget) {
-      this.isPasswordModalOpen = false;
-    }
+  // closePasswordModal(event: Event) {
+  //   if (event.target === event.currentTarget) {
+  //     this.isPasswordModalOpen = false;
+  //   }
+  // }
+  closePasswordModal() {
+    this.isPasswordModalOpen = false;
+    this.passwordErrorMessage = '';
   }
 
   togglePasswordVisibility(type: string) {
@@ -413,6 +509,10 @@ export class ProfileComponent implements OnInit {
   }
 
   logout() {
+    this.isLogoutModalOpen = true;
+  }
+
+  confirmLogout() {
     this.localService.remove('accessToken');
     this.localService.remove('refreshToken');
     this.localService.remove('expireTime');
@@ -421,7 +521,14 @@ export class ProfileComponent implements OnInit {
     this.localService.remove('UserId');
     this.localService.remove('domainName');
     this.localService.remove('rexpireTime');
+    this.localService.remove('lastValidUrl');
+    this.localService.set('loggedOut', 'true');
+    this.isLogoutModalOpen = false;
     this.router.navigate([`/login`], { skipLocationChange: false });
+  }
+
+  closeLogoutModal() {
+    this.isLogoutModalOpen = false;
   }
 
   openExitModal() {

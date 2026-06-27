@@ -1,26 +1,36 @@
 <app-alerts></app-alerts>
 <form [formGroup]="customerProprtyDetailsForm" (ngSubmit)="onSubmit()">
   <div class="section">
-    <h3 style="font-size: 20px;font-weight: 600;">Contact Details</h3>
+    <h3 style="font-size: 20px;font-weight: 600;">Contact Details<a style="font-size: 13px;color: #A0A0A0;"> - All
+        fields are required </a></h3>
     <div style="display: grid;grid-template-columns: repeat(3, 1fr);row-gap: 3%;">
       <div class="form-group form1_div">
-        <label>Hotel Name</label>
+        <label>Hotel Name <span style="color:red">*</span></label>
         <input class="input_box" type="text" formControlName="hotel_name" />
         <span
-          *ngIf="customerProprtyDetailsForm.controls['hotel_name'].invalid && customerProprtyDetailsForm.controls['hotel_name'].touched">
+          *ngIf="customerProprtyDetailsForm.controls['hotel_name'].hasError('required') && customerProprtyDetailsForm.controls['hotel_name'].touched">
           Hotel name is required.
         </span>
+        <span
+          *ngIf="customerProprtyDetailsForm.controls['hotel_name'].hasError('whitespace') && customerProprtyDetailsForm.controls['hotel_name'].touched">
+          Cannot be empty or only spaces.
+        </span>
+
       </div>
       <div class="form-group form1_div">
-        <label>Contact Person</label>
+        <label>Contact Person <span style="color:red">*</span></label>
         <input class="input_box" type="text" formControlName="contact_person" />
         <span
-          *ngIf="customerProprtyDetailsForm.controls['contact_person'].invalid && customerProprtyDetailsForm.controls['contact_person'].touched">
-          Contact_person is required.
+          *ngIf="customerProprtyDetailsForm.controls['contact_person'].hasError('required') && customerProprtyDetailsForm.controls['contact_person'].touched">
+          Contact person is required.
+        </span>
+        <span
+          *ngIf="customerProprtyDetailsForm.controls['contact_person'].hasError('whitespace') && customerProprtyDetailsForm.controls['contact_person'].touched">
+          Cannot be empty or only spaces.
         </span>
       </div>
       <div class="form-group form1_div">
-        <label>Designation</label>
+        <label>Designation <span style="color:red">*</span></label>
         <input class="input_box" type="text" formControlName="designation" />
         <!-- <select class="input_box" formControlName="designation">
         <option value="manager">Manager</option>
@@ -30,74 +40,145 @@
         <option value="hr">HR</option>
       </select> -->
         <span
-          *ngIf="customerProprtyDetailsForm.controls['designation'].invalid && customerProprtyDetailsForm.controls['designation'].touched">
+          *ngIf="customerProprtyDetailsForm.controls['designation'].hasError('required') && customerProprtyDetailsForm.controls['designation'].touched">
           Designation is required.
         </span>
-      </div>
-      <div class="form-group form1_div">
-        <label>Phone Number</label>
-        <input class="input_box" type="number" formControlName="primary_phone_number" />
-        <div
-          *ngIf="customerProprtyDetailsForm.get('primary_phone_number')?.hasError('invalidPhone') && customerProprtyDetailsForm.get('primary_phone_number')?.touched"
-          class="error">
-          ❌ Invalid Phone Number (must be 10 digits & start with 6-9)
-        </div>
-      </div>
-      <div class="form-group form1_div">
-        <label>Phone Number <a style="font-size: 14px;color: #A0A0A0;">(secondary)</a></label>
-        <input class="input_box" type="number" formControlName="secondary_phone_number" />
-        <div
-          *ngIf="customerProprtyDetailsForm.get('secondary_phone_number')?.hasError('invalidPhone') && customerProprtyDetailsForm.get('secondary_phone_number')?.touched"
-          class="error">
-          ❌ Invalid Phone Number (must be 10 digits & start with 6-9)
-        </div>
-      </div>
-      <div class="form-group form1_div">
-        <label>Email Id</label>
-        <input class="input_box" type="text" formControlName="email" />
         <span
-          *ngIf="customerProprtyDetailsForm.controls['email'].invalid && customerProprtyDetailsForm.controls['email'].touched">
-          Email is required.
+          *ngIf="customerProprtyDetailsForm.controls['designation'].hasError('whitespace') && customerProprtyDetailsForm.controls['designation'].touched">
+          Cannot be empty or only spaces.
         </span>
       </div>
       <div class="form-group form1_div">
-        <label>Brand / Franchise</label>
-        <select class="input_box" formControlName="brand">
+        <label>Phone Number <span style="color:red">*</span></label>
+        <input class="input_box" type="text" formControlName="primary_phone_number"
+          (keypress)="allowOnlyNumbers($event)" />
+        <span
+          *ngIf="customerProprtyDetailsForm.get('primary_phone_number')?.hasError('required') && customerProprtyDetailsForm.get('primary_phone_number')?.touched">
+          Phone Number is required.
+        </span>
+        <span
+          *ngIf="customerProprtyDetailsForm.get('primary_phone_number')?.hasError('whitespace') && customerProprtyDetailsForm.get('primary_phone_number')?.touched">
+          Cannot be empty or only spaces.
+        </span>
+        <!-- <div
+          *ngIf="customerProprtyDetailsForm.get('primary_phone_number')?.hasError('invalidPhone') && customerProprtyDetailsForm.get('primary_phone_number')?.touched"
+          class="error">
+          Invalid Phone Number (must be 10 digits & start with 6-9)
+        </div> -->
+      </div>
+      <div class="form-group form1_div">
+        <label>Phone Number <a style="font-size: 14px;color: #A0A0A0;">(secondary)</a> <span
+            style="color:red">*</span></label>
+        <input class="input_box" type="text" formControlName="secondary_phone_number"
+          (keypress)="allowOnlyNumbers($event)" />
+        <span
+          *ngIf="customerProprtyDetailsForm.get('secondary_phone_number')?.hasError('required') && customerProprtyDetailsForm.get('secondary_phone_number')?.touched">
+          Phone Number is required.
+        </span>
+        <span
+          *ngIf="customerProprtyDetailsForm.get('secondary_phone_number')?.hasError('whitespace') && customerProprtyDetailsForm.get('secondary_phone_number')?.touched">
+          Cannot be empty or only spaces.
+        </span>
+        <!-- <div
+          *ngIf="customerProprtyDetailsForm.get('secondary_phone_number')?.hasError('invalidPhone') && customerProprtyDetailsForm.get('secondary_phone_number')?.touched"
+          class="error">
+          Invalid Phone Number (must be 10 digits & start with 6-9)
+        </div> -->
+      </div>
+      <div class="form-group form1_div">
+        <label>Email Id <span style="color:red">*</span></label>
+        <input class="input_box" type="text" formControlName="email" />
+        <span
+          *ngIf="customerProprtyDetailsForm.controls['email'].hasError('required') && customerProprtyDetailsForm.controls['email'].touched">
+          Email is required.
+        </span>
+        <span
+          *ngIf="!customerProprtyDetailsForm.controls['email'].hasError('required') && customerProprtyDetailsForm.controls['email'].hasError('pattern') && customerProprtyDetailsForm.controls['email'].touched">
+          Valid email is required.
+        </span>
+      </div>
+      <div class="form-group form1_div">
+        <label>Brand / Franchise <span style="color:red">*</span></label>
+        <select class="input_box" formControlName="brand" (change)="onBrandChange($event)">
           <option value="Taj Hotels">Taj Hotels</option>
           <option value="The Oberoi Group">The Oberoi Group</option>
           <option value="ITC Hotels">ITC Hotels</option>
           <option value="Marriott Hotels">Marriott Hotels</option>
           <option value="Hyatt Hotels">Hyatt Hotels</option>
           <option value="Radisson Hotels">Radisson Hotels</option>
+          <option value="Others">Others</option>
         </select>
         <span
           *ngIf="customerProprtyDetailsForm.controls['brand'].invalid && customerProprtyDetailsForm.controls['brand'].touched">
           Brand / Franchise is required.
         </span>
       </div>
+
+      <!-- //other brand name  -->
+      <div class="form-group form1_div" *ngIf="isOtherBrand">
+        <label>Enter your brand name</label>
+        <input class="input_box" type="text" formControlName="other_brand_name" />
+        <span
+          *ngIf="customerProprtyDetailsForm.controls['other_brand_name'].invalid && (customerProprtyDetailsForm.controls['other_brand_name'].touched || customerProprtyDetailsForm.controls['other_brand_name'].dirty)">
+          <ng-container
+            *ngIf="customerProprtyDetailsForm.controls['other_brand_name'].hasError('required'); else whitespaceError">
+            Other brand name is required.
+          </ng-container>
+        </span>
+        <ng-template #whitespaceError>
+          <span *ngIf="customerProprtyDetailsForm.controls['other_brand_name'].hasError('whitespace')">
+            Only whitespace is not allowed.
+          </span>
+        </ng-template>
+      </div>
+
+      <!-- <div
+  class="form-group form1_div"
+  *ngIf="customerProprtyDetailsForm.get('brand')?.value === 'Others'"
+>
+  <label>Specify Other Brand</label>
+  <input
+    type="text"
+    class="input_box"
+    formControlName="other_brand_name"
+    placeholder="Enter other brand name"
+  />
+  
+</div> -->
+
+      <!-- //other brand name  -->
     </div>
   </div>
   <div class="section">
-    <h3 style="font-size: 20px;font-weight: 600;">Property Address</h3>
+    <h3 style="font-size: 20px;font-weight: 600;">Property Address<a style="font-size: 13px;color: #A0A0A0;"> - All
+        fields are required </a></h3>
     <div style="display: grid;grid-template-columns: repeat(3, 1fr);row-gap: 3%;">
       <div class="form-group form1_div">
-        <label>Door No</label>
+        <label>Door No <span style="color:red">*</span></label>
         <input class="input_box" type="text" formControlName="property_doorno" />
         <span
-          *ngIf="customerProprtyDetailsForm.controls['property_doorno'].invalid && customerProprtyDetailsForm.controls['property_doorno'].touched">
+          *ngIf="customerProprtyDetailsForm.controls['property_doorno'].hasError('required') && customerProprtyDetailsForm.controls['property_doorno'].touched">
           Door No is required.
         </span>
-      </div>
-      <div class="form-group form1_div">
-        <label>Address</label>
-        <input class="input_box" type="text" formControlName="property_address" />
         <span
-          *ngIf="customerProprtyDetailsForm.controls['property_address'].invalid && customerProprtyDetailsForm.controls['property_address'].touched">
-          Address is required.
+          *ngIf="customerProprtyDetailsForm.controls['property_doorno'].hasError('whitespace') && customerProprtyDetailsForm.controls['property_doorno'].touched">
+          Cannot be empty or only spaces.
         </span>
       </div>
       <div class="form-group form1_div">
-        <label>Country</label>
+        <label>Address <span style="color:red">*</span></label>
+        <input class="input_box" type="text" formControlName="property_address" />
+        <span
+          *ngIf="customerProprtyDetailsForm.controls['property_address'].hasError('required') && customerProprtyDetailsForm.controls['property_address'].touched">
+          Address is required.
+        </span>
+        <span
+          *ngIf="customerProprtyDetailsForm.controls['property_address'].hasError('whitespace') && customerProprtyDetailsForm.controls['property_address'].touched">
+          Cannot be empty or only spaces.
+        </span>
+      </div>
+      <div class="form-group form1_div">
+        <label>Country <span style="color:red">*</span></label>
         <select class="input_box" formControlName="property_country" (click)="onItemsSelect($event)">
           <option *ngFor="let country of countryDropdownList" [value]="country.country">{{country.country}}</option>
         </select>
@@ -107,7 +188,7 @@
         </span>
       </div>
       <div class="form-group form1_div">
-        <label>State</label>
+        <label>State <span style="color:red">*</span></label>
         <select class="input_box" formControlName="property_state">
           <option *ngFor="let states of statesDropdownList" [value]="states.state">{{states.state}}</option>
         </select>
@@ -117,7 +198,7 @@
         </span>
       </div>
       <div class="form-group form1_div">
-        <label>City</label>
+        <label>City <span style="color:red">*</span></label>
         <input class="input_box" type="text" formControlName="property_city" />
         <!-- <select class="input_box" formControlName="property_city">
             <option value="manager">Chennai</option>
@@ -127,52 +208,72 @@
             <option value="hr">Chennai</option>
           </select> -->
         <span
-          *ngIf="customerProprtyDetailsForm.controls['property_city'].invalid && customerProprtyDetailsForm.controls['property_city'].touched">
-          City is required
+          *ngIf="customerProprtyDetailsForm.controls['property_city'].hasError('whitespace') && customerProprtyDetailsForm.controls['property_city'].touched">
+          Cannot be empty or only spaces.
         </span>
       </div>
       <div class="form-group form1_div">
-        <label>Location</label>
+        <label>Location <span style="color:red">*</span></label>
         <input class="input_box" type="text" formControlName="property_location" />
         <span
-          *ngIf="customerProprtyDetailsForm.controls['property_location'].invalid && customerProprtyDetailsForm.controls['property_location'].touched">
-          Location is required
+          *ngIf="customerProprtyDetailsForm.controls['property_location'].hasError('required') && customerProprtyDetailsForm.controls['property_location'].touched">
+          Location is required.
+        </span>
+        <span
+          *ngIf="customerProprtyDetailsForm.controls['property_location'].hasError('whitespace') && customerProprtyDetailsForm.controls['property_location'].touched">
+          Cannot be empty or only spaces.
         </span>
       </div>
       <div class="form-group form1_div">
-        <label>Pincode</label>
-        <input class="input_box" type="text" formControlName="property_pincode" />
+        <label>Pincode <span style="color:red">*</span></label>
+        <input class="input_box" type="text" formControlName="property_pincode" [maxlength]="maxPincodeLength"
+          (keypress)="allowPincodeInput($event)" (paste)="handlePaste($event)" />
         <span
-          *ngIf="customerProprtyDetailsForm.controls['property_pincode'].invalid && customerProprtyDetailsForm.controls['property_pincode'].touched">
+          *ngIf="customerProprtyDetailsForm.controls['property_pincode'].hasError('required') && customerProprtyDetailsForm.controls['property_pincode'].touched">
           Pincode is required
         </span>
+        <div
+          *ngIf="customerProprtyDetailsForm.get('property_pincode')?.hasError('invalidPincode') && customerProprtyDetailsForm.get('property_pincode')?.touched"
+          class="error">
+          {{ customerProprtyDetailsForm.get('property_pincode')?.getError('invalidPincode')?.message }}
+        </div>
       </div>
     </div>
   </div>
-  <div class="section">
-    <h3 style="font-size: 20px;font-weight: 600;">PAN & GST Details</h3>
+  <div class="section" *ngIf="showTaxSection && taxControl1 && taxControl2">
+    <h3 style="font-size: 20px;font-weight: 600;">{{ taxSectionTitle }}</h3>
     <div style="display: grid;grid-template-columns: repeat(3, 1fr);row-gap: 3%;">
       <div class="form-group form1_div">
-        <label>PAN Number</label>
-        <input class="input_box" type="text" formControlName="property_pan" />
-        <div
-          *ngIf="customerProprtyDetailsForm.get('property_pan')?.hasError('invalidPAN') && customerProprtyDetailsForm.get('property_pan')?.touched"
-          class="error">
-          ❌ Invalid PAN Format (e.g., ABCDE1234F)
+        <label>{{ taxField1Label }} <span style="color:red">*</span></label>
+        <input class="input_box" type="text" [formControl]="taxControl1" (keypress)="onlyAllowAlphaNumeric($event)"
+          (paste)="handleAlphaNumericPaste($event)" />
+        <div *ngIf="taxControl1.hasError('required') && taxControl1.touched" class="error">
+          {{ taxField1Label }} is required.
+        </div>
+        <div *ngIf="taxControl1.hasError('whitespace') && taxControl1.touched" class="error">
+          Cannot be empty or only spaces.
+        </div>
+        <div *ngIf="taxControl1.hasError('invalidTaxId') && taxControl1.touched" class="error">
+          {{ taxControl1.getError('invalidTaxId')?.message }}
         </div>
       </div>
       <div class="form-group form1_div">
-        <label>GST</label>
-        <input class="input_box" type="text" formControlName="property_gst" />
-        <div
-          *ngIf="customerProprtyDetailsForm.get('property_gst')?.hasError('invalidGST') && customerProprtyDetailsForm.get('property_gst')?.touched"
-          class="error">
-          ❌ Invalid GST Format (e.g., 27ABCDE1234F1Z5)
+        <label>{{ taxField2Label }} <span style="color:red">*</span></label>
+        <input class="input_box" type="text" [formControl]="taxControl2" (keypress)="onlyAllowAlphaNumeric($event)"
+          (paste)="handleAlphaNumericPaste($event)" />
+        <div *ngIf="taxControl2.hasError('required') && taxControl2.touched" class="error">
+          {{ taxField2Label }} is required.
+        </div>
+        <div *ngIf="taxControl2.hasError('whitespace') && taxControl2.touched" class="error">
+          Cannot be empty or only spaces.
+        </div>
+        <div *ngIf="taxControl2.hasError('invalidTaxId') && taxControl2.touched" class="error">
+          {{ taxControl2.getError('invalidTaxId')?.message }}
         </div>
       </div>
     </div>
   </div>
-  <div class="section">
+  <!-- <div class="section">
     <h3 style="font-size: 20px;font-weight: 600;">Property Size</h3>
     <div style="display: grid;grid-template-columns: repeat(4, 1fr);row-gap: 3%;">
       <div class="form-group form1_div">
@@ -184,8 +285,8 @@
       </div>
       <div class="form-group form1_div">
         <div class="form-check">
-          <input type="radio" class="form-check-input" id="radio1" name="property_size" value="51-101 Rooms"
-            formControlName="property_size">51-101 Rooms
+          <input type="radio" class="form-check-input" id="radio1" name="property_size" value="51-100 Rooms"
+            formControlName="property_size">51-100 Rooms
           <label class="form-check-label" for="radio1"></label>
         </div>
       </div>
@@ -200,12 +301,64 @@
         <div class="form-check">
           <input type="radio" class="form-check-input" id="radio1" name="property_size" value="150 and above Rooms"
             formControlName="property_size">150 and above Rooms
+            
           <label class="form-check-label" for="radio1"></label>
         </div>
       </div>
     </div>
+  </div> -->
+  <!-- newly added -->
+  <div class="section">
+    <h3 style="font-size: 20px;font-weight: 600;">
+      Property Size
+      <a style="font-size: 13px;color: #A0A0A0;">
+        – Each room is charged ₹{{ singleRoomFinalPrice }} per month - All fields are required
+      </a>
+    </h3>
+    <div style="display: grid;grid-template-columns: repeat(4, 1fr);row-gap: 3%;">
+      <div class="form-group form2_div">
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="radio1" name="property_size" value="01-50 Rooms"
+            formControlName="property_size" [checked]="selectedPropertySize === '01-50 Rooms'"
+            (change)="onPropertySizeChange('01-50 Rooms')">
+          <small style="white-space: nowrap;">01-50 Rooms (Rs. {{ getTotalCostForOption('01-50 Rooms') | number:'1.0-0'
+            }})</small>
+          <label class="form-check-label" for="radio1"></label>
+        </div>
+      </div>
+      <div class="form-group form2_div">
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="radio2" name="property_size" value="51-100 Rooms"
+            formControlName="property_size" [checked]="selectedPropertySize === '51-100 Rooms'"
+            (change)="onPropertySizeChange('51-100 Rooms')">
+          <small style="white-space: nowrap;">51-100 Rooms (Rs. {{ getTotalCostForOption('51-100 Rooms') |
+            number:'1.0-0' }})</small>
+          <label class="form-check-label" for="radio2"></label>
+        </div>
+      </div>
+      <div class="form-group form2_div">
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="radio3" name="property_size" value="101-150 Rooms"
+            formControlName="property_size" [checked]="selectedPropertySize === '101-150 Rooms'"
+            (change)="onPropertySizeChange('101-150 Rooms')">
+          <small style="white-space: nowrap;">101-150 Rooms (Rs. {{ getTotalCostForOption('101-150 Rooms') |
+            number:'1.0-0' }})</small>
+          <label class="form-check-label" for="radio3"></label>
+        </div>
+      </div>
+      <div class="form-group form2_div">
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="radio4" name="property_size" value="150 and above Rooms"
+            formControlName="property_size" [checked]="selectedPropertySize === '150 and above Rooms'"
+            (change)="onPropertySizeChange('150 and above Rooms')">
+          <small style="white-space: nowrap;">150 and above Rooms (Rs. {{ getTotalCostForOption('150 and above Rooms') |
+            number:'1.0-0' }})</small>
+          <label class="form-check-label" for="radio4"></label>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="section" *ngIf="customerdata?.property_details?.kyc_documents?.uploaded_documents.length > 0">
+  <!-- <div class="section" *ngIf="customerdata?.property_details?.kyc_documents?.uploaded_documents.length > 0">
     <h3 style="font-size: 20px;font-weight: 600;">KYC Documents</h3>
     <div style="display: grid;grow-gap: 3%;">
       <div class="form-group form1_div">
@@ -219,25 +372,305 @@
         </div>
       </div>
     </div>
+  </div> -->
+
+  <div class="section">
+    <h3 style="font-size: 20px; font-weight: 600;">
+      Number of Rooms
+      <a style="font-size: 13px; color: #A0A0A0;">– Enter total number of rooms <span style="color: red">*</span></a>
+    </h3>
+    <div class="form-group form2_div" style="max-width: 500px; display: flex; align-items: center; gap: 10px;">
+      <input type="number" class="form-control" formControlName="number_of_rooms" placeholder="Enter number of rooms"
+        style="background-color: white; width: 250px;" min="1" (keypress)="allowOnlyNumbers($event)"
+        (input)="onRoomNumberChange()" />
+
+    </div>
+    <div
+      *ngIf="customerProprtyDetailsForm.get('number_of_rooms')?.errors && customerProprtyDetailsForm.get('number_of_rooms')?.touched"
+      style="color: red; font-size: 13px; margin-top: 5px;">
+      <span *ngIf="customerProprtyDetailsForm.get('number_of_rooms')?.errors?.['required']">
+        Number of rooms is required.
+      </span>
+      <span *ngIf="customerProprtyDetailsForm.get('number_of_rooms')?.errors?.['min']">
+        Must be greater than 0.
+      </span>
+      <span *ngIf="customerProprtyDetailsForm.get('number_of_rooms')?.errors?.['maxExceeded']">
+        Number of rooms exceeds the limit for the selected property size
+        (Max: {{ propertySizeLimits[selectedPropertySize] }} rooms).
+        Please enter a value within the range or select a larger property size.
+      </span>
+      <span *ngIf="customerProprtyDetailsForm.get('number_of_rooms')?.errors?.['belowMin']">
+        Number of rooms is too low for the selected property size
+        (Min: {{ propertySizeRanges[selectedPropertySize].min }} rooms).
+        Please enter a higher value or select a smaller property size.
+      </span>
+    </div>
   </div>
-  <div class="section" *ngIf="customerdata?.property_details?.kyc_documents?.uploaded_documents?.length ==undefined">
-    <h3 style="font-size: 20px;font-weight: 600;">KYC Documents</h3>
-    <div style="display: grid;grow-gap: 3%;">
-      <div class="form-group form1_div">
-        <div class="form-check" style="line-height: 2.5rem;">
-          <label class="form-check-label" for="radio1">Company status - Not Yet Uploaded
-            <!-- <label class="form-check-label" for="radio1" *ngFor="let doc of customerdata?.property_details?.kyc_documents?.uploaded_documents" style="display: flex;">{{doc.document_name}} -&nbsp; <a href="{{doc.document_url}}">download</a>-->
-          </label>
+  <!-- Newly added for company logo upload -->
+  <div class="section pt-0">
+    <h3 style="font-size: 20px; font-weight: 600;">
+      Company Logo
+      <span style="font-size: 13px; color: #A0A0A0;">
+        - Upload one logo image <span style="color: red;">*</span> (This is mandatory. Please upload a logo before
+        submitting)
+      </span>
+    </h3>
+    <div class="row align-items-center mt-3">
+      <!-- Upload Area -->
+      <div class="col-md-6">
+        <div class="upload-box text-center">
+          <div class="upload-content">
+            <div class="d-flex flex-column align-items-center"> <i class="bi bi-upload"
+                style="font-size: 22px; color: #8b0000"></i>
+              <input type="file" #logoInput class="d-none" (change)="onLogoChange($event)"
+                accept=".jpg,.jpeg,.png" /><button type="button" class="btn btn-maroon upload-btn mt-2 w-50"
+                (click)="logoInput.click()" [disabled]="logoUploading || status === 'approved' || isViewMode"> {{
+                hotelLogoUrl ?
+                'Replace Logo'
+                : 'Upload Logo'
+                }}
+              </button>
+            </div>
+            <p class="text-muted small mt-1">Allowed formats: JPG, JPEG, PNG • Max size: 2MB • Dimensions: exactly 200 ×
+              200 pixels</p>
+          </div>
+        </div>
+      </div>
+      <!-- Preview Area -->
+      <div class="col-md-6">
+        <div class="border rounded text-center"
+          style="background-color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 16px; transition: box-shadow 0.3s ease; display: flex; flex-direction: column; align-items: center;">
+          <h6 style="font-weight: 600; color: #555; margin-bottom: 16px;">Logo Preview</h6>
+          <div class="d-flex flex-column align-items-center justify-content-center rounded"
+            style="height: 160px; width: 130px; padding: 0;">
+            <!-- Show logo if uploaded -->
+            <ng-container *ngIf="hotelLogoUrl; else noLogo">
+              <img [src]="hotelLogoUrl" alt="Hotel Logo"
+                style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); margin-bottom: 10px;" />
+            </ng-container>
+            <!-- Placeholder when no logo -->
+            <ng-template #noLogo>
+              <div class="d-flex align-items-center justify-content-center"
+                style="width: 100%; height: 100%; color: #888; font-size: 14px; text-align: center;background-color: #f8f8f8;">
+                No Logo Uploaded
+              </div>
+            </ng-template>
+            <!-- <img [src]="hotelLogoUrl" alt="Hotel Logo"
+                style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.08); margin-bottom: 10px;" /> -->
+            <div class="d-flex align-items-center gap-3" style="gap: 16px; margin-top: 4px;">
+              <i class="bi bi-eye cursor-pointer" (click)="previewLogo()"></i>
+              <i class="bi bi-trash3 cursor-pointer" (click)="removeLogo()"
+                [class.disabled-icon]="this.status === 'approved' || isViewMode"></i>
+              <span class="badge text-white" [ngClass]="hotelLogoUrl ? 'bg-success' : 'bg-secondary'">
+                {{ hotelLogoUrl ? 'Uploaded' : 'No Logo Uploaded' }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="section">
+    <h3 style="font-size: 20px;font-weight: 600;">Company Status (KYC)<a style="font-size: 13px;color: #A0A0A0;"> - All
+        fields are required </a></h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 10%">
+      <div class="form-group form2_div" *ngFor="let option of companyStatusOptions">
+        <div class="form-check">
+          <input type="radio" class="form-check-input" [id]="option.id" [value]="option.label"
+            formControlName="company_status" name="company_status" />
+          <small>{{ option.label }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section document-section" *ngIf="customerProprtyDetailsForm.get('company_status')?.value as status">
+    <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 0.5rem">Upload Document</h3>
+    <small style="color: #8F9899; font-weight: 500"><span style="color: red ">*</span>We need the below documents to be
+      signed by the Signing authority with the company seal in every page, Signature should match with the signature in
+      Pan card.</small>
+    <div>
+      <ul *ngIf="status === 'Private Limited / Public Limited Company'">
+        <li>Copy of Company PAN card (Entity Pan card).</li>
+        <li>Copy of Signing authority PAN card and Aadhar card.</li>
+        <li>Copy of 1st three and last three pages of Memorandum of Association along with the Certificate of
+          Incorporation. </li>
+        <li>Office Address proof (In Company’s Name): Copy of your Landline Telephone Bill (or) Bank Account Statement.
+        </li>
+        <li>GST Certificate.</li>
+        <li>Cancelled cheque.</li>
+      </ul>
+      <ul *ngIf="status === 'Sole Proprietor'">
+        <li>Copy of Signing authority PAN card and Aadhaar card copy(Scan Copy)</li>
+        <li>Office Address proof (In Company’s Name): Copy of your Landline Telephone Bill (or) Bank Account Statement
+          (Scan Copy)</li>
+        <li>Shop and Establishment certificate OR Any other Govt. issued registration proof. (Scan Copy)</li>
+        <li>GST Certificate (Scan Copy) ( If merchant is not eligible for GST, this won’t be applicable).
+        </li>
+        <li>Cancelled cheque copy (Scan Copy)</li>
+      </ul>
+      <ul *ngIf="status === 'Partnership Firm / LLP'">
+        <li>Copy of PAN card (Entity Pan card) (Scan Copy)</li>
+        <li>Copy of Signing authority PAN card and Aadhar card.</li>
+        <li>Copy Partnership Deed / LLP Agreement (Scan Copy)</li>
+        <li>Office Address proof (In Company’s Name): Copy of your Landline Telephone Bill (or) Bank Account Statement
+          (Scan
+          Copy)
+        </li>
+        <li>GST Certificate. (Scan Copy)</li>
+        <li>Cancelled cheque. (Scan Copy)</li>
+      </ul>
+      <ul *ngIf="status === 'Individual'">
+        <li>Copy of Signing authority PAN card and Aadhar card.</li>
+        <li>Cancelled cheque.</li>
+      </ul>
+      <ul *ngIf="status === 'NGO or Other (Business Filing Status)'">
+        <li>Copy of PAN card (Entity Pan card) (Scan Copy)</li>
+        <li>Copy of Signing authority PAN card and Aadhar card.</li>
+        <li>Cancelled cheque copy. (Scan Copy)</li>
+        <li>Trust Deed (Scan Copy)</li>
+      </ul>
+    </div>
+    <!-- Upload Product Images -->
+    <div class="row d-flex align-items-center"
+      *ngIf="((this.customerdata.property_details?.kyc_documents == undefined || this.customerdata.property_details?.kyc_documents?.uploaded_documents == undefined) || (this.customerdata.property_details?.kyc_documents?.uploaded_documents.length == 0))">
+      <!-- Upload Area -->
+      <div class="col-md-6">
+        <div class="upload-box text-center">
+          <div class="upload-content">
+            <div class="d-flex flex-column">
+              <i class="bi bi-upload" style="font-size: 22px; color: #8b0000"></i>
+              <!-- Hidden file input -->
+              <input type="file" #fileInput class="d-none" (change)="onFileChange($event)" accept=".pdf,.jpg,.jpeg" />
+              <div
+                *ngIf="customerProprtyDetailsForm.get('uploaded_documents')?.invalid && customerProprtyDetailsForm.get('uploaded_documents')?.touched">
+                Upload is required
+              </div>
+              <!-- Dynamic Upload Button -->
+              <button type="button" class="btn btn-maroon upload-btn mt-2" (click)="fileInput.click()"
+                [disabled]="!nextPendingDocument || this.status === 'approved' || isViewMode">
+                {{ nextPendingDocument ? 'Upload ' + nextPendingDocument : 'All Documents Uploaded' }}
+              </button>
+            </div>
+            <p class="text-muted small mt-1">Maximum file size 2MB</p>
+          </div>
+        </div>
+        <div *ngIf="!isAllDocumentsUploaded()" class="error mt-2">
+          Please upload all mandatory documents before submitting the form.
+        </div>
+      </div>
+      <!-- Document List Area -->
+      <div class="col-md-6" style="border-left: 2px solid #E9E9E9">
+        <div *ngFor="let doc of selectedDocumentList"
+          class="doc-item d-flex align-items-center justify-content-between mb-3 p-2">
+          <!-- Per-row hidden file input so each upload icon targets the correct document -->
+          <input type="file" #rowFileInput class="d-none" (change)="onFileChange($event)" accept=".pdf,.jpg,.jpeg" />
+          <div class="d-flex align-items-center">
+            <img src="../../../assets/images/guestezee/pdf.png" alt="PDF" class="me-2" width="22" />
+            <div>
+              <div class="fw-bold" style="font-size: 13px">{{ doc.name }}</div>
+              <div style="font-size: 12px; color: #808091; font-weight: 400;">Maximum File size • 2MB</div>
+            </div>
+          </div>
+          <div class="action-icons d-flex align-items-center gap-3">
+            <i class="bi bi-trash3 cursor-pointer" (click)="removeDocument(doc.name)"
+              [class.disabled-icon]="this.status === 'approved' || isViewMode"></i>
+            <i class="bi bi-eye cursor-pointer" (click)="previewDocument(doc.name)"></i>
+            <i class="bi bi-upload cursor-pointer" *ngIf="!uploadedDocuments[doc.name] && !isViewMode"
+              (click)="triggerUpload(doc.name, rowFileInput)"></i>
+            <span *ngIf="uploadedDocuments[doc.name] || this.status === 'approved'"
+              class="badge bg-success text-white">Uploaded</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center"
+      *ngIf="(this.customerdata.property_details?.kyc_documents?.uploaded_documents.length > 0) && uploadedDocumentsApi.length > 0">
+      <!-- Upload Area -->
+      <div class="col-md-6">
+        <div class="upload-box text-center">
+          <div class="upload-content">
+            <div class="d-flex flex-column">
+              <i class="bi bi-upload" style="font-size: 22px; color: #8b0000"></i>
+              <!-- Hidden file input -->
+              <input type="file" #fileInput class="d-none" (change)="onFileChangeApi($event)"
+                accept=".pdf,.jpg,.jpeg" />
+              <div
+                *ngIf="customerProprtyDetailsForm.get('uploaded_documents')?.invalid && customerProprtyDetailsForm.get('uploaded_documents')?.touched">
+                Upload is required
+              </div>
+              <!-- Dynamic Upload Button -->
+              <button type="button" class="btn btn-maroon upload-btn mt-2" (click)="fileInput.click()"
+                [disabled]="!hasPendingDocument || this.status === 'approved' || isViewMode">
+                {{ hasPendingDocument ? 'Upload ' + nextApiPendingDocument : 'All Documents Uploaded' }}
+              </button>
+            </div>
+            <p class="text-muted small mt-1">Maximum file size 2MB</p>
+          </div>
+        </div>
+        <div *ngIf="!isAllApiDocumentsUploaded()" class="error mt-2">
+          Please upload all mandatory documents before submitting the form.
+        </div>
+      </div>
+      <!-- Document List Area -->
+      <div class="col-md-6" style="border-left: 2px solid #E9E9E9">
+        <div *ngFor="let doc of uploadedDocumentsApi; let i = index"
+          class="doc-item d-flex align-items-center justify-content-between mb-3 p-2">
+          <!-- Per-row hidden file input so each upload icon targets the correct document -->
+          <input type="file" #rowFileInput class="d-none" (change)="onFileChangeApi($event)" accept=".pdf,.jpg,.jpeg" />
+          <div class="d-flex align-items-center ">
+            <img src="../../../assets/images/guestezee/pdf.png" alt="PDF" class="me-2" width="22" />
+            <div>
+              <div class="fw-bold" style="font-size: 13px">{{ doc.document_name }}</div>
+              <div style="font-size: 12px; color: #808091; font-weight: 400;">Maximum File size • 2MB</div>
+            </div>
+          </div>
+          <div class="action-icons d-flex align-items-center gap-3">
+            <!-- {{this.customerStatus}} -->
+            <!-- Newly added - paymentDone for button disable view -->
+            <i class="bi bi-trash3 cursor-pointer" (click)="removeDocumentApi(doc)"
+              [class.disabled-icon]="this.customerStatus === 'approved' || isViewMode"></i>
+            <i class="bi bi-eye cursor-pointer" (click)="previewApiDocument(doc.document_url)">
+            </i>
+            <i class="bi bi-upload cursor-pointer" *ngIf="(doc.document_url == '') && !isViewMode"
+              (click)="triggerApiUpload(doc.document_name, rowFileInput)"></i>
+            <span *ngIf="doc.document_url" class="badge bg-success text-white">Uploaded</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End of Newly added -->
+  <!-- <div class="section" *ngIf="customerdata?.property_details?.kyc_documents?.uploaded_documents?.length ==undefined">
+    <h3 style="font-size: 20px;font-weight: 600;">KYC Documents</h3>
+    <div style="display: grid;grow-gap: 3%;">
+      <div class="form-group form1_div">
+        <div class="form-check" style="line-height: 2.5rem;">
+          <label class="form-check-label" for="radio1">Company status - Not Yet Uploaded -->
+  <!-- <label class="form-check-label" for="radio1" *ngFor="let doc of customerdata?.property_details?.kyc_documents?.uploaded_documents" style="display: flex;">{{doc.document_name}} -&nbsp; <a href="{{doc.document_url}}">download</a>-->
+  <!-- </label>
+        </div>
+      </div>
+    </div>
+  </div> -->
   <div style="display: flex;justify-content: flex-end;">
-    <!-- Newly commented & added -->
-    <!-- <button type="submit" class="cancel_bt" (click)="cancel()">cancel</button>&nbsp;&nbsp; -->
-    <!-- <button type="submit" class="save_bt"  (click)="onSubmit()"  [disabled]="customerProprtyDetailsForm.invalid">Next</button> -->
-    <button type="submit" class="save_bt mr-3" (click)="previousTab()">Previous Tab</button>
-    <button type="submit" class="save_bt" (click)="nextTab()">Next Tab</button>
+    <button type="button" class="cancel_bt mr-3" (click)="back()">Back</button>
+    <!-- [disabled] also checks isViewMode to disable button in view (hotel-preview) mode -->
+    <button type="submit" class="save_bt" *ngIf="this.customerdata.property_details?.kyc_documents == undefined "
+      [disabled]="(customerProprtyDetailsForm.invalid || (!isAllDocumentsUploaded()) || !hotelLogoUrl) || isViewMode">Save
+      &
+      Continue</button>
+    <!-- [disabled] also checks isViewMode to disable button in view (hotel-preview) mode -->
+    <!-- <button type="submit" class="save_bt"
+      *ngIf="this.customerdata.property_details?.kyc_documents?.uploaded_documents.length > 0 && this.status !== 'approved'"
+      [disabled]="(customerProprtyDetailsForm.invalid || (!isAllApiDocumentsUploaded()) || !hotelLogoUrl) || isViewMode">Save
+      &
+      Continue</button> -->
+    <button type="submit" class="save_bt"
+      *ngIf="this.customerdata.property_details?.kyc_documents?.uploaded_documents.length > 0 && this.status !== 'approved' && !isViewMode"
+      [disabled]="(customerProprtyDetailsForm.invalid || (!isAllApiDocumentsUploaded()) || !hotelLogoUrl) || isViewMode">Save
+      &
+      Continue</button>
   </div>
 </form>
 <div class="popup-overlay" *ngIf="isVisible">

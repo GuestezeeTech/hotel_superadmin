@@ -1,0 +1,64 @@
+<div class="main">
+    <div class="centered-container">
+        <h4 style="font-size: 20px;" class="mb-4">
+            <i class="fas fa-arrow-left me-2" style="cursor: pointer;" (click)="goBack()"></i>
+            {{customerdata?.property_details?.contact_details?.hotel_name}} - {{
+            customerdata?.customer_member_id || customerdata?.member_id ? '#' + (customerdata?.customer_member_id ||
+            customerdata?.member_id) : '' }}
+        </h4>
+
+        <div class="payment-type-label mb-3" *ngIf="paymentSplitName">
+            <span class="label">Payment Type:</span>
+            <span class="value ms-2">{{paymentSplitName | titlecase}}</span>
+        </div>
+
+        <div class="container mt-4">
+            <div class="tab-pane fade show active">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Current Type</th>
+                            <th>Due Amount Paid</th>
+                            <th>Payment Date</th>
+                            <th>Subscription End Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of installments">
+                            <td>{{item.splitName | titlecase}}</td>
+                            <td>{{item.due_amount_paid | number:'1.2-2'}}</td>
+                            <td>{{item.paid_date_time | date:'dd-MM-yyyy' || '-'}}</td>
+                            <td>{{item.subscription_end_date}}</td>
+                            <td>
+                                <span [ngClass]="item.displayStatus === 'Paid' ? 'text-success' : 'text-danger'">
+                                    {{item.displayStatus}}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="total-summary-container" *ngIf="installments.length > 0">
+                    <div class="summary-box">
+                        <div class="summary-item">
+                            <span class="label">Total Payment Amount</span>
+                            <span class="separator">=</span>
+                            <span class="value">{{totalPaymentAmount | number:'1.2-2'}}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Total Paid Amount</span>
+                            <span class="separator">=</span>
+                            <span class="value text-success">{{totalPaidAmount | number:'1.2-2'}}</span>
+                        </div>
+                        <div class="summary-item total-pending">
+                            <span class="label">Total Pending Amount</span>
+                            <span class="separator">=</span>
+                            <span class="value text-danger">{{totalPendingAmount | number:'1.2-2'}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

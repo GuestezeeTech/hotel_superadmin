@@ -10,6 +10,7 @@ export const appConfig: ApplicationConfig = {
 };
 export const API_URL = environment.devURL
 export const API_URL1 = "https://www.guestezee.com"
+// export const API_URL1 = "https://ssltest.ecbee.net"
 export const DOMAIN_NAME = "https://www.guestezee.com"
 export const ENDPOINTS = {
   GETNEWACCESSTOKEN: API_URL + ':5200/refreshtoken',
@@ -34,8 +35,6 @@ export const ENDPOINTS = {
   UPDATE_TABLEBOOKING: API_URL + ':5463/tablebooking/update',
   GET_TABLEBOOKING: API_URL + ':9453/tablebooking/getbyid',
   GET_CUSTOMEREMAIL: API_URL + ':9473/customermail/getall',
-  ADD_CUSTOMER: API_URL + ':5430/customer/create',
-  UPDATE_CUSTOMER: API_URL + ':5430/customer/update',
   GET_CUSTOMER: API_URL + ':9416/customer/getbyid',
   GETALLCUSTOMER: API_URL + ':9416/customer/getall',
   ADD_CUSTOMER_ADDRESS: API_URL + ':5431/customeraddress/create',
@@ -438,7 +437,6 @@ export const ENDPOINTS = {
   UPDATE_SHIPPING_DELIVERY: API_URL + ":5602/shippinganddelivery/update",
   GETALL_SHIPPING_DELIVERY: API_URL + ":9604/shippinganddelivery/getall",
 
-  CREATE_ROLES: API_URL + ":5404/roles/create",
   UPDATE_ROLES: API_URL + ":5404/roles/update",
   GETBYID_ROLES: API_URL + ":9401/roles/getbyid",
   CREATE_ADMINUSERS: API_URL + ":5403/user/create",
@@ -518,5 +516,38 @@ export const ENDPOINTS = {
 
   GET_LOGIN_CUSTOMER: API_URL1 + ':9526/customer/getbyid',
   GET_PROPERTY_SIZE: API_URL + ':1216/propertysize/getall',
+
+
+  GET_ALL_TECHNICAL_INFO: API_URL1 + ":9533/ecomintegrationsettings/getall",
+  GET_ALL_SUBSCRIPTION: API_URL1 + ':1250/paymentsubscription/getall',
+
+  CREATE_PAYMENT_SUBSCRIPTION: API_URL + ':8839/paymentsubscription/create',
+  UPDATE_PAYMENT_SUBSCRIPTION: API_URL + ':8839/paymentsubscription/update',
+  GETALL_PAYMENT_SUBSCRIPTION: API_URL + ':8840/paymentsubscription/getall',
+  EMAIL_APPROVAL_: API_URL + ':5622/sms/GenerateSMS',
+
+  GET_ALL_TABS: API_URL1 + ':1297/servicetabdetails/getall',
+  CREATE_TECHNICAL_INFO: API_URL1 + ':3567/ecomintegrationsettings/create',
+  UPDATE_TECHNICAL_INFO: API_URL1 + ':3567/ecomintegrationsettings/update',
+
+  // ADD_CUSTOMER: API_URL + ':5430/customer/createcustomer',
+  // UPDATE_CUSTOMER: API_URL + ':5430/customer/update',
+  // UPDATE_LOGIN_CUSTOMER_FCM: API_URL1 + ':5447/customer/updatecustomer',
+  // CREATE_ROLES: API_URL1 + ":5404/roles/create",
+  ADD_CUSTOMER: API_URL + ':8007/customer/createcustomer',
+  UPDATE_CUSTOMER: API_URL + ':8007/customer/update',
+  UPDATE_LOGIN_CUSTOMER_FCM: API_URL1 + ':8006/customer/updatecustomer',
+  UPDATE_LOGIN_CUSTOMER: API_URL1 + ':8006/customer/updateguestezeecustomer',
+  CREATE_ROLES: API_URL + ":5404/roles/create",
+
+  // Dashboard
+  GET_PROPERTY_SIZE_ANALYTICS: API_URL + ':1216/propertysize/analytics',
+
+  // Ṇewly added for sms(username, password - welcome sms)
+  // GENERRATE_NAME_PASSWORD: API_URL + ':5622/sms/SendUserDataSms',
+  GENERRATE_NAME_PASSWORD: API_URL1 + ':8009/sms/send-customer-credentials',
+
+  // Newly added for tech info check
+  CHECK_IS_TECHNICAL_INFO_EXIST: API_URL + ':3353/integrations/create'
 
 }

@@ -1,154 +1,238 @@
-
 <!-- <app-menu-bar></app-menu-bar> -->
 
-  <div class="main">
-    <app-alerts></app-alerts>
-    <!-- <app-header></app-header> -->
-    <div class="centered-container">
-        <!-- Buttons Section -->
-        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-          <div>
-            <button style="background-color: #800020; color: white; padding: 10px 18px; border-radius: 5px;margin-top: 2%;    border: none;" data-toggle="modal" data-target="#deleteModal">Delete Selected</button>
+<div class="main">
+  <app-alerts></app-alerts>
 
-          </div>
-          <div style="display: flex;    gap: 15px;">
-            <div class="search-container">
-              <i class="fas fa-search search-icon"></i>
-              <input type="text" id="searchInput" class="search-bar" placeholder="Search Hotel Name "  (keyup)="onsearch($event)">
-              <i class="fas fa-filter filter-icon" id="filterIcon" ></i>
-          
-              <div class="filter-options" id="filterOptions">
-                  <a href="#" data-filter="all">All</a>
-                  <a href="#" data-filter="name">Name</a>
-                  <a href="#" data-filter="category">Category</a>
-              </div>
-          </div>
-            <button style="background-color: #800020; color: white; padding: 10px 24px; border-radius: 5px;margin-top: 1%;    border: none;" (click)="addNew()">Add New Hotel</button>
+  <!-- Inline Loader Overlay -->
+  <div *ngIf="isLoading" id="pause" class="d-flex align-items-center justify-content-center">
+    <div id="spinner"></div>
+  </div>
+  <!-- <app-header></app-header> -->
+  <div class="centered-container">
+    <!-- Buttons Section -->
+    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+      <div>
+        <!-- <button
+          style="background-color: #800020; color: white; padding: 10px 18px; border-radius: 5px;margin-top: 2%;    border: none;"
+          data-toggle="modal" data-target="#deleteModal">Delete Selected</button> -->
+        <button [disabled]="!hasSelection" [attr.data-toggle]="hasSelection ? 'modal' : null"
+          [attr.data-target]="hasSelection ? '#deleteModal' : null"
+          [ngStyle]="!hasSelection ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
+          style="background-color: #800020; color: white; padding: 10px 18px; border-radius: 5px; margin-top: 2%; border: none;">
+          Delete Selected
+        </button>
 
-          </div>
-        
+      </div>
+      <div style="display: flex;    gap: 15px;">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="searchInput" class="search-bar" placeholder="Search Hotel Name, category "
+            (keyup)="onsearch($event)">
+          <!-- <i class="fas fa-filter filter-icon" id="filterIcon"></i>
+
+          <div class="filter-options" id="filterOptions">
+            <a href="" data-filter="all">All</a>
+            <a href="" data-filter="name">Name</a>
+            <a href="" data-filter="category">Category</a>
+          </div> -->
         </div>
+        <button
+          style="background-color: #800020; color: white; padding: 10px 24px; border-radius: 5px;margin-top: 1%;    border: none;"
+          (click)="addNew()">Add New Hotel</button>
 
-        <!-- Table Section -->
-        <div>
-            <table class="table" >
-                <thead>
-                    <tr>
-                      <!-- <input type="checkbox" id="selectAll" name="vehicle1" (click)="deleteAllCustomer()" > -->
-                        <th> <i class="fa fa-trash" aria-hidden="true"></i></th>
-                        <th>Hotel Name</th>
-                        <th>Member Id</th>
-                        <th>Brand Name</th>
-                        <th>Category</th>
-                        <th>Contact Number</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let customer of customerList; ; let i = index" >
-                        <td> <input type="checkbox" id="vehicle1" name="vehicle1"  (click)="deleteCustomer(customer.id)" class="row-checkbox" ></td>
-                        <td>{{customer.name}}</td>
-                        <td>{{customer.customer_member_id}}</td>
-                        <td >{{customer?.property_details?.contact_details?.brand || ''}}</td>
-                        <td [ngClass]="getCategoryClass(customer?.property_details?.property_address?.property_size)">
-                          {{ getCategoryLabel(customer?.property_details?.property_address?.property_size) }}
-                        </td>
+      </div>
 
-                        <!-- <td class="bronze" *ngIf="customer?.property_details?.property_address?.property_size=='01-50 Rooms'" >Bronze</td>
+    </div>
+
+    <!-- Table Section -->
+    <div>
+      <table class="table">
+        <thead>
+          <tr>
+            <!-- <input type="checkbox" id="selectAll" name="vehicle1" (click)="deleteAllCustomer()" > -->
+            <th> <i class="fa fa-trash" style="cursor: pointer;" aria-hidden="true"></i></th>
+            <th>Hotel Name</th>
+            <th>Member Id</th>
+            <th>Brand Name</th>
+            <th>Category</th>
+            <th>Contact Number</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let customer of paginatedCustomers; ; let i = index">
+            <td>
+              <!-- <input type="checkbox" id="vehicle1" name="vehicle1" (click)="deleteCustomer(customer.id)" 
+                class="row-checkbox" style="cursor:pointer;"> -->
+              <input type="checkbox" id="vehicle1" name="vehicle1" (click)="deleteCustomer(customer.id)"
+                (change)="toggleSelection(customer.id, $event)" class="row-checkbox" style="cursor:pointer;">
+            </td>
+            <td>{{customer.name}}</td>
+            <td>{{customer.customer_member_id}}</td>
+            <td>{{customer?.property_details?.contact_details?.brand || ''}}</td>
+            <td [ngClass]="getCategoryClass(customer?.property_details?.property_address?.property_size)">
+              {{ getCategoryLabel(customer?.property_details?.property_address?.property_size) }}
+            </td>
+
+            <!-- <td class="bronze" *ngIf="customer?.property_details?.property_address?.property_size=='01-50 Rooms'" >Bronze</td>
                         <td class="silver" *ngIf="customer?.property_details?.property_address?.property_size=='51-101 Rooms'" >Silver</td>
                         <td class="gold" *ngIf="customer?.property_details?.property_address.property_size=='101-150 Rooms'" >Gold</td>
                         <td class="platinum" *ngIf="customer?.property_details?.property_address.property_size=='150 and above Rooms'" >Platinum</td> -->
-                        <td>{{customer.phone_number}}
+            <td>{{customer.phone_number}}
 
-                          <!-- approvalmodal -->
-                          <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel"  [attr.inert]="isModalHidden ? true : null" >
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title" id="approvalModalLabel">Select Status</h5>
-                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                  </button>
-                                </div>
-                                <div class="modal-body">
-                                  <!-- Select input for status -->
-                                  <select id="statusSelect" class="form-control" [(ngModel)]="selectedStatus">
-                                    <option value="approved">Approved</option>
-                                    <option value="Unapproved">Unapproved</option>
-                                    <option value="pending">Pending</option>
-                                  </select>
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeapproval">Close</button>
-                                  <button type="button" class="btn btn-primary" (click)="updateStatus()" >Save</button>
-                                  <!-- (click)="saveStatus()" -->
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
+              <!-- approvalmodal -->
+              <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel"
+                [attr.inert]="isModalHidden ? true : null">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="approvalModalLabel">Select Status</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <!-- Select input for status -->
+                      <select id="statusSelect" class="form-control" [(ngModel)]="selectedStatus"
+                        (click)="selectstat(selectedStatus)">
+                        <option value="approved">Approved</option>
+                        <option value="Unapproved">Unapproved</option>
+                        <option value="pending">Pending</option>
+                      </select>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                        id="closeapproval">Close</button>
+                      <button type="button" class="btn btn-primary" (click)="updateStatus()">Save</button>
+                      <!-- (click)="saveStatus()" -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
 
-                        <td  *ngIf="userRoleName=='Super Admin'"><button  *ngIf="customer.status=='approved'" class="active" (click)="openApprovalModal(customer)" data-toggle="modal" data-target="#approvalModal">Active</button>
-                          <button *ngIf="customer.status=='pending'"   class="pending" (click)="openApprovalModal(customer)" data-toggle="modal" data-target="#approvalModal">Pending</button>
-                          <button *ngIf="customer.status=='Unapproved'"   class="in-active"  (click)="openApprovalModal(customer)" data-toggle="modal" data-target="#approvalModal">InActive</button>
-                        </td>
+            <td *ngIf="userRoleName=='Super Admin'">
+              <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active"
+                [disabled]="!isPaymentDone(customer.customer_member_id)"
+                [attr.data-toggle]="isPaymentDone(customer.customer_member_id) ? 'modal' : null"
+                [attr.data-target]="isPaymentDone(customer.customer_member_id) ? '#approvalModal' : null"
+                [ngStyle]="!isPaymentDone(customer.customer_member_id) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
+                [title]="!isPaymentDone(customer.customer_member_id) ? 'Payment not completed yet' : 'Change Status'"
+                (click)="openApprovalModal(customer)">Active</button>
+              <button *ngIf="(customer.status||'').toLowerCase()==='pending'" class="pending"
+                [disabled]="!isPaymentDone(customer.customer_member_id)"
+                [attr.data-toggle]="isPaymentDone(customer.customer_member_id) ? 'modal' : null"
+                [attr.data-target]="isPaymentDone(customer.customer_member_id) ? '#approvalModal' : null"
+                [ngStyle]="!isPaymentDone(customer.customer_member_id) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
+                [title]="!isPaymentDone(customer.customer_member_id) ? 'Payment not completed yet' : 'Change Status'"
+                (click)="openApprovalModal(customer)">Pending</button>
+              <button *ngIf="(customer.status||'').toLowerCase()==='unapproved'" class="in-active"
+                [disabled]="!isPaymentDone(customer.customer_member_id)"
+                [attr.data-toggle]="isPaymentDone(customer.customer_member_id) ? 'modal' : null"
+                [attr.data-target]="isPaymentDone(customer.customer_member_id) ? '#approvalModal' : null"
+                [ngStyle]="!isPaymentDone(customer.customer_member_id) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
+                [title]="!isPaymentDone(customer.customer_member_id) ? 'Payment not completed yet' : 'Change Status'"
+                (click)="openApprovalModal(customer)">InActive</button>
+            </td>
 
 
-                        
-                        <td  *ngIf="userRoleName!=='Super Admin'"><button  *ngIf="customer.status=='approved'" class="active" >Active</button>
-                          <button *ngIf="customer.status=='pending'"   class="pending"  >Pending</button>
-                          <button *ngIf="customer.status=='Unapproved'"   class="in-active"   >InActive</button>
-                        </td>
-                        <!-- <td><button  class="active" (click)="openApprovalModal(customer)" data-toggle="modal" data-target="#approvalModal">Active</button></td> -->
-                        <td><i class="fa fa-pen-to-square" style="color: #800020;" (click)="editCustomer(customer.id)"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-eye" style="color: #800020;" (click)="openFullPreview(customer.id)"></i></td>
-                    </tr>
-                </tbody>
-            </table>
+
+            <td *ngIf="userRoleName!=='Super Admin'">
+              <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active">Active</button>
+              <button *ngIf="(customer.status||'').toLowerCase()==='pending'" class="pending">Pending</button>
+              <button *ngIf="(customer.status||'').toLowerCase()==='unapproved'" class="in-active">InActive</button>
+            </td>
+            <!-- <td><button  class="active" (click)="openApprovalModal(customer)" data-toggle="modal" data-target="#approvalModal">Active</button></td> -->
+            <!-- <td><i class="fa fa-pen-to-square" style="color: #800020; cursor: pointer;"
+                  (click)="editCustomer(customer.id)"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"
+                  style="color: #800020; cursor: pointer;" (click)="openFullPreview(customer.id)"></i></td> -->
+            <!--newly added for edit button disabled for approved hotels-->
+            <td>
+              <i class="fa fa-pen-to-square"
+                [style.color]="(customer.status||'').toLowerCase() === 'approved' ? '#ccc' : '#800020'"
+                [style.cursor]="(customer.status||'').toLowerCase() === 'approved' ? 'not-allowed' : 'pointer'"
+                (click)="(customer.status||'').toLowerCase() !== 'approved' && editCustomer(customer.id)"
+                [title]="(customer.status||'').toLowerCase() === 'approved' ? 'Edit disabled for approved hotels' : 'Edit'">
+              </i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <i class="fa fa-eye" style="color: #800020; cursor: pointer;" (click)="openFullPreview(customer.id)"
+                title="View"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- <div class="pagination-container">
+      <button (click)="previousPage()" [disabled]="currentPage === 1" class="pagination-btn">
+        Previous
+      </button>
+      <input type="text" class="pagination-input" [(ngModel)]="currentPage" readonly>
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="pagination-btn">
+        Next
+      </button> -->
+    <!-- Custom Pagination matching payment-list style -->
+    <div *ngIf="!isLoading" style="display: flex; justify-content: flex-end; margin-top: 15px;">
+      <ul
+        style="display: flex; list-style: none; padding: 0; margin: 0; align-items: center; gap: 5px; font-family: sans-serif;">
+
+        <!-- Previous Button -->
+        <li>
+          <a href="#" (click)="previousPage($event)" [style.color]="currentPage === 1 ? '#ccc' : '#00a884'"
+            [style.pointer-events]="currentPage === 1 ? 'none' : 'auto'"
+            style="text-decoration: none; padding: 5px 10px;">
+            « Previous
+          </a>
+        </li>
+
+        <!-- Page Numbers -->
+        <li *ngFor="let page of pages">
+          <a href="#" (click)="goToPage(page, $event)"
+            [style.background-color]="currentPage === page ? '#2196F3' : 'transparent'"
+            [style.color]="currentPage === page ? 'white' : '#00a884'"
+            style="text-decoration: none; padding: 5px 12px; border-radius: 3px;">
+            {{ page }}
+          </a>
+        </li>
+
+        <!-- Next Button -->
+        <li>
+          <a href="#" (click)="nextPage($event)" [style.color]="currentPage === totalPages ? '#ccc' : '#00a884'"
+            [style.pointer-events]="currentPage === totalPages ? 'none' : 'auto'"
+            style="text-decoration: none; padding: 5px 10px;">
+            Next »
+          </a>
+        </li>
+
+      </ul>
+    </div>
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete this item?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+          </div>
         </div>
-        <div class="pagination-container">
-          <button (click)="previousPage()" [disabled]="currentPage === 1" class="pagination-btn">
-            Previous
-          </button>
-          <input type="text" class="pagination-input" [(ngModel)]="currentPage" readonly>
-          <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="pagination-btn">
-            Next
-          </button>
-        </div>
-        <!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to delete this item?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
       </div>
     </div>
+
+
+
+
+
+
+
+
   </div>
+
 </div>
-
-
-
-
-
-
-
-
-    </div>
-    
-</div>
-
-
-
-
-
-

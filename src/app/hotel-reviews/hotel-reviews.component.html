@@ -3,29 +3,38 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="d-flex justify-content-between align-items-center ">
-                    <h6 class="fw-bolder">Hotel Reviews</h6>
-                    <div style="position: relative; display: inline-block;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-arrow-left me-3" style="cursor: pointer; color: #1A1A1A; font-size: 18px;"
+                            (click)="goBack()" title="Back to Dashboard"></i>
+                        <h6 class="fw-bolder mb-0">Hotel Reviews</h6>
+                    </div>
+                    <div class="filter-container" style="position: relative; display: inline-block;">
                         <div>
                             <!-- Filter Icon -->
                             <i class="fas fa-filter filter-icon" alt="Filter" (click)="toggleDropdown()"
                                 style="width: 30px; height: 30px; cursor: pointer; margin-left:90%; color: white; -webkit-text-stroke: 1px black;"></i>
                         </div>
-
                         <!-- Dropdown -->
                         <div *ngIf="isDropdownOpen"
                             style="position: absolute; top: 70%; right: -40%; background: white; border-radius: 8px; 
-                               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); padding: 10px; min-width: 100px; z-index: 100;">
+                               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); padding: 10px; min-width: 200px; z-index: 100;">
                             <div style="display: flex; align-items: center; padding: 5px; cursor: pointer;"
-                                (click)="selectFilter('Date')">
-                                <img src="../../assets/images/guestezee/date.png" alt="Date"
-                                    style="width: 15px; object-fit: cover; height: 15px; object-fit: cover; margin-right: 8px;">
-                                <span>Date</span>
+                                (click)="selectFilter('reviewsDesc')">
+                                <img src="../../assets/images/guestezee/reviews.png" alt="Reviews"
+                                    style="width:15px;height:15px;margin-right:8px;">
+                                <span style="font-size: 15px">Reviews (High → Low)</span>
+                            </div>
+
+                            <div style="display: flex; align-items: center; padding: 5px; cursor: pointer;"
+                                (click)="selectFilter('reviewsAsc')">
+                                <img src="../../assets/images/guestezee/reviews.png" alt="Reviews"
+                                    style="width:15px;height:15px;margin-right:8px;">
+                                <span style="font-size: 15px">Reviews (Low → High)</span>
                             </div>
                             <div style="display: flex; align-items: center; padding: 5px; cursor: pointer;"
-                                (click)="selectFilter('Reviews')">
-                                <img src="../../assets/images/guestezee/reviews.png" alt="Reviews"
-                                    style="width: 15px; object-fit: cover; height: 15px; object-fit: cover; margin-right: 8px;">
-                                <span>Reviews</span>
+                                (click)="selectFilter('reset')">
+                                <i class="fas fa-undo" style="width:15px;margin-right:8px;color:#800020;"></i>
+                                <span style="font-size: 15px">Reset</span>
                             </div>
                         </div>
                     </div>
@@ -34,17 +43,22 @@
                     <thead>
                         <tr>
                             <th>Hotel Name</th>
-                            <th>Date</th>
+                            <th>Last Review Date</th>
                             <th style="text-align: center">Rating Average</th>
                             <th>Reviews</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let review of hotelReviews">
-                            <td (click)="navigateToDetails()" style="cursor: pointer">{{ review.name }}</td>
+                            <td>{{ review.hotelname }}</td>
                             <td>{{ review.date }}</td>
-                            <td style="text-align: center">{{ review.rating }}</td>
+                            <td style="text-align: center">{{ review.ratingaverage }}</td>
                             <td class="gold">{{ review.reviews }}</td>
+                            <td>
+                                <i class="fa fa-eye" style="color: #800020; cursor: pointer;"
+                                    (click)="navigateToDetails(review.member_id)" title="View Details"></i>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

@@ -1,0 +1,28 @@
+<table class="processing-table table" >
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Room No</th>
+            <th>Service</th>
+            <th>Order Time</th>
+            <th>Expected Time</th>
+            <th>Status</th>
+            <th>Assignee</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let task of processedOrders">
+            <td >{{ task.name }}</td>
+            <td>{{ task.roomNo }}</td>
+            <td>{{ task.service }}</td>
+            <td>{{ task.orderTime }}</td>
+            <td>{{ task.deliveredTime }}</td>
+            <td>
+                <div style="color: #30A75F; background-color: #c2f2cd; border-radius: 50px; padding: 4px 12px; font-weight: 500; font-size: 12px; text-align: center; display: inline-block;">
+                  Processing
+                </div>
+              </td>
+            <td>{{ task.assignedStaff }}</td>
+        </tr>
+    </tbody>
+</table>

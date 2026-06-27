@@ -3,14 +3,17 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="d-flex justify-content-between align-items-center ">
-                    <h6 class="fw-bolder">Expiry Details</h6>
-                    <div style="position: relative; display: inline-block;">
+                    <!-- <h6 class="fw-bolder">Expiry Details</h6> -->
+                    <h6 class="fw-bolder d-flex align-items-center mb-0">
+                        <i class="fas fa-arrow-left me-2" style="cursor: pointer;" (click)="goBack()"></i>
+                        Expiry Details
+                    </h6>
+                    <div class="filter-container" style="position: relative; display: inline-block;">
                         <div>
                             <!-- Filter Icon -->
-                            <i class="fas fa-filter filter-icon" alt="Filter" (click)="toggleDropdown()"
+                            <i class="fas fa-filter filter-icon" alt="Filter" (click)="toggleDropdown($event)"
                                 style="width: 30px; height: 30px; cursor: pointer; margin-left:50%; color: white; -webkit-text-stroke: 1px black;"></i>
                         </div>
-
                         <!-- Dropdown -->
                         <div *ngIf="isDropdownOpen"
                             style="position: absolute; top: 70%; right: 0; background: white; border-radius: 8px; 
@@ -33,6 +36,12 @@
                                     style="width: 15px; object-fit: cover; height: 15px; object-fit: cover; margin-right: 8px;">
                                 <span>30 Days</span>
                             </div>
+                            <div style="display: flex; align-items: center; padding: 5px; cursor: pointer;"
+                                (click)="getexpiryDetails()">
+                                <!-- <img src="../../assets/images/guestezee/month.png" alt="30 Days"
+                                    style="width: 15px; object-fit: cover; height: 15px; object-fit: cover; margin-right: 8px;"> -->
+                                <span (click)="getexpiryDetails()">Clear</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -42,20 +51,17 @@
                     <div class="list-group-item d-flex align-items-center justify-content-between"
                         [ngClass]="{ 'border-danger': expiry.isUrgent }"
                         style="display: flex; align-items: center; justify-content: space-between; border-radius: 5px; padding: 10px; box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);">
-
                         <!-- Left: Hotel Image & Name -->
                         <div style="display: flex; align-items: center;">
-                            <img [src]="expiry.image" alt="Hotel Logo"
-                                style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;">
-                            <strong style="margin-left: 10px; font-size: 14px;">{{ expiry.hotel }}</strong>
+                            <i class="fa-solid fa-hotel"></i>
+                            <strong style="margin-left: 10px; font-size: 14px;">{{ expiry.name }}</strong>
                         </div>
-
                         <!-- Right: Expiry Date -->
                         <div style="text-align: right;">
                             <span style="color: #8F9899; font-size: 12px;">Expiry Date</span><br>
-                            <span style="color: red; font-weight: bold; font-size: 13px;">{{ expiry.date }}</span>
+                            <span style="color: red; font-weight: bold; font-size: 13px;">{{
+                                expiry.subscription_end_date }}</span>
                         </div>
-
                     </div>
                 </div>
             </div>

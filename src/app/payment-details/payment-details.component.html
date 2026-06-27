@@ -1,19 +1,26 @@
-
 <div class="main">
-   
-    <div class="centered-container"  *ngIf="receivedData=='Subscription'">
-        <!-- <h4 style="font-size: 20px;">{{receivedData}} - {{customerdata?.registered_address.company_name}} - {{customerdata?.property_details.contact_details.brand
-        }}</h4> -->
-        <h4 style="font-size: 20px;">{{receivedData}}</h4>
+
+    <div class="centered-container" *ngIf="receivedData=='Subscription'">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 style="font-size: 20px; margin: 0;">
+                <i class="fas fa-arrow-left me-2" style="cursor: pointer;" (click)="goBack()"></i>
+                {{customerdata?.property_details?.contact_details?.hotel_name}} - {{
+                customerdata?.customer_member_id ? '#' + customerdata.customer_member_id : '' }}
+            </h4>
+            <button class="btn btn-payment-summary" *ngIf="latestOrderId" (click)="viewPaymentSummary(latestOrderId)">
+                Payment Summary
+            </button>
+        </div>
+        <!-- <h4 style="font-size: 20px;">{{receivedData}}</h4> -->
         <div class="container mt-5">
             <!-- Tabs Navigation -->
-          
-          
-      
+
+
+
             <!-- Tab Content -->
-       
-              <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="home-tab">
-                <table class="table" >
+
+            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="home-tab">
+                <table class="table">
                     <thead>
                         <tr>
                             <!-- <th> <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"></th> -->
@@ -21,33 +28,38 @@
                             <th>Payment Amount</th>
                             <th>Subscription Period</th>
                             <th>Invoice</th>
-                           
-                          
+
+
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let data of orderData;"  >
+                        <tr *ngFor="let data of orderData;">
                             <!-- <td> <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"></td> -->
                             <td>{{data.payment.payment_date | date:'dd-MM-yyyy'}}</td>
                             <td>{{data.order_review.order_summary.order_total_amount}}</td>
                             <td>{{data.subscription_end_date}}</td>
-                            <td class="gold"><i class="fa-regular fa-file-lines" (click)="downloadInvoice(data.id)" ></i></td>
-                          
-                         
+                            <td class="gold"><i class="fa-regular fa-file-lines" style="cursor:pointer;"
+                                    (click)="downloadInvoice(data.id)"></i>
+                            </td>
+
+
                         </tr>
                     </tbody>
                 </table>
-              </div>
-              
-            
-             
-          
+            </div>
+
+
+
+
         </div>
     </div>
 
-    <div class="centered-container"  *ngIf="receivedData=='Commission'">
-        <h4 style="font-size: 20px;">{{receivedData}} - {{customerdata.registered_address.company_name}} - {{customerdata.property_details.contact_details.brand
-        }}</h4>
+    <div class="centered-container" *ngIf="receivedData=='Commission'">
+        <h4 style="font-size: 20px;">
+            <i class="fas fa-arrow-left me-2" style="cursor: pointer;" (click)="goBack()"></i>
+            {{receivedData}} - {{customerdata?.registered_address?.company_name || customerdata?.hotel_name}} -
+            {{customerdata?.property_details?.contact_details?.brand || ''}}
+        </h4>
         <div class="centered-container">
             <div class="container">
                 <!-- Hotel Header -->
@@ -105,18 +117,17 @@
                             </div>
                             <h6 class="fw-bold text-center">100</h6>
                         </div>
-                    
+
                     </div>
-    
+
                 </div>
-    
-    
+
+
                 <!-- Ratings Summary -->
-              
+
             </div>
             <!-- Guest Ratings Table -->
-          
+
         </div>
     </div>
 </div>
-

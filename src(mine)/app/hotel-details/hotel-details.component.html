@@ -1,0 +1,135 @@
+<div class="main">
+    <div class="centered-container">
+        <div class="container">
+            <!-- Back Button -->
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-arrow-left me-3" 
+                   style="cursor: pointer; color: #1A1A1A; font-size: 18px;" 
+                   (click)="goBack()"
+                   title="Hotel Details"></i>
+                <span class="fw-bold" style="color: #1A1A1A;">Hotel Details</span>
+            </div>
+
+            <!-- Loop through hotels -->
+            <div *ngFor="let hotel of hotels; let i = index" class="mb-5">
+            
+                <!-- Hotel Header card -->
+                <div class="card bg-white" style="border-color: transparent;">
+                    <img src="../../assets/images/guestezee/hotel-image.png" class="card-img-top" alt="Hotel Image"
+                        style="object-fit: cover;">
+                    <div class="card-body d-flex align-items-center" style="margin-top: -5%">
+                        <img [src]="hotel?.hotel_logo || '../../assets/images/guestezee/hotel-logo.png'" style="width: 100px; height: 100px"
+                            alt="Logo" class="me-3">
+                        <div style="margin-top: 5%">
+                        <!-- <h5 class="mb-0" style="color: #1A1A1A">Taj Coromandel - #345234 - AA Pvt Ltd - Gold</h5> -->
+                            <h5 class="mb-0" style="color: #1A1A1A">{{ hotel.name }} - #{{ hotel.hotelData_id || 'N/A' }} - {{ hotel.brand || 'N/A' }} -
+                            {{ getCategoryLabel(hotel?.property_size) }}</h5>
+                            <p class="text-muted" style="color: #7D7D7D; font-weight: 600 !important;">Location: <span
+                                    class="text-danger" style="color: #800020 !important">{{ hotel?.location || 'N/A' }}</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Details Breakdown -->
+                <div class="row review-details bg-white mt-3 mb-4 mx-3">
+                    <div class="col-md-4 border review-list px-3 py-4">
+                        <div class="d-flex">
+                            <img src="../../assets/images/guestezee/calendar.png" alt="Reviews"
+                                style="width: 25px; height: 25px; object-fit: cover; margin-right: 8px;">
+                            <p style="font-weight: 600">Reviewed on</p>
+                        </div>
+                        <h6 class="fw-bold text-center">{{ hotel?.reviewedOn || '12/Feb/2024' }}</h6>
+                    </div>
+                    <div class="col-md-4 border review-list px-3 py-4">
+                        <div class="d-flex">
+                            <img src="../../assets/images/guestezee/todayRating.png" alt="Reviews"
+                                style="width: 25px; height: 25px; object-fit: cover; margin-right: 8px;">
+                            <p style="font-weight: 600">Today Average Rating</p>
+                        </div>
+                        <h6 class="fw-bold text-center">{{ hotel?.todayAvgRating || 'N/A' }}</h6>
+                    </div>
+                    <div class="col-md-4 border review-list px-3 py-4">
+                        <div class="d-flex">
+                            <img src="../../assets/images/guestezee/overallRating.png" alt="Reviews"
+                                style="width: 25px; height: 25px; object-fit: cover; margin-right: 8px;">
+                            <p style="font-weight: 600">Overall Rating Average</p>
+                        </div>
+                        <h6 class="fw-bold text-center">{{ hotel?.overallAvgRating || 'N/A' }}</h6>
+                    </div>
+                    <div class="col-md-4 border review-list px-3 py-4">
+                        <div class="d-flex">
+                            <img src="../../assets/images/guestezee/pan.png" alt="Reviews"
+                                style="width: 25px; height: 25px; object-fit: cover; margin-right: 8px;">
+                            <p style="font-weight: 600">PAN Details</p>
+                        </div>
+                        <h6 class="fw-bold text-center">{{ hotel?.panDetails || 'N/A' }}</h6>
+                    </div>
+                    <div class="col-md-4 border review-list px-3 py-4">
+                        <div class="d-flex">
+                            <img src="../../assets/images/guestezee/todayReview.png" alt="Reviews"
+                                style="width: 25px; height: 25px; object-fit: cover; margin-right: 8px;">
+                            <p style="font-weight: 600">Today Review Count</p>
+                        </div>
+                        <h6 class="fw-bold text-center">{{ hotel?.todayReviewCount || '0' }}</h6>
+                    </div>
+                    <div class="col-md-4 border review-list px-3 py-4">
+                        <div class="d-flex">
+                            <img src="../../assets/images/guestezee/todayReview.png" alt="Reviews"
+                                style="width: 25px; height: 25px; object-fit: cover; margin-right: 8px;">
+                            <p style="font-weight: 600">Overall Reviews</p>
+                        </div>
+                        <h6 class="fw-bold text-center">{{ hotel?.overallReviewCount || '0' }} Reviews</h6>
+                    </div>
+                </div>
+
+                <!-- Ratings Summary Progress Bars -->
+                <div class="card bg-white mt-2" style="border-color: transparent; margin-left: 5%; margin-right: 5%;">
+                    <div class="px-4 py-4 border rounded">
+                        <h4 style="color: #FFC300" class="fw-bold">{{ hotel?.overallAvgRating || '0.0' }}<i class="fa-solid fa-star"></i></h4>
+                        <p style="color: #01151F; font-size: 13px; font-weight: 700; margin-bottom:3%">{{ hotel?.totalRatingsCount || '0' }} Ratings, {{ hotel?.overallReviewCount || '0' }} Reviews</p>
+                        <div>
+                            <!-- Uses hotel data percentages with fallback to component global percentages -->
+                            <div *ngFor="let rating of hotel?.ratingPercentages || ratingPercentages"
+                                style="display: flex; align-items: center; margin-bottom: 1.5%;">
+                                <span style="width: 50px; font-size: 14px;">{{ rating.star }} Star</span>
+                                <div style="flex-grow: 1; height: 8px; background-color: #eee; border-radius: 4px; overflow: hidden; margin: 0 10px;">
+                                    <div [style.width]="rating.percentage + '%'" [style.backgroundColor]="getStarColor(rating.star)"
+                                        style="height: 100%; border-radius: 4px; transition: width 0.5s ease-in-out;">
+                                    </div>
+                                </div>
+                                <span style="font-size: 14px;">{{ rating.percentage }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Guest Ratings Table -->
+                <table class="table guest-rating-table text-center py-4 mt-4">
+                    <thead>
+                        <tr>
+                            <th>Room No</th>
+                            <th>Name</th>
+                            <th>Guest Overall Rating</th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let review of hotel?.guestReviews" style="cursor: pointer">
+                            <td>{{ review.roomNo }}</td>
+                            <td>{{ review.guestName }}</td>
+                            <td>{{ review.overallRating | number:'1.1-1' }}</td>
+                            <td style="color: #F9AF1A">{{ review.remarks }}</td>
+                            <td (click)="navigateToRating()"><i class="fa fa-eye" style="color: #800020;"></i></td>
+                        </tr>
+                        <tr *ngIf="!hotel?.guestReviews || hotel.guestReviews.length === 0">
+                            <td colspan="5" class="text-center text-muted py-3">No reviews found for this hotel.</td>
+                        </tr>
+                
+                    </tbody>
+                </table>
+
+            </div><!-- End *ngFor hotels -->
+
+        </div>
+    </div>
+</div>

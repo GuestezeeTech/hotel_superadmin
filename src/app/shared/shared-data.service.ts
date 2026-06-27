@@ -11,6 +11,12 @@ export class SharedDataService {
   private sharedData = new BehaviorSubject<any>(null); // holds your data
   currentData = this.sharedData.asObservable();        // listen to this in any component
 
+  private paymentPage = new BehaviorSubject<number>(1);
+  currentPaymentPage = this.paymentPage.asObservable();
+
+  private hotelPage = new BehaviorSubject<number>(1);
+  currentHotelPage = this.hotelPage.asObservable();
+
   setUserData(data: any) {
     this.userDataSource.next(data);
   }
@@ -24,4 +30,25 @@ export class SharedDataService {
     return data ? JSON.parse(data) : null;
   }
 
+  setPaymentPage(page: number) {
+    this.paymentPage.next(page);
+    localStorage.setItem('paymentPage', page.toString());
+  }
+
+  getPaymentPage(): number {
+    const savedPage = localStorage.getItem('paymentPage');
+    return savedPage ? parseInt(savedPage, 10) : 1;
+  }
+
+  setHotelPage(page: number) {
+    this.hotelPage.next(page);
+    localStorage.setItem('hotelPage', page.toString());
+  }
+
+  getHotelPage(): number {
+    const savedPage = localStorage.getItem('hotelPage');
+    return savedPage ? parseInt(savedPage, 10) : 1;
+  }
+
 }
+

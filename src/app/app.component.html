@@ -1,9 +1,17 @@
-<router-outlet>
-  
-    @if (!showSidebar) {
-        <app-menu-bar (menuSelected)="updateMenu($event)"></app-menu-bar>
-      }
-      @if (!showSidebar) {
-      <app-header [selectedMenu]="selectedMenuItem"></app-header>
-      }
-</router-outlet>
+<!-- <router-outlet> -->
+@if (!showSidebar) {
+  <app-menu-bar (menuSelected)="updateMenu($event)"></app-menu-bar>
+}
+@if (!showSidebar) {
+<app-header [selectedMenu]="selectedMenuItem"></app-header>
+}
+<!-- </router-outlet> -->
+<router-outlet></router-outlet>
+
+@if (isRouteLoading) {
+<div class="route-loading-overlay">
+  <div class="route-spinner"></div>
+</div>
+}
+
+<app-loader></app-loader>

@@ -7,27 +7,29 @@ import { AlertsService } from './alerts.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-alerts',
-  standalone: true, // ✅ Mark it as standalone
-  imports: [CommonModule],
-  templateUrl: './alerts.component.html',
-  styleUrls: ['./alerts.component.scss']
+    selector: 'app-alerts',
+    standalone: true, // ✅ Mark it as standalone
+    imports: [CommonModule],
+    templateUrl: './alerts.component.html',
+    styleUrls: ['./alerts.component.scss']
 })
 export class AlertsComponent implements OnInit {
 
-  @Input() id = 'default-alert';
+    @Input() id = 'default-alert';
     @Input() fade = true;
 
     alerts: Alert[] = [];
-    alertSubscription: Subscription = new Subscription(); ;
-    routeSubscription: Subscription = new Subscription(); ;
+    alertSubscription: Subscription = new Subscription();;
+    routeSubscription: Subscription = new Subscription();;
 
     constructor(private router: Router, private alertService: AlertsService) { }
 
     ngOnInit() {
+        console.log('Alert component initialized with ID:', this.id);
         // subscribe to new alert notifications
         this.alertSubscription = this.alertService.onAlert(this.id)
             .subscribe(alert => {
+                console.log(`Alert received by component ${this.id}:`, alert);
                 // clear alerts when an empty alert is received
                 if (!alert.message) {
                     // filter out alerts without 'keepAfterRouteChange' flag
@@ -44,9 +46,9 @@ export class AlertsComponent implements OnInit {
 
                 // auto close alert if required
                 if (alert.autoClose) {
-                    setTimeout(() => this.removeAlert(alert), 4000);
+                    setTimeout(() => this.removeAlert(alert), 6000);
                 }
-           });
+            });
 
         // clear alerts on location change
         this.routeSubscription = this.router.events.subscribe(event => {
@@ -76,14 +78,14 @@ export class AlertsComponent implements OnInit {
         //     }, 250);
         // } 
         const foundAlert = this.alerts.find(x => x === alert);
-    if (foundAlert) {
-        foundAlert.fade = true;
+        if (foundAlert) {
+            foundAlert.fade = true;
 
-        // remove alert after faded out
-        setTimeout(() => {
-            this.alerts = this.alerts.filter(x => x !== alert);
-        }, 250);
-    }
+            // remove alert after faded out
+            setTimeout(() => {
+                this.alerts = this.alerts.filter(x => x !== alert);
+            }, 250);
+        }
 
         else {
             // remove alert
@@ -95,7 +97,7 @@ export class AlertsComponent implements OnInit {
         if (!alert) return;
 
         const classes = ['alert', 'alert-dismissable'];
-                
+
         const alertTypeClass = {
             [AlertType.Success]: 'alert alert-success',
             [AlertType.Error]: 'alert alert-danger',

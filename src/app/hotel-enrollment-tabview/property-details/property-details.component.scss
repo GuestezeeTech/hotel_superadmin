@@ -1,46 +1,52 @@
-.form1_div{
-    width:95%
-   
-  }
-  .inputwidth{
+.form1_div {
+  width: 95%
+}
+
+.inputwidth {
   width: 95%;
-  }
-  .section {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-   
-  h3 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-  .form1_div{
-    width:95%
-   
-  }
-  .input_box{
+}
+
+.section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.form1_div {
+  width: 95%
+}
+
+.input_box {
   width: 95%;
   border: 2px solid #DBDBDB;
   border-radius: 5px;
   padding: 5px 5px;
-  }
-  .body {
-    font-family: urbanist;
-    
 }
-.label{
-    font-family: urbanist;
-    font-weight: 600;
-    font-size: 14px;    
+
+.body {
+  font-family: urbanist;
+
 }
+
+.label {
+  font-family: urbanist;
+  font-weight: 600;
+  font-size: 14px;
+}
+
 .form-check-input:checked {
-    background-color: #800020!important;
-    border-color: #800020!important;
+  background-color: #800020 !important;
+  border-color: #800020 !important;
 }
-.cancel_bt{
+
+.cancel_bt {
   padding: 8px 50px;
   border: none;
   border-radius: 5px;
@@ -48,8 +54,9 @@
   color: #4E4E4E;
   font-weight: 600;
 }
-.save_bt{
-padding: 8px 15px;
+
+.save_bt {
+  padding: 8px 15px;
   border: none;
   border-radius: 5px;
   background: #800020;
@@ -57,49 +64,66 @@ padding: 8px 15px;
   font-weight: 600;
 
 }
+
 .save_bt:disabled {
-background: #b35a78; /* Lighter color */
-cursor: not-allowed; /* Show not-allowed cursor */
-opacity: 0.6; /* Reduce opacity */
+  background: #b35a78;
+  /* Lighter color */
+  cursor: not-allowed;
+  /* Show not-allowed cursor */
+  opacity: 0.6;
+  /* Reduce opacity */
 }
 
-label{
+input:disabled,
+select:disabled,
+textarea:disabled,
+.form-check-input:disabled {
+  cursor: not-allowed !important;
+}
+
+label {
   font-family: urbanist;
   font-weight: 600;
   font-size: 14px;
-
 }
-h3{
+
+h3 {
   font-family: urbanist;
 }
-input{
+
+input {
   font-family: urbanist;
   font-weight: 400;
   font-size: 13px;
 }
-select{
+
+select {
   font-family: urbanist;
   font-weight: 400;
   font-size: 13px;
 }
-.error{
+
+.error {
   color: red;
   font-size: 13px;
   font-family: urbanist;
 }
-span{
+
+span {
   color: red;
   font-size: 13px;
   font-family: urbanist;
 
 }
+
 .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+  background: rgba(0, 0, 0, 0.7);
+  /* Semi-transparent black background */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -123,8 +147,108 @@ span{
 }
 
 .modal-content {
-  background-image: url('../../../assets/images/guestezee/Frame.png'); /* Change path as needed */
- 
+  background-image: url('../../../assets/images/guestezee/Frame.png');
+  /* Change path as needed */
   background-size: cover;
   background-position: center;
 }
+
+.form-check {
+  display: flex;
+  align-items: center;
+  padding-left: 18px;
+}
+
+/* Newly added for KYC document management UI parity */
+.document-section {
+  color: #4F4F4F;
+
+  ul {
+    margin-top: 1%;
+
+    li {
+      font-size: 14px;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.upload-box {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fcfcfc;
+  padding: 3%;
+  height: 30vh;
+}
+
+.upload-icon {
+  font-size: 22px;
+  color: #8b0000;
+}
+
+.upload-btn:disabled {
+  background: #e2a4a4;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-maroon {
+  background-color: #8b0000;
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.doc-item {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.bi-trash3 {
+  color: #808091;
+  font-size: 13px;
+}
+
+.bi-eye {
+  color: #1AA080;
+  font-size: 13px;
+}
+
+.bi-upload {
+  color: #995A0C;
+  font-size: 13px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.disabled-icon {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+/* Newly added to remove arrows/spinners for number inputs - room no */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+// Newly added for width adjustment of upload button
+.upload-btn {
+  // width: 50%;
+}
+
+// End of Newly added for width adjustment of upload button

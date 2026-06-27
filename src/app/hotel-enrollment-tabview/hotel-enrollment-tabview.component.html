@@ -1,74 +1,117 @@
 <div class="main">
-
-  <div class="
-    -container" #pdfContent>
-    <div class="container mt-5">
-      <!-- Tabs Navigation -->
-      <ul class="nav nav-tabs flex-wrap" id="myTabs" role="tablist">
-        <li class="nav-item Custom-tab-spacing" role="presentation">
-          <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
-            aria-selected="true">Registered Office Details</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link Custom-tab-spacing" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
-            aria-controls="profile" aria-selected="false">Property Details</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link Custom-tab-spacing" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
-            aria-controls="contact" aria-selected="false">Services</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link Custom-tab-spacing" id="contact-tab2" data-toggle="tab" href="#contact2" #contactTab2
-            role="tab" aria-controls="contact" aria-selected="false">Hierarchy</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link Custom-tab-spacing" id="contact-tab3" data-toggle="tab" href="#contact3" role="tab"
-            aria-controls="contact" aria-selected="false">Technical Info</a>
-        </li>
-        <!-- <li class="nav-item" role="presentation" >
-                <a class="nav-link Custom-tab-spacing" id="contact-tab4" data-toggle="tab" href="#contact4" role="tab" aria-controls="contact" aria-selected="false">Settings</a>
-              </li> -->
-      </ul>
-
-      <!-- Tab Content -->
-      <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-          <app-office-details></app-office-details>
+  <div class="centered-container" style="background: white;">
+    <div class="container" #pdfContent>
+      <div class="save-hint-wrapper">
+        <div class="save-hint">
+          <i class="fas fa-info-circle"></i>
+          &nbsp;<strong>Note:</strong> Please save your changes in each respective tab; otherwise, your changes will be
+          lost.
         </div>
-        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-          <app-property-details></app-property-details>
-        </div>
-        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-          <app-service-details></app-service-details>
-        </div>
-        <div class="tab-pane fade" id="contact2" role="tabpanel" aria-labelledby="contact-tab2">
-          <app-hierarchy-details></app-hierarchy-details>
-        </div>
-        <div class="tab-pane fade" id="contact3" role="tabpanel" aria-labelledby="contact-tab3">
-          <app-technical-info></app-technical-info>
-        </div>
-        <!-- <div class="tab-pane fade" id="contact4" role="tabpanel" aria-labelledby="contact-tab4">
-                <h3>Settings</h3>
-                <p>This is the content for the Settings tab.</p>
-              </div> -->
       </div>
+
+      <div class="">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs flex-wrap" id="myTabs" role="tablist">
+          <li class="nav-item Custom-tab-spacing" role="presentation">
+            <a class="nav-link active" id="office-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+              aria-selected="true">Registered Office Details</a>
+          </li>
+          <!-- Property Details tab -->
+          <li class="nav-item" [class.tab-li-locked]="isViewMode && !isTab2ViewAccessible"
+            [attr.title]="isViewMode && !isTab2ViewAccessible ? getTabTooltip('property') : null" role="presentation">
+            <!--  <a class="nav-link Custom-tab-spacing" id="profile-tab" data-toggle="tab" href="#profile" role="tab -->
+            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isTab2Accessible && !isViewMode"
+              [class.tab-locked-view]="!isTab2ViewAccessible && isViewMode"
+              (click)="onTabClick($event, isTab2Accessible, 'property')" id="property-tab" data-toggle="tab"
+              href="#profile" role="tab" aria-controls="profile" aria-selected="false">Property Details</a>
+          </li>
+          <!-- Technical Info tab -->
+          <li class="nav-item" [class.tab-li-locked]="isViewMode && !isTab3ViewAccessible"
+            [attr.title]="isViewMode && !isTab3ViewAccessible ? getTabTooltip('technical') : null" role="presentation">
+            <!-- <a class="nav-link Custom-tab-spacing" id="contact-tab3" data-toggle="tab" href="#contact" role="tab" -->
+            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isTab3Accessible && !isViewMode"
+              [class.tab-locked-view]="!isTab3ViewAccessible && isViewMode"
+              (click)="onTabClick($event, isTab3Accessible, 'technical')" id="technical-tab" data-toggle="tab"
+              href="#contact" role="tab" aria-controls="contact" aria-selected="false">Technical Info</a>
+          </li>
+          <!-- Services tab -->
+          <li class="nav-item" [class.tab-li-locked]="isViewMode && !isServicesAndHierarchyAccessible"
+            [attr.title]="isViewMode && !isServicesAndHierarchyAccessible ? getTabTooltip('services') : null"
+            role="presentation">
+            <!-- <a class="nav-link Custom-tab-spacing" id="services-tab" data-toggle="tab" href="#contact2" role="tab" -->
+            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isServicesAndHierarchyAccessible && !isViewMode"
+              [class.tab-locked-view]="!isServicesAndHierarchyAccessible && isViewMode"
+              (click)="onTabClick($event, isServicesAndHierarchyAccessible, 'services')" id="services-tab"
+              data-toggle="tab" href="#contact2" role="tab" aria-controls="contact" aria-selected="false">Services</a>
+          </li>
+          <!-- Hierarchy tab -->
+          <li class="nav-item" [class.tab-li-locked]="isViewMode && !isServicesAndHierarchyAccessible"
+            [attr.title]="isViewMode && !isServicesAndHierarchyAccessible ? getTabTooltip('hierarchy') : null"
+            role="presentation">
+            <!-- <a class="nav-link Custom-tab-spacing" id="hierarchy-tab" data-toggle="tab" href="#contact3" #contactTab2
+                role="tab" aria-controls="contact" aria-selected="false">Hierarchy</a> -->
+            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isServicesAndHierarchyAccessible && !isViewMode"
+              [class.tab-locked-view]="!isServicesAndHierarchyAccessible && isViewMode"
+              (click)="onTabClick($event, isServicesAndHierarchyAccessible, 'hierarchy')" id="hierarchy-tab"
+              data-toggle="tab" href="#contact3" #contactTab2 role="tab" aria-controls="contact"
+              aria-selected="false">Hierarchy</a>
+          </li>
+
+          <!-- Payment Settings tab -->
+          <li class="nav-item" [class.tab-li-locked]="isViewMode && !isAllThreeTabsFilled"
+            [attr.title]="isViewMode && !isAllThreeTabsFilled ? getTabTooltip('payment') : null" role="presentation">
+            <!-- <a class="nav-link Custom-tab-spacing" id="payment-tab" data-toggle="tab" href="#contact4" role="tab"
+                aria-controls="contact" aria-selected="false">Payment Settings</a> -->
+            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isAllThreeTabsFilled && !isViewMode"
+              [class.tab-locked-view]="!isAllThreeTabsFilled && isViewMode"
+              (click)="onTabClick($event, isAllThreeTabsFilled, 'payment')" id="payment-tab" data-toggle="tab"
+              href="#contact4" role="tab" aria-controls="contact" aria-selected="false">Payment Settings</a>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+            <app-office-details></app-office-details>
+          </div>
+          <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+            <app-property-details [paymentDone]="isPaymentDone"></app-property-details>
+          </div>
+          <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+            <!-- <app-service-details></app-service-details> -->
+            <app-technical-info></app-technical-info>
+
+          </div>
+          <div class="tab-pane fade" id="contact2" role="tabpanel" aria-labelledby="contact-tab2">
+            <app-service-tab-list></app-service-tab-list>
+          </div>
+          <div class="tab-pane fade" id="contact3" role="tabpanel" aria-labelledby="contact-tab3">
+            <app-hierarchy-details></app-hierarchy-details>
+          </div>
+          <div class="tab-pane fade" id="contact4" role="tabpanel" aria-labelledby="contact-tab4">
+            <!-- <h3>Settings</h3> -->
+            <app-payment-subscription-management-customer></app-payment-subscription-management-customer>
+            <!-- <p>This is the content for the Settings tab.</p> -->
+          </div>
+        </div>
+      </div>
+      <!-- <div *ngIf="showModal" class="modal" style="display: block; background: rgba(0,0,0,0.5);">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">PDF Preview</h5>
+            <button type="button" class="btn-close" (click)="closeModal()"></button>
+          </div>
+          <div class="modal-body" style="height: 80vh;">
+            <iframe [src]="pdfUrl" width="100%" height="100%"></iframe>
+          </div>
+        </div>
+      </div>
+    </div> -->
     </div>
 
-
-
-
-    <!-- <div *ngIf="showModal" class="modal" style="display: block; background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">PDF Preview</h5>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
-      </div>
-      <div class="modal-body" style="height: 80vh;">
-        <iframe [src]="pdfUrl" width="100%" height="100%"></iframe>
-      </div>
-    </div>
   </div>
-</div> -->
-  </div>
+
+
+
 </div>

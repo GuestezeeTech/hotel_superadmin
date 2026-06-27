@@ -78,3 +78,21 @@ body {
 .table{
     border: 1px solid #dedede;
 }
+
+.btn-payment-summary {
+    background-color: #800020;
+    color: white;
+    font-family: urbanist;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+
+    &:hover {
+        background-color: #600018;
+        color: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+}

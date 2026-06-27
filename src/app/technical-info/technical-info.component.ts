@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { AlertsComponent } from '../shared/alerts/alerts.component';
 import { TechnicalInfoService } from './technical-info.service';
 import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { AuthTokenService } from '../auth-services/auth-token.service';
 import { ENDPOINTS } from '../app.config';
 import { AlertsService } from '../shared/alerts/alerts.service';
@@ -20,8 +20,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   styleUrl: './technical-info.component.scss'
 })
 export class TechnicalInfoComponent implements OnInit {
+  @ViewChild('iconInput') iconInput!: ElementRef<HTMLInputElement>;
   previewImgUrl: string | null = null;
   techInfoForm: FormGroup = new FormGroup({});
+  iconPreview: string | ArrayBuffer | null = null;//newly added for image
+  iconError: string = ''; //newly added for image
+  showInlinePreview: boolean = false; // toggles inline preview
   imageName: string = '';
   enableEdit: boolean = true;
   imgFile: File | null = null;
@@ -44,7 +48,8 @@ export class TechnicalInfoComponent implements OnInit {
     private technicalInfoService: TechnicalInfoService,
     private alertService: AlertsService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private location: Location
 
   ) {
 
@@ -56,20 +61,16 @@ export class TechnicalInfoComponent implements OnInit {
   ngOnInit(): void {
     this.techInfoForm = new FormGroup({
 
-      name: new FormControl('', Validators.required),
-      type: new FormControl('', Validators.required),
-      api_url: new FormControl('', Validators.required),
+      // name: new FormControl('', Validators.required),
+      // type: new FormControl('', Validators.required),
+      // api_url: new FormControl('', Validators.required),
+      name: new FormControl('', [Validators.required, Validators.pattern(/.*\S.*/)]),
+      type: new FormControl('', [Validators.required]),
+      api_url: new FormControl('', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)]),
       image: new FormControl(''),
-      is_enable: new FormControl(false),
-
-
-
-
-
+      is_active: new FormControl(false),
 
     });
-
-
 
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -78,28 +79,19 @@ export class TechnicalInfoComponent implements OnInit {
       console.log(this.tech_info_id, " this.tech_info_id")
       if (this.tech_info_id != 0 || this.tech_info_id != undefined || this.tech_info_id != null) {
         this.getTechInfoById();
-
       }
-
     });
-
   }
-
-
 
   employees(): FormArray {
     console.log(this.techInfoDataForm.get("technicalInfo") as FormArray);
     const values = this.techInfoDataForm.value.technicalInfo;
     console.log("123456", values);
-
-
     return this.techInfoDataForm.get("technicalInfo") as FormArray
-
   }
 
 
   newEmployee(): FormGroup {
-
     return this.fb.group({
       key: '',
       value: '',
@@ -113,14 +105,12 @@ export class TechnicalInfoComponent implements OnInit {
     this.employees().push(this.newEmployee());
   }
 
-
   removeEmployee(empIndex: number) {
     this.employees().removeAt(empIndex);
   }
 
 
   addApiIntegration() {
-
     let createobj =
     {
       domain_name: this.authTokenService.getDomain(),
@@ -131,37 +121,42 @@ export class TechnicalInfoComponent implements OnInit {
           "type": this.techInfoForm.get('type')?.value,
           "title": this.techInfoForm.get('name')?.value,
           "api_url": this.techInfoForm.get('api_url')?.value,
-          "is_enabled": this.techInfoForm.get('is_enable')?.value,
+          "is_enabled": false,
+          "is_active": this.techInfoForm.get('is_active')?.value,
           "logo": this.service_image,
           "description": "",
           "attributes": this.techInfoDataForm.value.technicalInfo
         }
-      },
-      "extras": {
-        "find": {
-          "id": ""
-        }
       }
     }
-
     this.technicalInfoService.apiCall(createobj, ENDPOINTS.CREATE_APIINTEGRATION_SETTINGS).subscribe(
       resp => {
         console.log("test", "123")
-        if (resp) {
+        if (resp && resp.status_code == 200 && resp.success == 1) {
           // this.techInfoData = resp.result.data[0];
           // this.tech_info_id=resp.result.data[0].id;
-          this.router.navigate(['/tech-info-list'])
-
-
-
-
-
-
+          // this.router.navigate(['/tech-info-list'])
+          this.location.back();
+          this.alertService.success(resp.message, this.options);
         }
-
+        else if (resp && resp.status_code == 200 && resp.success == 0) {
+          if (resp.message && (resp.message.toLowerCase().includes('record already exists') || resp.message.toLowerCase().includes('already exists'))) {
+            const type = (this.techInfoForm.get('type')?.value || '').toLowerCase();
+            if (type === 'lock' || type === 'pos') {
+              const typeLabel = type === 'pos' ? 'pms' : type;
+              this.alertService.error(`Already ${typeLabel} integration with this name exists`, this.options);
+            } else {
+              this.alertService.error('Record already exists', this.options);
+            }
+          } else {
+            this.alertService.error(resp.message || 'Record already exists', this.options);
+          }
+        }
+        else {
+          this.alertService.error(resp.message, this.options);
+        }
       },
       err => {
-
         if (err.error.statusCode === 403) {
           this.alertService.error('Session Time Out! Please login Again', this.options);
           this.router.navigate([`/login`], { skipLocationChange: false });
@@ -170,15 +165,10 @@ export class TechnicalInfoComponent implements OnInit {
         } else {
           this.alertService.error('Something bad happened. Please try again!', this.options);
         }
-
       }
     );
-
-
-
-
-
   }
+
   updateApiIntegration() {
     let createobj =
     {
@@ -190,7 +180,8 @@ export class TechnicalInfoComponent implements OnInit {
           "type": this.techInfoForm.get('type')?.value,
           "title": this.techInfoForm.get('name')?.value,
           "api_url": this.techInfoForm.get('api_url')?.value,
-          "is_enabled": this.techInfoForm.get('is_enable')?.value,
+          "is_enabled": false,
+          "is_active": this.techInfoForm.get('is_active')?.value,
           "logo": this.service_image,
           "description": "",
           "attributes": this.techInfoDataForm.value.technicalInfo
@@ -202,23 +193,31 @@ export class TechnicalInfoComponent implements OnInit {
         }
       }
     }
-
     this.technicalInfoService.apiCall(createobj, ENDPOINTS.EDIT_APIINTEGRATION_SETTINGS).subscribe(
       resp => {
-        console.log("test", "123")
-        if (resp) {
+        if (resp && resp.status_code == 200 && resp.success == 1) {
           // this.techInfoData = resp.result.data[0];
           // this.tech_info_id=resp.result.data[0].id;
-          this.router.navigate(['/tech-info-list'])
-
-
-
-
-
-
-
+          // this.router.navigate(['/tech-info-list'])
+          this.location.back();
+          this.alertService.success(resp.message, this.options);
         }
-
+        else if (resp && resp.status_code == 200 && resp.success == 0) {
+          if (resp.message && (resp.message.toLowerCase().includes('record already exists') || resp.message.toLowerCase().includes('already exists'))) {
+            const type = (this.techInfoForm.get('type')?.value || '').toLowerCase();
+            if (type === 'lock' || type === 'pos') {
+              const typeLabel = type === 'pos' ? 'pms' : type;
+              this.alertService.error(`Already ${typeLabel} integration with this name exists`, this.options);
+            } else {
+              this.alertService.error('Record already exists', this.options);
+            }
+          } else {
+            this.alertService.error(resp.message || 'Record already exists', this.options);
+          }
+        }
+        else {
+          this.alertService.error(resp.message, this.options);
+        }
       },
       err => {
 
@@ -233,38 +232,21 @@ export class TechnicalInfoComponent implements OnInit {
 
       }
     );
-
   }
 
-
-
-
   saveData() {
-
-    console.log("000");
-    if (this.techInfoForm.valid) {
-      console.log("Form Submitted");
-      console.log("##########");
-      console.log(this.tech_info_id, "this.tech_info_id")
+    if (this.techInfoForm.valid && this.techInfoDataForm.valid) {
       if (this.tech_info_id == 0 || this.tech_info_id == undefined) {
         this.addApiIntegration();
-
       }
       else {
         this.updateApiIntegration();
       }
-
-
-
-
     }
     else {
-      console.log("111");
       console.log("Form is invalid!");
     }
   }
-
-
 
   imageupload(event: any): void {
     console.log("1234")
@@ -342,20 +324,103 @@ export class TechnicalInfoComponent implements OnInit {
           this.service_image = imgVariable.location;
           console.log("this.service_image" + this.service_image)
           // Store profile image in localStorage
-
-
         }
       }
     })
   }
-
 
   clearImage(): void {
     this.uploadedFileName = null;
     this.techInfoForm.get('image')?.reset();
   }
 
+  openLogofile() {
+    this.iconInput.nativeElement.click();
+  }
 
+  async logoupload(event: any) {
+    let file_data = { name: "", size: 0 };
+    if (event.target && event.target.files && event.target.files[0]) {
+      file_data = event.target.files[0];
+    } else if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+      file_data = event.dataTransfer.files[0];
+    }
+
+    if (!file_data.name) return;
+    this.iconError = '';
+
+    let imageName = file_data.name;
+    let splitFileName = imageName.split(".");
+    const maxBytes = 2 * 1024 * 1024; // 2 MB
+
+    if (file_data.size > maxBytes) {
+      this.iconError = 'Icon size should not exceed 2 MB.';
+      return;
+    }
+
+    // CHECKING FILE TYPE (only jpg, jpeg, png)
+    if (!["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"].includes(splitFileName[splitFileName.length - 1])) {
+      this.iconError = 'Invalid icon format. Allowed types: JPG, JPEG, PNG.';
+      return;
+    }
+
+    // Dimension check: 150x150
+    const iconImg = new Image();
+    const iconUrl = URL.createObjectURL(file_data as any);
+    iconImg.onload = async () => {
+      const validSize = iconImg.width === 150 && iconImg.height === 150;
+      if (!validSize) {
+        URL.revokeObjectURL(iconUrl);
+        this.iconError = 'Icon must be exactly 150x150 pixels.';
+        return;
+      }
+
+      // Passed all checks, proceed with preview + upload
+      this.iconPreview = iconUrl;
+      this.iconError = '';
+      let headers = new HttpHeaders().set("source", "Brand").set("domain_name", this.authTokenService.getDomain())
+      let formData_imageCate = new FormData();
+      formData_imageCate.append('upload', file_data as any);
+
+      this.technicalInfoService.sendImage(formData_imageCate, headers).subscribe(resp => {
+        if (resp && resp.success === 1 && resp.status_code === 200) {
+          this.service_image = resp.result.data[0].location;
+          this.iconPreview = resp.result.data[0].location;
+          URL.revokeObjectURL(iconUrl);
+          this.alertService.success('Icon uploaded successfully.', this.options);
+        } else {
+          this.iconPreview = null;
+          URL.revokeObjectURL(iconUrl);
+          this.iconError = 'Icon upload failed. Please try again.';
+        }
+      });
+    };
+    iconImg.onerror = () => {
+      URL.revokeObjectURL(iconUrl);
+      this.iconError = 'Unable to read icon image.';
+    };
+    iconImg.src = iconUrl;
+  }
+
+  // viewFile(src: any) {
+  //   if (src) {
+  //     const newWindow = window.open();
+  //     newWindow?.document.write(`<img src="${src}" style="max-width:100%; height:auto;">`);
+  //   }
+
+  togglePreview() {
+    this.showInlinePreview = !this.showInlinePreview;
+  }
+
+  removeIcon() {
+    this.service_image = null;
+    this.iconPreview = null;
+    //newly added
+    if (this.iconInput) {
+      this.iconInput.nativeElement.value = '';
+    }
+    this.alertService.success('Icon removed successfully.', this.options);
+  }
 
   getTechInfoById(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -375,6 +440,7 @@ export class TechnicalInfoComponent implements OnInit {
           if (resp) {
             this.ecomData = resp.result.data[0];
             this.service_image = resp.result.data[0].logo;
+            this.iconPreview = resp.result.data[0].logo;
             this.uploadedFileName = resp.result.data[0].logo;
 
             this.techInfoForm.patchValue({
@@ -383,7 +449,7 @@ export class TechnicalInfoComponent implements OnInit {
 
               image: "",
               api_url: this.ecomData.api_url,
-              is_enable: this.ecomData.is_enabled,
+              is_active: this.ecomData.is_active,
 
               description: this.ecomData.description
             });
@@ -421,9 +487,11 @@ export class TechnicalInfoComponent implements OnInit {
     });
   }
 
+  goBack() {
+    // this.router.navigate(['/tech-info-list']);
+    this.location.back();
+  }
 }
-
-
 
 export class country {
   id: string;
@@ -434,5 +502,3 @@ export class country {
     this.name = name;
   }
 }
-
-

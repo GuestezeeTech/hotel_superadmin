@@ -19,6 +19,12 @@ export class TechInfoListComponent {
 
   selectedTab: string = 'lock'; // Default tab
   activeTab: number = 1;
+  tech_info_id: any = null; // Defined to allow hint note visibility
+  // isWizard: boolean = false;
+
+  ngOnInit() {
+    // this.isWizard = !this.router.url.includes('tech-info-list');
+  }
 
   toggleSwitch(element: any) {
     element.classList.toggle("active");
@@ -53,10 +59,17 @@ export class TechInfoListComponent {
     }
   }
 
+  nextTab() {
+    let nextTab = document.getElementById('services-tab');
+    if (nextTab) {
+      (nextTab as HTMLAnchorElement).click();
+    }
+  }
+
   previousTab() {
     switch (this.activeTab) {
       case 1:
-        let nextTab = document.getElementById('contact-tab2');
+        let nextTab = document.getElementById('property-tab');
         if (nextTab) {
           (nextTab as HTMLAnchorElement).click();
         }
@@ -69,9 +82,7 @@ export class TechInfoListComponent {
         this.selectTab('pos');
         this.secondTabCount();
     }
-
   }
-
 
   addTechnicalInfo() {
     this.router.navigate(['/add-technical-info'])

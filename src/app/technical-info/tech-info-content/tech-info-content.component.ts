@@ -1,7 +1,5 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
-
 import { AlertsComponent } from '../../shared/alerts/alerts.component';
-
 import { TechnicalInfoService } from '../technical-info.service';
 import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
@@ -9,7 +7,6 @@ import { CommonModule } from '@angular/common';
 import { AuthTokenService } from '../../auth-services/auth-token.service';
 import { ENDPOINTS } from '../../app.config';
 import { AlertsService } from '../../shared/alerts/alerts.service';
-
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -25,6 +22,7 @@ export class TechInfoContentComponent implements OnChanges {
   ecomData: any;
   overallData: any;
   tech_info_id: any;
+  isLoading: boolean = false;
   options = {
     autoClose: true,
     keepAfterRouteChange: false
@@ -39,6 +37,8 @@ export class TechInfoContentComponent implements OnChanges {
 
   ) { }
   ngOnInit(): void {
+    // Redundant logic commented to prevent flickering, relying on ngOnChanges instead
+    /*
     console.log('Filter type changed:', this.filterType);
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -46,13 +46,56 @@ export class TechInfoContentComponent implements OnChanges {
       this.tech_info_id = Number(id);
 
     });
-    this.ecomIntegrationSettingsGetAll();
-
-
+    console.log("tech_info_id", this.tech_info_id)
+    if (this.tech_info_id !== undefined && this.tech_info_id !== 0) {
+      console.log("11");
+      this.ecomIntegrationSettingsGetbyId()
+    }
+    else {
+      console.log("12");
+      this.ecomIntegrationSettingsGetAll();
+    }
+    */
+    this.route.paramMap.subscribe(params => { // newly added for technical info optimization
+      const id = params.get('id');
+      this.tech_info_id = Number(id);
+      this.loadData();
+    });
   }
+
   ngOnChanges() {
+    /*
     console.log('Tab selected:', this.filterType);
-    this.ecomIntegrationSettingsGetAll();
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      console.log('Reactive ID:', id);
+      this.tech_info_id = Number(id);
+    });
+
+    if (this.tech_info_id !== undefined && this.tech_info_id !== 0) {
+      console.log("11");
+      this.ecomIntegrationSettingsGetbyId()
+
+    }
+    else {
+      console.log("12");
+      this.ecomIntegrationSettingsGetAll();
+    }
+    */
+    this.filterData(); // newly commented for technical info optimization
+  }
+
+  loadData() { // newly added for technical info optimization
+    if (this.tech_info_id !== undefined && this.tech_info_id !== 0) {
+      this.ecomIntegrationSettingsGetbyId();
+    } else {
+      this.ecomIntegrationSettingsGetAll();
+    }
+  }
+
+  filterData() { // newly added for technical info optimization
+    if (!this.overallData) return;
+
     if (this.filterType == "pos") {
       this.ecomData = this.overallData.filter((item: any) => (item.type == "pos"));
 
@@ -76,8 +119,7 @@ export class TechInfoContentComponent implements OnChanges {
     // Call filtering logic here
   }
   ecomIntegrationSettingsGetAll() {
-
-
+    this.isLoading = true;
     return new Promise((resolve, reject) => {
       let requestBody = {
         domain_name: this.authTokenService.getDomain(),
@@ -91,30 +133,23 @@ export class TechInfoContentComponent implements OnChanges {
 
       this.technicalInfoService.apiCall(requestBody, ENDPOINTS.GET_ALL_API_INT_SETTINGS).subscribe(
         resp => {
-
+          this.isLoading = false;
           if (resp) {
             let respdata = resp.result.data;
-            this.overallData = respdata.filter((item: any) => (item.customer_id == undefined));;
-
+            // this.overallData = respdata.filter((item: any) => (item.customer_id == undefined));
+            // this.overallData = respdata.filter((item: any) => (item.customer_member_id == undefined)); //newly changed from customer_id to customer_member_id
+            this.overallData = respdata.filter((item: any) => (item.member_id == undefined || item.member_id == null));
             console.log(this.overallData, "respdata");
 
-            this.ecomData = this.overallData.filter((item: any) => item.type == this.filterType);
+            // this.ecomData = this.overallData.filter((item: any) => item.e == this.filterType); // Old line with typo
+            this.ecomData = this.overallData.filter((item: any) => item.type == this.filterType); // New corrected line
 
             console.log(this.ecomData, " this.ecomData")
-
-
-
-
-
-
-
-
-
-
-
           }
+          resolve(resp);
         },
         err => {
+          this.isLoading = false;
           // this.loaderService.emitComplete();
           if (err.error.statusCode === 403) {
             this.alertService.error('Session Time Out! Please login Again', this.options);
@@ -128,34 +163,81 @@ export class TechInfoContentComponent implements OnChanges {
         }
       );
     });
-
-
-
-
   }
+  ecomIntegrationSettingsGetbyId() {
+    this.isLoading = true;
+    return new Promise((resolve, reject) => {
+      let requestBody = {
+        domain_name: this.authTokenService.getDomain(),
+        user_id: this.authTokenService.getUserId(),
+        extras: {
+          find: {
+            // member_id: this.tech_info_id
+            customer_id: this.tech_info_id
+            // customer_member_id: this.tech_info_id //newly changed from customer_id to customer_member_id
+          }
+        }
+      };
+
+      this.technicalInfoService.apiCall(requestBody, ENDPOINTS.GET_ALL_API_INT_SETTINGS).subscribe(
+        resp => {
+          this.isLoading = false;
+          if (resp) {
+            let respdata = resp.result.data;
+            this.overallData = respdata;
+
+            console.log(this.overallData, "respdata");
+
+            this.ecomData = this.overallData[0].customer_technical_info.filter((item: any) => item.type == this.filterType);
+
+            console.log(this.ecomData, " this.ecomData")
+          }
+          resolve(resp);
+        },
+        err => {
+          this.isLoading = false;
+          // this.loaderService.emitComplete();
+          if (err.error.statusCode === 403) {
+            this.alertService.error('Session Time Out! Please login Again', this.options);
+            this.router.navigate([`/login`], { skipLocationChange: false });
+          } else if (err.error.message) {
+            this.alertService.error(err.error.message, this.options);
+          } else {
+            this.alertService.error('Something bad happened. Please try again!', this.options);
+          }
+          reject(err);  // Reject promise if there is an error
+        }
+      );
+    });
+  }
+
   viewDetails(id: number) {
     this.router.navigate(['/edit-tech-info', id])
   }
+
+  // Newly updated for active/deactive purpose
   onToggleActive(event: Event, item: any): void {
     const isChecked = (event.target as HTMLInputElement).checked;
-
+    item.is_active = isChecked;
     const updatedData = {
-      ...item,
       is_active: isChecked
     };
-
-    // Call your update API here
-    this.updateItemStatus(updatedData, updatedData.id);
+    const message = `${item.name} has been ${isChecked ? 'activated' : 'deactivated'} successfully.`;
+    this.updateItemStatus(updatedData, item.id, message);
   }
-  updateItemStatus(updatedData: any, id: number): void {
-    delete updatedData._id
 
+  updateItemStatus(updatedData: any, id: number, message: string): void {
+    delete updatedData._id
+    delete updatedData.id
+    delete updatedData.created_on
+    delete updatedData.is_deleted
+    delete updatedData.modified_on
     let createobj =
     {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
       "payload": {
-        updatedData
+        "integration_settings": updatedData
       },
       "extras": {
         "find": {
@@ -163,25 +245,16 @@ export class TechInfoContentComponent implements OnChanges {
         }
       }
     }
-
     this.technicalInfoService.apiCall(createobj, ENDPOINTS.EDIT_APIINTEGRATION_SETTINGS).subscribe(
       resp => {
-        console.log("test", "123")
-        if (resp) {
-
-          this.router.navigate(['/tech-info-list'])
-
-
-
-
-
-
-
+        if (resp.success == 1 && resp.status_code == 200) {
+          this.alertService.success(message, this.options);
         }
-
+        else {
+          this.alertService.error(resp.message, this.options);
+        }
       },
       err => {
-
         if (err.error.statusCode === 403) {
           this.alertService.error('Session Time Out! Please login Again', this.options);
           this.router.navigate([`/login`], { skipLocationChange: false });
@@ -190,9 +263,8 @@ export class TechInfoContentComponent implements OnChanges {
         } else {
           this.alertService.error('Something bad happened. Please try again!', this.options);
         }
-
       }
     );
-    // Replace with your actual API service
   }
+  // ended
 }

@@ -12,6 +12,7 @@ import { Modal } from 'bootstrap';
 import { AlertsComponent } from '../shared/alerts/alerts.component';
 import { ENDPOINTS } from '../app.config';
 import { LocalStorageService } from '../auth-services/local-storage.service';
+import { SharedDataService } from '../shared/shared-data.service';
 
 @Component({
   selector: 'app-hotel-list',
@@ -26,13 +27,15 @@ export class HotelListComponent implements OnInit {
 
   private modalInstance!: Modal;
   customerList: any[] = [];
+  isLoading: boolean = false;
+  paginatedCustomers: any[] = [];
   data: any;
   userRoleName: string = "";
   adminUserData: any = {};
   selectedStatus: string = 'approved';
   customerdata: any;
   deleteAllCustomerData: boolean = false;
-
+  selectedIds = new Set<number>();//newly added
   idlistToDelete: any = []
   options = {
     autoClose: true,
@@ -43,8 +46,9 @@ export class HotelListComponent implements OnInit {
     keepAfterRouteChange: false
   };
   isModalHidden: boolean = true;
-
-
+  // Newly added for status button active/inactive based on payment done
+  paidCustomerMemberIds = new Set<string>();
+  // End of newly added for status button active/inactive based on payment done
 
   //pagination
   currentPage: number = 1;
@@ -57,13 +61,17 @@ export class HotelListComponent implements OnInit {
     private loaderService: LoaderService,
     private alertService: AlertsService,
     private renderer: Renderer2, private el: ElementRef,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private sharedService: SharedDataService
   ) {
 
   }
   ngOnInit() {
-
+    this.currentPage = this.sharedService.getHotelPage();
     this.getUserDetailById();
+    // Newly added for status button active/inactive based on payment done
+    this.fetchConfirmedOrders();
+    // End of newly added for status button active/inactive based on payment done
     const selectAllCheckbox = document.getElementById('selectAll');
 
     (selectAllCheckbox as HTMLInputElement)
@@ -75,17 +83,16 @@ export class HotelListComponent implements OnInit {
         );
       });
   }
+
   addNew() {
     this.router.navigate(["/add-new-hotel"]);
-
-
   }
   editCustomer(customerId: number) {
     this.router.navigate(["/edit-new-hotel", customerId]);
-
   }
 
   getAllCustomers() {
+    this.isLoading = true;
     this.loaderService.emitLoading();
     // MAKE A SERVICE CALL HERE...
     let requestBody = {
@@ -102,25 +109,38 @@ export class HotelListComponent implements OnInit {
         },
         "sorting": true,
         "sortingDetails": {
-          "email": -1
+          "created_on": -1
         }
       }
     }
     this.hotellistservice.getAllCustomers(requestBody).subscribe(
       resp => {
+        this.isLoading = false;
         this.loaderService.emitComplete();
         if (resp) {
-          // this.customerList = resp.result.data;
-          // Filter out records that contain 'staff_employee_number' key
+          // Filter out records that contain 'staff_employee_number' key and require 'customer_member_id'
           this.customerList = resp.result.data.filter(
-            (item: any) => !('staff_employee_number' in item)
-          );
-          this.totalPages = resp.result.total_count;
-          console.log(this.customerList, "this.customerList")
+            // (item: any) => !('staff_employee_number' in item)
+            //newly added to ignore user in the super admin
+            (item: any) => !('staff_employee_number' in item) && ('customer_member_id' in item)
+          ).sort((a: any, b: any) => {
+            return new Date(b.created_on || 0).getTime() - new Date(a.created_on || 0).getTime();
+          });
+          const itemsPerPage = 10;
+          this.totalPages = Math.ceil(this.customerList.length / itemsPerPage) || 1;
+          if (this.currentPage > this.totalPages) {
+            this.currentPage = this.totalPages;
+            this.sharedService.setHotelPage(this.currentPage);
+          }
+          const startIndex = (this.currentPage - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          this.paginatedCustomers = this.customerList.slice(startIndex, endIndex);
+          console.log(this.customerList, "this.customerList", this.totalPages)
 
         }
       },
       err => {
+        this.isLoading = false;
         if (err.error.statusCode === 403) {
           this.alertService.error('Session Time Out! Please login Again', this.options)
           this.router.navigate([`/login`], { skipLocationChange: false });
@@ -137,7 +157,7 @@ export class HotelListComponent implements OnInit {
   getCategoryLabel(propertySize: string | undefined): string {
     switch (propertySize) {
       case '01-50 Rooms': return 'Bronze';
-      case '51-101 Rooms': return 'Silver';
+      case '51-100 Rooms': return 'Silver';
       case '101-150 Rooms': return 'Gold';
       case '150 and above Rooms': return 'Platinum';
       default: return ''; // Empty string when no match
@@ -147,74 +167,210 @@ export class HotelListComponent implements OnInit {
   getCategoryClass(propertySize: string | undefined): string {
     switch (propertySize) {
       case '01-50 Rooms': return 'bronze';
-      case '51-101 Rooms': return 'silver';
+      case '51-100 Rooms': return 'silver';
       case '101-150 Rooms': return 'gold';
       case '150 and above Rooms': return 'platinum';
       default: return ''; // No class if no match
     }
   }
-  onsearch(text: any) {
-    let data = text.target.value;
-
-    {
+  // onsearch(text: any) {
+  //   let data = text.target.value;
 
 
+  //   {
+  //     let searchBody = {
+  //       "domain_name": this.authTokenService.getDomain(),
+  //       "user_id": this.authTokenService.getUserId(),
+  //       "extras": {
+  //         "find": {
+  //           "search": data
+  //         }
+  //       }
+  //     }
 
+  //     {
+  //       this.hotellistservice.getCustomerByName(searchBody).subscribe(resp => {
+  //         if (resp.status_code === 200) {
+  //           // this.customerList = resp.result.data;
+  //           this.customerList = resp.result.data.filter(
+  //             (item: any) => !('staff_employee_number' in item)
+  //           );
+  //           //  this.paginatedCustomers= [];
+  //           // this.paginatedCustomers =  this.customerList;
 
-      let searchBody = {
-        "domain_name": this.authTokenService.getDomain(),
-        "user_id": this.authTokenService.getUserId(),
-        "extras": {
-          "find": {
-            "search": data
-          }
+  //           const startIndex = (this.currentPage - 1) * 10; // 10 items per page
+  //           const endIndex = startIndex + 10;
+  //           this.paginatedCustomers = this.customerList.slice(startIndex, endIndex);
+  //           // 10 items per page
+  //           const itemsPerPage = 10;
+
+  //           // Calculate total pages (round up for any remaining items)
+  //           this.totalPages = Math.ceil(this.customerList.length / itemsPerPage);
+  //           console.log(this.customerList, "this.customerList", this.totalPages)
+
+  //           console.log(this.paginatedCustomers, "this.paginatedCustomers");
+  //           console.log(this.customerList, "this.paginatedCustomers");
+  //           this.totalPages = resp.result.total_count;
+  //         }
+  //         else {
+  //           this.alertService.error('Sorry, No data avilable for this Product', this.alertOptions);
+  //         }
+  //       },
+  //         err => {
+  //           if (err.error.statusCode === 403) {
+  //             this.alertService.error('Session Time Out! Please login Again', this.options)
+  //             this.router.navigate([`/login`], { skipLocationChange: false });
+  //           }
+  //           else if (err.error.message) {
+
+  //             this.alertService.error(err.error.message, this.alertOptions)
+  //           }
+  //           else {
+  //             this.alertService.error('Something bad happened. Please try again!', this.alertOptions);
+  //           }
+  //         })
+  //     }
+
+  //   }
+  // }
+  onsearch(event: any) {
+    const searchText = (event.target.value || '').trim().toLowerCase();
+    this.currentPage = 1;
+    this.sharedService.setHotelPage(1);
+
+    if (!searchText) {
+      this.getAllCustomers();
+      return;
+    }
+
+    this.isLoading = true;
+    this.loaderService.emitLoading();
+
+    const requestBody = {
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      extras: {
+        find: {},
+        pagination: false,
+        sorting: true,
+        sortingDetails: {
+          created_on: -1
         }
       }
+    };
 
+    this.hotellistservice.getAllCustomers(requestBody).subscribe(
+      resp => {
+        this.isLoading = false;
+        this.loaderService.emitComplete();
 
+        if (resp && resp.result && resp.result.data) {
+          this.customerList = resp.result.data.filter((item: any) => {
+            if ('staff_employee_number' in item) {
+              return false;
+            }
+            //newly added to ignore user in the super admin
+            if (!('customer_member_id' in item)) {
+              return false;
+            }
 
-      {
-        this.hotellistservice.getCustomerByName(searchBody).subscribe(resp => {
-          if (resp.status_code === 200) {
-            // this.customerList = resp.result.data;
-            this.customerList = resp.result.data.filter(
-              (item: any) => !('staff_employee_number' in item)
+            const hotelName = (item.name || '').toLowerCase();
+            const propertySize = (item?.property_details?.property_address?.property_size || '').toLowerCase();
+            const categoryLabel = this.getCategoryLabel(
+              item?.property_details?.property_address?.property_size
+            ).toLowerCase();
+
+            return (
+              hotelName.includes(searchText) ||
+              propertySize.includes(searchText) ||
+              categoryLabel.includes(searchText)
             );
-            this.totalPages = resp.result.total_count
-          }
-          else {
-            this.alertService.error('Sorry, No data avilable for this Product', this.alertOptions);
-          }
-        },
-          err => {
-            if (err.error.statusCode === 403) {
-              this.alertService.error('Session Time Out! Please login Again', this.options)
-              this.router.navigate([`/login`], { skipLocationChange: false });
-            }
-            else if (err.error.message) {
+          }).sort((a: any, b: any) => {
+            return new Date(b.created_on || 0).getTime() - new Date(a.created_on || 0).getTime();
+          });
 
-              this.alertService.error(err.error.message, this.alertOptions)
-            }
-            else {
-              this.alertService.error('Something bad happened. Please try again!', this.alertOptions);
-            }
-          })
+          const startIndex = 0;
+          const endIndex = 10;
+          this.paginatedCustomers = this.customerList.slice(startIndex, endIndex);
+          this.totalPages = Math.ceil(this.customerList.length / 10) || 1;
+        } else {
+          this.customerList = [];
+          this.paginatedCustomers = [];
+          this.totalPages = 1;
+        }
+      },
+      err => {
+        this.isLoading = false;
+        this.loaderService.emitComplete();
+
+        if (err.error.statusCode === 403) {
+          this.alertService.error('Session Time Out! Please login Again', this.options);
+          this.router.navigate([`/login`], { skipLocationChange: false });
+        } else if (err.error.message) {
+          this.alertService.error(err.error.message, this.alertOptions);
+        } else {
+          this.alertService.error('Something bad happened. Please try again!', this.alertOptions);
+        }
       }
-
-    }
+    );
   }
 
 
-  nextPage() {
+
+
+
+  // Helper to generate the array of page numbers [1, 2, 3...] — same pattern as payment-list
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  goToPage(page: number, event: Event) {
+    event.preventDefault();
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.sharedService.setHotelPage(page);
+      const startIndex = (this.currentPage - 1) * 10;
+      const endIndex = startIndex + 10;
+      this.paginatedCustomers = this.customerList.slice(startIndex, endIndex);
+    }
+  }
+
+  nextPage(event: Event) {
+    event.preventDefault(); // Prevent default link behavior
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
+      this.sharedService.setHotelPage(this.currentPage);
+      const startIndex = (this.currentPage - 1) * 10; // 10 items per page
+      const endIndex = startIndex + 10;
+      this.paginatedCustomers = this.customerList.slice(startIndex, endIndex);
     }
+    // if (this.currentPage < this.totalPages) {
+    //   this.currentPage++;
+    // }
   }
 
-  previousPage() {
+  previousPage(event: Event) {
+    event.preventDefault(); // Prevent default link behavior
     if (this.currentPage > 1) {
       this.currentPage--;
+      this.sharedService.setHotelPage(this.currentPage);
+      const startIndex = (this.currentPage - 1) * 10;
+      const endIndex = startIndex + 10;
+      this.paginatedCustomers = this.customerList.slice(startIndex, endIndex);
     }
+    // if (this.currentPage > 1) {
+    //   this.currentPage--;
+    // }
+  }
+
+  toggleSelection(id: number, event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) this.selectedIds.add(id);
+    else this.selectedIds.delete(id);
+  }
+
+  get hasSelection(): boolean {
+    return this.selectedIds.size > 0;
   }
   deleteCustomer(id: number) {
     const index = this.idlistToDelete.indexOf(id);
@@ -227,9 +383,6 @@ export class HotelListComponent implements OnInit {
       this.idlistToDelete.splice(index, 1);
       //console.log(this.idlistToDelete, "delete data12");
     }
-
-
-
   }
 
   openModal() {
@@ -301,6 +454,11 @@ export class HotelListComponent implements OnInit {
     this.data = data;
     this.selectedStatus = this.data.status
   }
+
+  selectstat(value: any) {
+    this.selectedStatus = value;
+
+  }
   updateStatus() {
     //console.log(this.data.id, "this.data.id", this.selectedStatus)
     this.getCustomerById(this.data.id)
@@ -308,7 +466,12 @@ export class HotelListComponent implements OnInit {
         return this.customerUpdate(this.selectedStatus);  // Once function12 completes, call function1
       })
       .then(() => {
-        this.sendEmail();
+        // if (this.selectedStatus == "approved") {
+        // this.sendEmail();
+        // this.sendSms();
+
+        // }
+
 
         //console.log("Both functions executed sequentially.");
       })
@@ -318,11 +481,11 @@ export class HotelListComponent implements OnInit {
 
   }
 
-sendEmail() {
+  sendEmail() {
     const payload = {
-      username:  this.customerdata.first_name,
+      username: this.customerdata.first_name,
       email: this.customerdata.email,
-      name:this.customerdata.first_name,
+      name: this.customerdata.first_name,
       domain_name: 'https://www.guestezee.com'
     };
 
@@ -336,7 +499,27 @@ sendEmail() {
     });
   }
 
+  sendSms() {
+    const payload = {
+      "domain_name": "https://www.guestezee.com",
+      "data": {
+        "otp": {
+          "countrycode": "+91",
+          "mobile": this.customerdata.phone_number,
+          "otppurpose": "Approval"
+        }
+      }
+    }
+    this.hotellistservice.sendApprovalSMS(payload).subscribe({
+      next: (res) => {
+        console.log('Email API response:', res);
+      },
+      error: (err) => {
+        console.error('Email API error:', err);
+      }
+    });
 
+  }
 
 
 
@@ -353,9 +536,6 @@ sendEmail() {
   async customerUpdate(status: string) {
 
     delete this.customerdata._id;
-
-
-
     //console.log(this.customerdata, "this.customerdata")
     this.customerdata.status = status;
 
@@ -422,8 +602,8 @@ sendEmail() {
       }
     )
   }
-  getCustomerById(data: any): Promise<void> {
 
+  getCustomerById(data: any): Promise<void> {
     return new Promise((resolve, reject) => {
       let requestBody = {
         domain_name: this.authTokenService.getDomain(),
@@ -440,9 +620,6 @@ sendEmail() {
           this.loaderService.emitComplete();
           if (resp) {
             this.customerdata = resp.result.data[0];
-
-
-
             //console.log(this.customerdata, "RESPDATA");
             //console.log(Array.isArray(this.customerdata));
             resolve();  // Resolve promise when data is set
@@ -492,24 +669,42 @@ sendEmail() {
             extras: {
               find: {
                 created_by: Number(this.localStorageService.get('UserId'))
+              },
+              sorting: true,
+              sortingDetails: {
+                created_on: -1
               }
             }
           };
 
+          this.isLoading = true;
           this.hotellistservice.getCustomerById(requestBody).subscribe(
             resp => {
+              this.isLoading = false;
               this.loaderService.emitComplete();
               if (resp) {
-                this.customerList = resp.result.data;
-
-
-
+                // this.customerList = resp.result.data;
+                //newly added to ignore user in the super admin
+                this.customerList = resp.result.data.filter(
+                  (item: any) => !('staff_employee_number' in item) && ('customer_member_id' in item)
+                ).sort((a: any, b: any) => {
+                  return new Date(b.created_on || 0).getTime() - new Date(a.created_on || 0).getTime();
+                });
+                const itemsPerPage = 10;
+                this.totalPages = Math.ceil(this.customerList.length / itemsPerPage) || 1;
+                if (this.currentPage > this.totalPages) {
+                  this.currentPage = this.totalPages;
+                  this.sharedService.setHotelPage(this.currentPage);
+                }
+                const startIndex = (this.currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                this.paginatedCustomers = this.customerList.slice(startIndex, endIndex);
                 //console.log(this.customerdata, "RESPDATA");
                 //console.log(Array.isArray(this.customerdata));
-
               }
             },
             err => {
+              this.isLoading = false;
               this.loaderService.emitComplete();
               if (err.error.statusCode === 403) {
                 this.alertService.error('Session Time Out! Please login Again', this.options);
@@ -519,24 +714,14 @@ sendEmail() {
               } else {
                 this.alertService.error('Something bad happened. Please try again!', this.options);
               }
-
             }
           );
-
-
         }
 
         // if (!this.adminUserData) {
         //   //console.error("No admin user data returned!");
         //   return;
         // }
-
-
-
-
-
-
-
       }
       else {
         //console.warn("Failed to fetch updated profile data.");
@@ -546,8 +731,7 @@ sendEmail() {
 
 
   deleteAllCustomer() {
-    this.idlistToDelete = "";
-
+    this.idlistToDelete = [];
   }
 
 
@@ -569,6 +753,45 @@ sendEmail() {
     const hotelId = this.route.snapshot.paramMap.get('id');
     this.router.navigate([`/hotel-preview/${id}`]);
   }
+
+  // Newly added for status button active/inactive based on payment done
+  fetchConfirmedOrders() {
+    let requestData = {
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      "extras": {
+        "find": {},
+        "pagination": false
+      }
+    };
+    this.hotellistservice.postApiCall(requestData, ENDPOINTS.GET_ALL_ORDER_DETAILS).subscribe(
+      resp => {
+        if (resp && resp.success === 1 && resp.status_code === 200 && resp.result && resp.result.data) {
+          const confirmedOrders = resp.result.data.filter(
+            (order: any) => (order.status === "Order Confirmed" || order.status === "Confirmed") && !('guest_id' in order)
+          );
+          this.paidCustomerMemberIds.clear();
+          confirmedOrders.forEach((order: any) => {
+            if (order.customer_member_id) {
+              this.paidCustomerMemberIds.add(String(order.customer_member_id).trim());
+            }
+          });
+        } else {
+          this.paidCustomerMemberIds.clear();
+        }
+      },
+      err => {
+        console.error('Error fetching order details:', err);
+        this.paidCustomerMemberIds.clear();
+      }
+    );
+  }
+
+  isPaymentDone(customerMemberId: any): boolean {
+    if (!customerMemberId) return false;
+    return this.paidCustomerMemberIds.has(String(customerMemberId).trim());
+  }
+  // End of newly added for status button active/inactive based on payment done
 
 }
 

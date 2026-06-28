@@ -108,7 +108,16 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
 
     const roomCount = Number(plan.roomCount) || 1;
     const discountType = plan.discountType || 'selected';
-    const discountValue = Number(plan.discountValue) || 0;
+    let discountValue = Number(plan.discountValue) || 0;
+
+    if (discountType === 'percentage' && discountValue > 100) {
+      this.alertService.error(`Discount percentage cannot exceed 100% for ${plan.name}`, this.options);
+      return;
+    }
+    if (discountType === 'flat' && discountValue > (Number(plan.perRoomCost) || 0)) {
+      this.alertService.error(`Flat discount cannot be greater than the room cost for ${plan.name}`, this.options);
+      return;
+    }
 
     // If "SingleRoomPricing" → update all plans
     if (plan.name === 'SingleRoomPricing') {
@@ -120,15 +129,28 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
         const roomCount = Number(p.roomCount) || 1;
         const total = newCost * roomCount; // ✅ total for all rooms
 
-        let discount = 0;
-        if (p.discountType === 'percentage') {
-          discount = (total * (Number(p.discountValue) || 0)) / 100;
-        } else if (p.discountType === 'flat') {
-          discount = Number(p.discountValue) || 0;
-        } else if(p.discountType === 'selected') {
-            discount = 0;
+        let currentDiscountValue = Number(p.discountValue) || 0;
+        let isInvalid = false;
+        if (p.discountType === 'percentage' && currentDiscountValue > 100) {
+          isInvalid = true;
+          this.alertService.error(`Discount percentage cannot exceed 100% for ${p.name}`, this.options);
         }
-        
+        if (p.discountType === 'flat' && currentDiscountValue > newCost) {
+          isInvalid = true;
+          this.alertService.error(`Flat discount cannot be greater than the room cost for ${p.name}`, this.options);
+        }
+
+        let discount = 0;
+        if (!isInvalid) {
+          if (p.discountType === 'percentage') {
+            discount = (total * currentDiscountValue) / 100;
+          } else if (p.discountType === 'flat') {
+            discount = currentDiscountValue;
+          } else if (p.discountType === 'selected') {
+            discount = 0;
+          }
+        }
+
 
         const discountedTotal = total - discount;
         console.log('Discounted Total:', discountedTotal);
@@ -156,41 +178,41 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
       });
     }
     else {
-    // For individual plan update
-    const total = (Number(plan.perRoomCost) || 0) * roomCount;
-    let discount = 0;
+      // For individual plan update
+      const total = (Number(plan.perRoomCost) || 0) * roomCount;
+      let discount = 0;
 
-    if (discountType === 'percentage') {
-      discount = (total * discountValue) / 100;
-    } else if (discountType === 'flat') {
-      discount = discountValue;
-    } else if (discountType === 'selected') {
-      discount = 0;
-    }
+      if (discountType === 'percentage') {
+        discount = (total * discountValue) / 100;
+      } else if (discountType === 'flat') {
+        discount = discountValue;
+      } else if (discountType === 'selected') {
+        discount = 0;
+      }
 
 
-    const discountedTotal = total - discount;
+      const discountedTotal = total - discount;
 
-    // ✅ GST based on total (after discount)
-    // ✅ Calculate total for 12 months
-    const yearlyTotal = discountedTotal * 12;
-    console.log('Yearly Total:', yearlyTotal);
+      // ✅ GST based on total (after discount)
+      // ✅ Calculate total for 12 months
+      const yearlyTotal = discountedTotal * 12;
+      console.log('Yearly Total:', yearlyTotal);
 
-    // ✅ GST (18% of yearly total)
-    plan.gstAmount = +(discountedTotal * 0.18).toFixed(2);
-    // plan.gstAmount = +(yearlyTotal * 0.18).toFixed(2);
-    console.log('GST Amount:', plan.gstAmount);
+      // ✅ GST (18% of yearly total)
+      plan.gstAmount = +(discountedTotal * 0.18).toFixed(2);
+      // plan.gstAmount = +(yearlyTotal * 0.18).toFixed(2);
+      console.log('GST Amount:', plan.gstAmount);
 
-    // ✅ Final price = yearly total + GST
-    plan.finalPrice = +(discountedTotal + plan.gstAmount).toFixed(2);
-    console.log('Final Price:', plan.finalPrice);
-    // plan.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
-    plan.peryeargstAmount = +(plan.gstAmount * 12).toFixed(2);
-    console.log('Per Year GST Amount:', plan.peryeargstAmount);
-    // plan.peryearcost = +(yearlyTotal + plan.gstAmount).toFixed(2);
-    // plan.peryearcost = +(yearlyTotal + plan.peryeargstAmount).toFixed(2);
-    plan.peryearcost = +(plan.finalPrice * 12).toFixed(2);
-    console.log('Per Year Cost:', plan.peryearcost);
+      // ✅ Final price = yearly total + GST
+      plan.finalPrice = +(discountedTotal + plan.gstAmount).toFixed(2);
+      console.log('Final Price:', plan.finalPrice);
+      // plan.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
+      plan.peryeargstAmount = +(plan.gstAmount * 12).toFixed(2);
+      console.log('Per Year GST Amount:', plan.peryeargstAmount);
+      // plan.peryearcost = +(yearlyTotal + plan.gstAmount).toFixed(2);
+      // plan.peryearcost = +(yearlyTotal + plan.peryeargstAmount).toFixed(2);
+      plan.peryearcost = +(plan.finalPrice * 12).toFixed(2);
+      console.log('Per Year Cost:', plan.peryearcost);
     }
   }
 
@@ -245,13 +267,13 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
 
     // Validation: Percentage should not be more than 100
     if (discountType === 'percentage' && discountValue > 100) {
-      this.alertService.error('Discount percentage cannot exceed 100%', this.options);
+      this.alertService.error(`Discount percentage cannot exceed 100% for ${plan.name}`, this.options);
       return;
     }
 
-    // Validation: Flat Price should be less than Room Cost
-    if (discountType === 'flat' && discountValue >= (Number(plan.perRoomCost) || 0)) {
-      this.alertService.error('Flat discount cannot be equal to or greater than the room cost', this.options);
+    // Validation: Flat Price should be less than or equal to Room Cost
+    if (discountType === 'flat' && discountValue > (Number(plan.perRoomCost) || 0)) {
+      this.alertService.error(`Flat discount cannot be greater than the room cost for ${plan.name}`, this.options);
       return;
     }
 
@@ -264,13 +286,26 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
       const total = (Number(p.perRoomCost) || 0) * roomCount;
       console.log('Total before discount:', total);
 
+      let currentDiscountValue = Number(p.discountValue) || 0;
+      let isInvalid = false;
+      if (p.discountType === 'percentage' && currentDiscountValue > 100) {
+        isInvalid = true;
+        this.alertService.error(`Discount percentage cannot exceed 100% for ${p.name}`, this.options);
+      }
+      if (p.discountType === 'flat' && currentDiscountValue > (Number(p.perRoomCost) || 0)) {
+        isInvalid = true;
+        this.alertService.error(`Flat discount cannot be greater than the room cost for ${p.name}`, this.options);
+      }
+
       let discount = 0;
-      if (p.discountType === 'percentage') {
-        discount = (total * (Number(p.discountValue) || 0)) / 100;
-      } else if (p.discountType === 'flat') {
-        discount = Number(p.discountValue) || 0;
-      } else if (p.discountType === 'selected') {
-        discount = 0;
+      if (!isInvalid) {
+        if (p.discountType === 'percentage') {
+          discount = (total * currentDiscountValue) / 100;
+        } else if (p.discountType === 'flat') {
+          discount = currentDiscountValue;
+        } else if (p.discountType === 'selected') {
+          discount = 0;
+        }
       }
 
       const discountedTotal = total - discount;

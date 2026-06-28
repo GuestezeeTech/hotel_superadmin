@@ -4,6 +4,7 @@ import { SharedDataService } from '../shared/shared-data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { PaymentDetailsService } from '../payment-details/payment-details.service';
 import { AuthTokenService } from '../auth-services/auth-token.service';
+import { LoaderService } from '../shared/loader/loader.service';
 
 @Component({
   selector: 'app-payment-summary-list',
@@ -26,13 +27,15 @@ export class PaymentSummaryListComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private paymentDetailsService: PaymentDetailsService,
-    private authTokenService: AuthTokenService
+    private authTokenService: AuthTokenService,
+    private loaderService: LoaderService
   ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
+        this.loaderService.emitLoading();
         this.getOrderDetails(id);
       } else {
         this.router.navigate(['/payment-details']);
@@ -57,15 +60,19 @@ export class PaymentSummaryListComponent implements OnInit {
           this.paymentData = resp.result.data[0];
           if (this.paymentData.customer_id) {
             this.getCustomerById(this.paymentData.customer_id);
+          } else {
+            this.loaderService.emitComplete();
           }
           this.processPaymentData();
         } else {
           console.error('Order not found');
+          this.loaderService.emitComplete();
           this.router.navigate(['/payment-tab-view']);
         }
       },
       err => {
         console.error('Error fetching order details', err);
+        this.loaderService.emitComplete();
         this.router.navigate(['/payment-tab-view']);
       }
     );
@@ -176,11 +183,13 @@ export class PaymentSummaryListComponent implements OnInit {
 
     this.paymentDetailsService.getCustomerById(requestBody).subscribe(
       resp => {
+        this.loaderService.emitComplete();
         if (resp && resp.result && resp.result.data) {
           this.customerdata = resp.result.data[0];
         }
       },
       err => {
+        this.loaderService.emitComplete();
         console.error('Error fetching customer info', err);
       }
     );

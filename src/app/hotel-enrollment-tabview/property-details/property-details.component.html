@@ -312,7 +312,11 @@
     <h3 style="font-size: 20px;font-weight: 600;">
       Property Size
       <a style="font-size: 13px;color: #A0A0A0;">
-        – Each room is charged ₹{{ singleRoomFinalPrice }} per month - All fields are required
+        <!-- Newly commented & added for single room pricing -->
+        <!-- – Each room is charged ₹{{ singleRoomFinalPrice }} per month - All fields are required -->
+        <a *ngIf="selectedPropertySize && propertyPricingMap[selectedPropertySize]">– Each room is charged ₹{{
+          propertyPricingMap[selectedPropertySize] }} per month </a>- All fields are required
+        <!-- End of newly commented & added for single room pricing -->
       </a>
     </h3>
     <div style="display: grid;grid-template-columns: repeat(4, 1fr);row-gap: 3%;">

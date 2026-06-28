@@ -34,10 +34,12 @@ export class DashboardComponent implements OnInit {
   visitMonth: string = '';
   reviewYear: number = new Date().getFullYear();
   reviewMonth: string = '';
-  monthsList: string[] = [
+  allMonths: string[] = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
+  visitMonthsList: string[] = [];
+  reviewMonthsList: string[] = [];
   yearsList: number[] = [];
   guestReviewChartInstance!: Chart;
 
@@ -72,15 +74,52 @@ export class DashboardComponent implements OnInit {
     const currentMonthIndex = now.getMonth();
     this.visitYear = currentYear;
     this.reviewYear = currentYear;
-    this.visitMonth = this.monthsList[currentMonthIndex];
-    this.reviewMonth = this.monthsList[currentMonthIndex];
+    this.visitMonth = this.allMonths[currentMonthIndex];
+    this.reviewMonth = this.allMonths[currentMonthIndex];
 
     this.yearsList = [];
-    for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+    for (let y = 2026; y <= currentYear; y++) {
       this.yearsList.push(y);
     }
+    
+    this.updateVisitMonths();
+    this.updateReviewMonths();
 
     this.getPropertySize();
+  }
+
+  updateVisitMonths() {
+    const now = new Date();
+    if (Number(this.visitYear) === now.getFullYear()) {
+      this.visitMonthsList = this.allMonths.slice(0, now.getMonth() + 1);
+    } else {
+      this.visitMonthsList = [...this.allMonths];
+    }
+    if (this.visitMonth && !this.visitMonthsList.includes(this.visitMonth)) {
+      this.visitMonth = '';
+    }
+  }
+
+  updateReviewMonths() {
+    const now = new Date();
+    if (Number(this.reviewYear) === now.getFullYear()) {
+      this.reviewMonthsList = this.allMonths.slice(0, now.getMonth() + 1);
+    } else {
+      this.reviewMonthsList = [...this.allMonths];
+    }
+    if (this.reviewMonth && !this.reviewMonthsList.includes(this.reviewMonth)) {
+      this.reviewMonth = '';
+    }
+  }
+
+  onVisitYearChange() {
+    this.updateVisitMonths();
+    this.getGuestVisitData();
+  }
+
+  onReviewYearChange() {
+    this.updateReviewMonths();
+    this.getGuestReviewData();
   }
 
   renderChart() {

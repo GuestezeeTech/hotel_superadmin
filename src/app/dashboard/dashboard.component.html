@@ -220,7 +220,7 @@
                     <div class="d-flex justify-content-between align-items-center ">
                         <h6 class="fw-bolder">Guest Visit</h6>
                         <div class="d-flex gap-2" style="flex-shrink: 0;">
-                            <select [(ngModel)]="visitYear" (change)="getGuestVisitData()"
+                            <select [(ngModel)]="visitYear" (change)="onVisitYearChange()"
                                 class="form-select form-select-sm"
                                 style="width: 75px; background-color: #F5F4FD; cursor:pointer; flex-shrink: 0;">
                                 <option *ngFor="let yr of yearsList" [value]="yr">{{ yr }}</option>
@@ -229,7 +229,7 @@
                                 class="form-select form-select-sm"
                                 style="width: 100px; background-color: #F5F4FD; cursor:pointer; flex-shrink: 0;">
                                 <option value="">All Months</option>
-                                <option *ngFor="let mo of monthsList" [value]="mo">{{ mo }}</option>
+                                <option *ngFor="let mo of visitMonthsList" [value]="mo">{{ mo }}</option>
                             </select>
                         </div>
                     </div>
@@ -246,7 +246,7 @@
                     <div class="d-flex justify-content-between align-items-center ">
                         <h6 class="fw-bolder">Guest Review</h6>
                         <div class="d-flex gap-2" style="flex-shrink: 0;">
-                            <select [(ngModel)]="reviewYear" (change)="getGuestReviewData()"
+                            <select [(ngModel)]="reviewYear" (change)="onReviewYearChange()"
                                 class="form-select form-select-sm"
                                 style="width: 75px; background-color: #F5F4FD; cursor:pointer; flex-shrink: 0;">
                                 <option *ngFor="let yr of yearsList" [value]="yr">{{ yr }}</option>
@@ -255,7 +255,7 @@
                                 class="form-select form-select-sm"
                                 style="width: 100px; background-color: #F5F4FD; cursor:pointer; flex-shrink: 0;">
                                 <option value="">All Months</option>
-                                <option *ngFor="let mo of monthsList" [value]="mo">{{ mo }}</option>
+                                <option *ngFor="let mo of reviewMonthsList" [value]="mo">{{ mo }}</option>
                             </select>
                         </div>
                     </div>
@@ -363,7 +363,7 @@
                         <h6 class="fw-bold" style="color: #0B0B12;">Guest Visit</h6>
                     </div>
                     <div class="d-flex gap-2">
-                        <select [(ngModel)]="visitYear" (change)="getGuestVisitData()"
+                        <select [(ngModel)]="visitYear" (change)="onVisitYearChange()"
                             class="form-select form-select-sm"
                             style="width: 85px; background-color: #F5F4FD; cursor:pointer">
                             <option *ngFor="let yr of yearsList" [value]="yr">{{ yr }}</option>
@@ -372,7 +372,7 @@
                             class="form-select form-select-sm"
                             style="width: 110px; background-color: #F5F4FD; cursor:pointer">
                             <option value="">All Months</option>
-                            <option *ngFor="let mo of monthsList" [value]="mo">{{ mo }}</option>
+                            <option *ngFor="let mo of visitMonthsList" [value]="mo">{{ mo }}</option>
                         </select>
                     </div>
                 </div>

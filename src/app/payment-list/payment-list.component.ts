@@ -40,6 +40,8 @@ export class PaymentListComponent implements OnInit {
     keepAfterRouteChange: false
   };
   memberId: any;
+  apiCallsCount: number = 0;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -50,6 +52,14 @@ export class PaymentListComponent implements OnInit {
     private paymentListService: PaymentListService,
     private sharedService: SharedDataService
   ) { }
+
+  checkDataLoaded() {
+    this.apiCallsCount--;
+    if (this.apiCallsCount <= 0) {
+      this.loaderService.emitComplete();
+    }
+  }
+
   ngOnInit(): void {
     //console.log(this.data, 'test');
     console.log('Alert options:', this.options);
@@ -58,6 +68,10 @@ export class PaymentListComponent implements OnInit {
     //   // this.alertService.success('Test message', this.options);
     // }, 1000);
     this.currentPage = this.sharedService.getPaymentPage();
+
+    this.apiCallsCount = 2;
+    this.loaderService.emitLoading();
+
     this.getOrderDetails();
     this.getCustomerData();  // Add this
     //console.log()
@@ -111,9 +125,10 @@ export class PaymentListComponent implements OnInit {
 
 
         }
+        this.checkDataLoaded();
       },
       err => {
-
+        this.checkDataLoaded();
       }
     )
   }
@@ -155,9 +170,11 @@ export class PaymentListComponent implements OnInit {
 
           console.log('Customer data loaded:', Object.keys(this.customerData).length, 'customers');
         }
+        this.checkDataLoaded();
       },
       (err: any) => {  // Add type annotation
         console.error('Error fetching customer data:', err);
+        this.checkDataLoaded();
       }
     );
   }

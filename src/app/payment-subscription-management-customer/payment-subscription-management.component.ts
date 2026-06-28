@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import {AlertsComponent} from '../shared/alerts/alerts.component'
+import { AlertsComponent } from '../shared/alerts/alerts.component'
 import { FormsModule } from '@angular/forms';
 import { PaymentDetailsService } from '../payment-details/payment-details.service';
 import { AuthTokenService } from '../auth-services/auth-token.service';
@@ -11,7 +11,7 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 @Component({
   selector: 'app-payment-subscription-management-customer',
   standalone: true,
-  imports: [CommonModule, FormsModule,AlertsComponent],
+  imports: [CommonModule, FormsModule, AlertsComponent],
   templateUrl: './payment-subscription-management.component.html',
   styleUrls: ['./payment-subscription-management.component.scss']
 })
@@ -86,7 +86,16 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
     }
     const roomCount = Number(plan.roomCount) || 1;
     const discountType = plan.discountType || 'selected';
-    const discountValue = Number(plan.discountValue) || 0;
+    let discountValue = Number(plan.discountValue) || 0;
+
+    if (discountType === 'percentage' && discountValue > 100) {
+      this.alertService.error(`Discount percentage cannot exceed 100% for ${plan.name}`, this.options);
+      return;
+    }
+    if (discountType === 'flat' && discountValue > (Number(plan.perRoomCost) || 0)) {
+      this.alertService.error(`Flat discount cannot be greater than the room cost for ${plan.name}`, this.options);
+      return;
+    }
 
     // If "SingleRoomPricing" → update all plans
     if (plan.name === 'SingleRoomPricing') {
@@ -98,11 +107,24 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
         const roomCount = Number(p.roomCount) || 1;
         const total = newCost * roomCount; // ✅ total for all rooms
 
+        let currentDiscountValue = Number(p.discountValue) || 0;
+        let isInvalid = false;
+        if (p.discountType === 'percentage' && currentDiscountValue > 100) {
+          isInvalid = true;
+          this.alertService.error(`Discount percentage cannot exceed 100% for ${p.name}`, this.options);
+        }
+        if (p.discountType === 'flat' && currentDiscountValue > newCost) {
+          isInvalid = true;
+          this.alertService.error(`Flat discount cannot be greater than the room cost for ${p.name}`, this.options);
+        }
+
         let discount = 0;
-        if (p.discountType === 'percentage') {
-          discount = (total * (Number(p.discountValue) || 0)) / 100;
-        } else if (p.discountType === 'flat') {
-          discount = Number(p.discountValue) || 0;
+        if (!isInvalid) {
+          if (p.discountType === 'percentage') {
+            discount = (total * currentDiscountValue) / 100;
+          } else if (p.discountType === 'flat') {
+            discount = currentDiscountValue;
+          }
         }
 
         const discountedTotal = total - discount;
@@ -187,7 +209,16 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
 
     const roomCount = Number(plan.roomCount) || 1;
     const discountType = plan.discountType || 'selected';
-    const discountValue = Number(plan.discountValue) || 0;
+    let discountValue = Number(plan.discountValue) || 0;
+
+    if (discountType === 'percentage' && discountValue > 100) {
+      this.alertService.error(`Discount percentage cannot exceed 100% for ${plan.name}`, this.options);
+      return;
+    }
+    if (discountType === 'flat' && discountValue > (Number(plan.perRoomCost) || 0)) {
+      this.alertService.error(`Flat discount cannot be greater than the room cost for ${plan.name}`, this.options);
+      return;
+    }
 
     // If "SingleRoomPricing" → update all plans
     if (plan.name === 'SingleRoomPricing') {
@@ -199,11 +230,24 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
         const roomCount = Number(p.roomCount) || 1;
         const total = newCost * roomCount; // ✅ total for all rooms
 
+        let currentDiscountValue = Number(p.discountValue) || 0;
+        let isInvalid = false;
+        if (p.discountType === 'percentage' && currentDiscountValue > 100) {
+          isInvalid = true;
+          this.alertService.error(`Discount percentage cannot exceed 100% for ${p.name}`, this.options);
+        }
+        if (p.discountType === 'flat' && currentDiscountValue > newCost) {
+          isInvalid = true;
+          this.alertService.error(`Flat discount cannot be greater than the room cost for ${p.name}`, this.options);
+        }
+
         let discount = 0;
-        if (p.discountType === 'percentage') {
-          discount = (total * (Number(p.discountValue) || 0)) / 100;
-        } else if (p.discountType === 'flat') {
-          discount = Number(p.discountValue) || 0;
+        if (!isInvalid) {
+          if (p.discountType === 'percentage') {
+            discount = (total * currentDiscountValue) / 100;
+          } else if (p.discountType === 'flat') {
+            discount = currentDiscountValue;
+          }
         }
 
         const discountedTotal = total - discount;

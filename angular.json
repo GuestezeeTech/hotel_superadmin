@@ -27,8 +27,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/assets",
-              "src/favicon.ico",
-              "src/email-template"
+              "src/favicon.ico"
             ],
             "styles": [
               "src/styles.scss",
@@ -86,8 +85,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/assets",
-              "src/favicon.ico",
-              "src/email-template"
+              "src/favicon.ico"
             ],
             "styles": [
               "src/styles.scss",

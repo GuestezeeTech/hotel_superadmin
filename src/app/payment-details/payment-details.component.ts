@@ -39,6 +39,15 @@ export class PaymentDetailsComponent implements OnInit {
     private sharedService: SharedDataService
   ) { }
 
+  apiCallsCount = 0;
+
+  checkDataLoaded() {
+    this.apiCallsCount--;
+    if (this.apiCallsCount <= 0) {
+      this.loaderService.emitComplete();
+    }
+  }
+
   goBack(): void {
     this.router.navigate(['/payment-tab-view']);
   }
@@ -50,6 +59,8 @@ export class PaymentDetailsComponent implements OnInit {
       var temphotelid = params.get('id');
       if (temphotelid) {
         this.hotel_Id = Number(temphotelid);
+        this.apiCallsCount = 2;
+        this.loaderService.emitLoading();
         this.getOrderDetails();
         this.getCustomerById();
       }
@@ -96,9 +107,10 @@ export class PaymentDetailsComponent implements OnInit {
           }
 
         }
+        this.checkDataLoaded();
       },
       err => {
-
+        this.checkDataLoaded();
       }
     )
   }
@@ -117,7 +129,7 @@ export class PaymentDetailsComponent implements OnInit {
 
       this.paymentDetailsService.getCustomerById(requestBody).subscribe(
         resp => {
-          this.loaderService.emitComplete();
+          this.checkDataLoaded();
           if (resp) {
             this.customerdata = resp.result.data[0];
 
@@ -129,7 +141,7 @@ export class PaymentDetailsComponent implements OnInit {
           }
         },
         err => {
-          this.loaderService.emitComplete();
+          this.checkDataLoaded();
           if (err.error.statusCode === 403) {
             // this.alertService.error('Session Time Out! Please login Again', this.options);
             this.router.navigate([`/login`], { skipLocationChange: false });

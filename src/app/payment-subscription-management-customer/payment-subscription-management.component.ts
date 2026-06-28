@@ -322,6 +322,8 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
 
 
     delete this.customerdata._id;
+    delete this.customerdata.password_to_customer;
+    delete this.customerdata.password;
     let requestBody = {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
@@ -537,6 +539,9 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
     });
   }
   updateCustomer() {
+    delete this.customerdata._id;
+    delete this.customerdata.password_to_customer;
+    delete this.customerdata.password;
     let requestBody = {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),

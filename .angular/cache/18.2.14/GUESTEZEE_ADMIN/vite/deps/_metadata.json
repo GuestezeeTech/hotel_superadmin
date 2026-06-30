@@ -1,91 +1,91 @@
 {
-  "hash": "2fa93669",
+  "hash": "46996af1",
   "configHash": "f8cd0d31",
-  "lockfileHash": "a95d18b0",
-  "browserHash": "1e763c1a",
+  "lockfileHash": "f22bdd7b",
+  "browserHash": "c6c8fd35",
   "optimized": {
     "@angular/common": {
       "src": "../../../../../../node_modules/@angular/common/fesm2022/common.mjs",
       "file": "@angular_common.js",
-      "fileHash": "bfea2640",
+      "fileHash": "816a1a96",
       "needsInterop": false
     },
     "@angular/common/http": {
       "src": "../../../../../../node_modules/@angular/common/fesm2022/http.mjs",
       "file": "@angular_common_http.js",
-      "fileHash": "d3db9f19",
+      "fileHash": "361a4b40",
       "needsInterop": false
     },
     "@angular/core": {
       "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
       "file": "@angular_core.js",
-      "fileHash": "011c7278",
+      "fileHash": "388def07",
       "needsInterop": false
     },
     "@angular/fire/app": {
       "src": "../../../../../../node_modules/@angular/fire/fesm2015/angular-fire-app.js",
       "file": "@angular_fire_app.js",
-      "fileHash": "08fe8b6b",
+      "fileHash": "41147d8a",
       "needsInterop": false
     },
     "@angular/forms": {
       "src": "../../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
       "file": "@angular_forms.js",
-      "fileHash": "8a09300a",
+      "fileHash": "ca189a88",
       "needsInterop": false
     },
     "@angular/platform-browser": {
       "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
       "file": "@angular_platform-browser.js",
-      "fileHash": "c91beabd",
+      "fileHash": "f1ede3ae",
       "needsInterop": false
     },
     "@angular/router": {
       "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
       "file": "@angular_router.js",
-      "fileHash": "69936cd5",
+      "fileHash": "8263c69a",
       "needsInterop": false
     },
     "chart.js/auto": {
       "src": "../../../../../../node_modules/chart.js/auto/auto.js",
       "file": "chart__js_auto.js",
-      "fileHash": "0dec62ba",
+      "fileHash": "7075d7fb",
       "needsInterop": false
     },
     "crypto-js": {
       "src": "../../../../../../node_modules/crypto-js/index.js",
       "file": "crypto-js.js",
-      "fileHash": "3e1c946d",
+      "fileHash": "a015a9ec",
       "needsInterop": true
     },
     "html2pdf.js": {
       "src": "../../../../../../node_modules/html2pdf.js/dist/html2pdf.js",
       "file": "html2pdf__js.js",
-      "fileHash": "2eee1c93",
+      "fileHash": "2937be7e",
       "needsInterop": true
     },
     "js-base64": {
       "src": "../../../../../../node_modules/js-base64/base64.mjs",
       "file": "js-base64.js",
-      "fileHash": "7208244e",
+      "fileHash": "17523881",
       "needsInterop": false
     },
     "ngx-pagination": {
       "src": "../../../../../../node_modules/ngx-pagination/fesm2020/ngx-pagination.mjs",
       "file": "ngx-pagination.js",
-      "fileHash": "255de2cf",
+      "fileHash": "f7fe400a",
       "needsInterop": false
     },
     "rxjs": {
       "src": "../../../../../../node_modules/rxjs/dist/esm5/index.js",
       "file": "rxjs.js",
-      "fileHash": "ef4d0ba5",
+      "fileHash": "65d90986",
       "needsInterop": false
     },
     "rxjs/operators": {
       "src": "../../../../../../node_modules/rxjs/dist/esm5/operators/index.js",
       "file": "rxjs_operators.js",
-      "fileHash": "a67e85b0",
+      "fileHash": "76a5fcc3",
       "needsInterop": false
     }
   },

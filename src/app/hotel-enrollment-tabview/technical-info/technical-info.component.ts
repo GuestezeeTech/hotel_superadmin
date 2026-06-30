@@ -1298,6 +1298,32 @@ export class HotelTechnicalInfoComponent implements OnInit {
       return;
     }
 
+    if (this.activeTab === 1) {
+      const hasEnabledLock = this.allinfoData && this.allinfoData.some(
+        (item: any) => item.type === 'lock' && (item.is_enabled === true || item.is_enabled === 'true')
+      );
+      if (!hasEnabledLock) {
+        this.alertsService.error(
+          'Please enable at least one Lock integration before proceeding.',
+          this.options
+        );
+        return;
+      }
+    }
+
+    if (this.activeTab === 2) {
+      const hasEnabledPms = this.allinfoData && this.allinfoData.some(
+        (item: any) => item.type === 'pos' && (item.is_enabled === true || item.is_enabled === 'true')
+      );
+      if (!hasEnabledPms) {
+        this.alertsService.error(
+          'Please enable at least one PMS integration before proceeding.',
+          this.options
+        );
+        return;
+      }
+    }
+
     const changedRecords = this.allinfoData.filter(
       (item: any) => {
         if (item.type !== this.selectedTab) {
@@ -1420,6 +1446,27 @@ export class HotelTechnicalInfoComponent implements OnInit {
   }
 
   save() {
+
+    const hasEnabledLock = this.allinfoData && this.allinfoData.some(
+      (item: any) => item.type === 'lock' && (item.is_enabled === true || item.is_enabled === 'true')
+    );
+    const hasEnabledPms = this.allinfoData && this.allinfoData.some(
+      (item: any) => item.type === 'pos' && (item.is_enabled === true || item.is_enabled === 'true')
+    );
+    if (!hasEnabledLock) {
+      this.alertsService.error(
+        'Please enable at least one Lock integration before proceeding.',
+        this.options
+      );
+      return;
+    }
+    if (!hasEnabledPms) {
+      this.alertsService.error(
+        'Please enable at least one PMS integration before proceeding.',
+        this.options
+      );
+      return;
+    }
 
     const enabledIntegrations = this.allinfoData.filter(
       (item: any) =>

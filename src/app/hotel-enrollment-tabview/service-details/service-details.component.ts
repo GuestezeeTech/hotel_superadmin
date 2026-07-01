@@ -76,6 +76,8 @@ export class ServiceDetailsComponent implements OnInit {
 
   async customerUpdate() {
     delete this.customerdata._id;
+    delete this.customerdata.password;
+    delete this.customerdata.password_to_customer;
     let tempCustomerObject = {
       "exempted services": this.selectedServices
 

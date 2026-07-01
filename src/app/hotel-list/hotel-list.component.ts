@@ -33,6 +33,8 @@ export class HotelListComponent implements OnInit {
   userRoleName: string = "";
   adminUserData: any = {};
   selectedStatus: string = 'approved';
+  unapprovalReason: string = '';
+  reasonError: string = '';
   customerdata: any;
   deleteAllCustomerData: boolean = false;
   selectedIds = new Set<number>();//newly added
@@ -53,6 +55,7 @@ export class HotelListComponent implements OnInit {
   //pagination
   currentPage: number = 1;
   totalPages: number = 1; // Change this as per your data
+  currentRemarks: string = '';
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -452,15 +455,25 @@ export class HotelListComponent implements OnInit {
     this.isModalHidden = false;
 
     this.data = data;
-    this.selectedStatus = this.data.status
+    this.unapprovalReason = this.data.status_remarks || '';
+    this.reasonError = '';
+    if (this.data.status === 'pending' || this.data.status === 'Pending') {
+      this.selectedStatus = 'approved';
+    } else {
+      this.selectedStatus = this.data.status;
+    }
   }
 
   selectstat(value: any) {
     this.selectedStatus = value;
-
+    this.reasonError = '';
   }
   updateStatus() {
     //console.log(this.data.id, "this.data.id", this.selectedStatus)
+    if ((this.selectedStatus === 'Unapproved' || this.selectedStatus === 'unapproved') && (!this.unapprovalReason || !this.unapprovalReason.trim())) {
+      this.reasonError = 'Reason for unapproval is mandatory.';
+      return;
+    }
     this.getCustomerById(this.data.id)
       .then(() => {
         return this.customerUpdate(this.selectedStatus);  // Once function12 completes, call function1
@@ -536,8 +549,11 @@ export class HotelListComponent implements OnInit {
   async customerUpdate(status: string) {
 
     delete this.customerdata._id;
+    delete this.customerdata.password;
+    delete this.customerdata.password_to_customer;
     //console.log(this.customerdata, "this.customerdata")
     this.customerdata.status = status;
+    this.customerdata.status_remarks = (status || '').toLowerCase() === 'unapproved' ? this.unapprovalReason : '';
 
     let requestBody = {
       domain_name: this.authTokenService.getDomain(),

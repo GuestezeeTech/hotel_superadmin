@@ -56,7 +56,13 @@
                             saved.
                             <br>
                         </ng-container>
-                        <span>{{ selectedTab === 'lock' ? '3)' : selectedTab === 'pos' ? '4)' : '' }}</span>Payment can
+                        <!-- <br> -->
+                        <span>
+                            {{ selectedTab === 'lock' ? '3)' : selectedTab === 'pos' ? '4)' : '' }}
+                            Click <strong>Next Info</strong> button to save changes. Direct tab selection won't
+                            save.</span>
+                        <br>
+                        <span>{{ selectedTab === 'lock' ? '4)' : selectedTab === 'pos' ? '5)' : '' }}</span>Payment can
                         be done only in Hotel Admin.
                     </div>
                 </div>
@@ -97,14 +103,14 @@
                             <label class="switch" *ngIf="isCustomerChoosen==false"
                                 [title]="(data.type === 'lock' || data.type === 'pos') ? 'Only one integration can be enabled at a time' : ''">
                                 <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
-                                    [checked]="data.is_enabled==true"
+                                    [checked]="data.is_enabled === true || data.is_enabled === 'true'"
                                     [disabled]="this.customerStatus === 'approved' || isViewMode" />
                                 <span class="slider round"></span>
                             </label>
                             <label class="switch" *ngIf="isCustomerChoosen==true"
                                 [title]="(data.type === 'lock' || data.type === 'pos') ? 'Only one integration can be enabled at a time' : ''">
                                 <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
-                                    [checked]="data.is_enabled==true"
+                                    [checked]="data.is_enabled === true || data.is_enabled === 'true'"
                                     [disabled]="this.customerStatus === 'approved' || isViewMode" />
                                 <span class="slider round"></span>
                             </label>

@@ -41,20 +41,19 @@
 
           <td>{{data.subscription_end_date}}</td>
           <td>
-            <!-- <button class="active" data-toggle="modal" data-target="#deleteModal" (click)="onToggle(data ,checkboxRef)"> -->
-            <!-- <button class="active" data-toggle="modal" data-target="#deleteModal"> -->
-            <label class="switch">
-              <!-- <input #checkboxRef type="checkbox" [checked]="data.is_active"> -->
-              <!-- <input #checkboxRef type="checkbox" [checked]="data.is_active" -->
-              <!-- (click)="onToggle(data ,checkboxRef); $event.preventDefault(); $event.stopPropagation()"> -->
-              <input #checkboxRef type="checkbox" [checked]="customerData[data.customer_id]?.is_active || false"
-                  (click)="onToggle(customerData[data.customer_id], checkboxRef); $event.preventDefault(); $event.stopPropagation()">
-
-
-              <span class="slider round"></span>
-            </label>
-            <!-- </button> -->
-
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <label class="switch" style="margin-bottom: 0;">
+                <input #checkboxRef type="checkbox" [checked]="customerData[data.customer_id]?.is_active || false"
+                    (click)="onToggle(customerData[data.customer_id], checkboxRef); $event.preventDefault(); $event.stopPropagation()">
+                <span class="slider round"></span>
+              </label>
+              <i *ngIf="customerData[data.customer_id] && !customerData[data.customer_id].is_active && customerData[data.customer_id].inactive_remark"
+                 class="fa fa-info-circle text-danger"
+                 style="cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center;"
+                 (click)="openReasonModal(customerData[data.customer_id].inactive_remark); $event.stopPropagation()"
+                 title="View Inactive Reason">
+              </i>
+            </div>
           </td>
           <td style="padding-left: 20px;"><i class="fa fa-eye" style="color: #800020; cursor: pointer;"
               (click)="goToPaymentDetails(data.customer_id)"></i>
@@ -171,10 +170,12 @@
         </div>
         <div class="modal-body" *ngIf="!setCustomerStatus" style="color: #800020;">
           <p> Are you sure you want to set the customer as inactive?</p>
-          <label for="remark" style="color: #800020;">Remark</label>
-          <textarea class="form-control" id="remark" [(ngModel)]="remark" placeholder="Enter remark"
-            rows="3"></textarea>
-
+          <label for="remark" style="color: #800020;">Remark <span class="text-danger">*</span></label>
+          <textarea class="form-control" id="remark" [(ngModel)]="remark" (input)="remarkError = ''" placeholder="Enter remark"
+            rows="3" required></textarea>
+          <div *ngIf="remarkError" class="text-danger mt-1" style="font-size: 13px;">
+            {{ remarkError }}
+          </div>
         </div>
         <div class="modal-body" *ngIf="setCustomerStatus" style="color: #800020;">
           Are you sure you want to set the customer as active?
@@ -192,6 +193,34 @@
     </div>
   </div>
 
-
+  <!-- Inactive Reason Modal -->
+  <div class="modal fade" id="inactiveReasonModal" tabindex="-1" aria-labelledby="inactiveReasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius: 10px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+        <div class="modal-header"
+          style="background-color: #800020; color: white; border-top-left-radius: 9px; border-top-right-radius: 9px;">
+          <h5 class="modal-title" id="inactiveReasonModalLabel" style="font-weight: 600; color: white;">
+            <i class="fa fa-info-circle mr-2"></i> Inactive Reason
+          </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeReasonModal()"
+            style="color: white; opacity: 0.8; background: none; border: none; font-size: 24px; line-height: 1;">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body"
+          style="padding: 24px; font-size: 15px; color: #333; line-height: 1.6; background-color: #fcfcfc;">
+          <div
+            style="background-color: #fff; border-left: 4px solid #800020; padding: 15px; border-radius: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); text-align: left; word-break: break-word;">
+            {{ inactiveReason || 'No remarks provided.' }}
+          </div>
+        </div>
+        <div class="modal-footer"
+          style="border-top: 1px solid #eee; background-color: #f8f9fa; border-bottom-left-radius: 9px; border-bottom-right-radius: 9px;">
+          <button type="button" class="btn btn-secondary" (click)="closeReasonModal()"
+            style="background-color: #800020; border-color: #800020; padding: 8px 20px; font-weight: 500; color: white;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>

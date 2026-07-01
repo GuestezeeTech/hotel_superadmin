@@ -137,6 +137,8 @@ export class HotelTechnicalInfoComponent implements OnInit {
 
   async customerUpdate() {
     delete this.customerdata._id;
+    delete this.customerdata.password;
+    delete this.customerdata.password_to_customer;
     ////console.log(this.customerdata._id, this.customerdata, "test check ");
     // this.customerdata["status"] = 'approved';
     //  Password key reset value
@@ -1445,14 +1447,66 @@ export class HotelTechnicalInfoComponent implements OnInit {
       );
   }
 
-  save() {
+  async save() {
+    this.isLoading = true;
+    const dbData = await new Promise<any[]>((resolve) => {
+      const requestBody = {
+        domain_name: this.authTokenService.getDomain(),
+        user_id: this.authTokenService.getUserId(),
+        extras: {
+          find: {
+            member_id: this.memberId
+          }
+        }
+      };
+      this.hotelenrollmentservice.getAllTechnicalInfo(requestBody).subscribe(
+        (resp: any) => {
+          this.loaderService.emitComplete();
+          if (resp && resp.success === 1 && resp.status_code === 200) {
+            const list = resp.result.data || [];
+            resolve(
+              list.filter(
+                (item: any) =>
+                  item.is_active === true &&
+                  !["SMS Delivery Template", "HDFC Gateway"].includes(item.name)
+              )
+            );
+          } else {
+            resolve([]);
+          }
+        },
+        () => {
+          this.loaderService.emitComplete();
+          resolve([]);
+        }
+      );
+    });
+    this.isLoading = false;
 
-    const hasEnabledLock = this.allinfoData && this.allinfoData.some(
-      (item: any) => item.type === 'lock' && (item.is_enabled === true || item.is_enabled === 'true')
-    );
-    const hasEnabledPms = this.allinfoData && this.allinfoData.some(
-      (item: any) => item.type === 'pos' && (item.is_enabled === true || item.is_enabled === 'true')
-    );
+    // Check Lock integration (local check if active tab is Lock, otherwise DB check)
+    let hasEnabledLock = false;
+    if (this.selectedTab === 'lock') {
+      hasEnabledLock = this.generalTechInfoData && this.generalTechInfoData.some(
+        (item: any) => item.is_enabled === true || item.is_enabled === 'true'
+      );
+    } else {
+      hasEnabledLock = dbData && dbData.some(
+        (item: any) => item.type === 'lock' && (item.is_enabled === true || item.is_enabled === 'true')
+      );
+    }
+
+    // Check PMS integration (local check if active tab is PMS, otherwise DB check)
+    let hasEnabledPms = false;
+    if (this.selectedTab === 'pos') {
+      hasEnabledPms = this.generalTechInfoData && this.generalTechInfoData.some(
+        (item: any) => item.is_enabled === true || item.is_enabled === 'true'
+      );
+    } else {
+      hasEnabledPms = dbData && dbData.some(
+        (item: any) => item.type === 'pos' && (item.is_enabled === true || item.is_enabled === 'true')
+      );
+    }
+
     if (!hasEnabledLock) {
       this.alertsService.error(
         'Please enable at least one Lock integration before proceeding.',
@@ -1570,8 +1624,9 @@ export class HotelTechnicalInfoComponent implements OnInit {
           this.enabledCustomerTechnicalInfoIds = new Set<number>();
 
           this.technicalInfos.forEach((item: any) => {
+            item.is_enabled = item.is_enabled === true || item.is_enabled === 'true';
             this.originalEnabledState[item.id] = item.is_enabled;
-            if (item.is_enabled === true || item.is_enabled === 'true') {
+            if (item.is_enabled) {
               this.enabledCustomerTechnicalInfoIds.add(Number(item.id));
             }
           });

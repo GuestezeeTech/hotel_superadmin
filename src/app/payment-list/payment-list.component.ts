@@ -30,6 +30,8 @@ export class PaymentListComponent implements OnInit {
   @Input() searchTerm: string = ''; //newly added for filtering
   isActive: boolean = true;
   remark: string = '';
+  remarkError: string = '';
+  inactiveReason: string = '';
   customerId: any;
   setCustomerStatus: boolean = true;
   tabName: string = 'Subscription';
@@ -374,12 +376,8 @@ export class PaymentListComponent implements OnInit {
     this.setCustomerStatus = !customer.is_active;
     this.customerId = customer.id;
     this.memberId = customer.customer_member_id || customer.member_id;
-
-    // REMOVE these lines that prevent toggle:
-    // inputdata.checked = !inputdata.checked;
-    // setTimeout(() => {
-    //   inputdata.checked = !this.setCustomerStatus;
-    // }, 0);
+    this.remark = '';
+    this.remarkError = '';
 
     // Show modal
     const modal = document.getElementById("deleteModal");
@@ -387,12 +385,21 @@ export class PaymentListComponent implements OnInit {
       modal.style.display = 'block';
       modal.classList.add('show');
       modal.removeAttribute('aria-hidden');
+      document.body.classList.add('modal-open');
+      
+      if (!document.querySelector('.modal-backdrop')) {
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+      }
     }
 
     console.log('Customer is_active:', customer?.is_active);
   }
 
   closeModal() {
+    this.remark = '';
+    this.remarkError = '';
     var modal = document.getElementById("deleteModal"); // Get the element by its ID
     if (modal) { // Check if the element exists
       modal.style.display = 'none'; // Hide the modal
@@ -405,10 +412,6 @@ export class PaymentListComponent implements OnInit {
     }
     const backdrops = document.querySelectorAll('.modal-backdrop');
     backdrops.forEach(backdrop => backdrop.remove());
-    // if (backdrop) {
-    //   backdrop.remove();
-    // }
-
   }
 
   //original code for setCustomerInactive
@@ -416,20 +419,21 @@ export class PaymentListComponent implements OnInit {
     console.log('setCustomerInactive called with ID:', id);
     // Apply the toggle change now that user confirmed
     const toggles = document.querySelectorAll('input[type="checkbox"]');
-    // toggles.forEach((toggle: any) => { //undo
-    //   const row = toggle.closest('tr');
-    //   if (row && row.textContent.includes(this.memberId)) {
-    //     toggle.checked = this.setCustomerStatus;
-    //   }
-    // });
+    
+    if (!this.setCustomerStatus) {
+      if (!this.remark || !this.remark.trim()) {
+        this.remarkError = 'Remark is mandatory when setting customer as inactive.';
+        return;
+      }
+    }
 
     let requestBody = {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
       payload: {
         "customer_update": {
-          is_active: this.setCustomerStatus
-
+          is_active: this.setCustomerStatus,
+          inactive_remark: !this.setCustomerStatus ? this.remark.trim() : ''
         }
 
       },
@@ -453,6 +457,7 @@ export class PaymentListComponent implements OnInit {
             console.log('Showing success alert with message:', resp.message); // DEBUG
             if (this.customerData[id]) {
               this.customerData[id].is_active = this.setCustomerStatus;
+              this.customerData[id].inactive_remark = !this.setCustomerStatus ? this.remark.trim() : '';
               console.log('Updated customerData:', this.customerData[id]);
             }
 
@@ -737,7 +742,34 @@ export class PaymentListComponent implements OnInit {
     )
   }
 
+  openReasonModal(reason: string) {
+    this.inactiveReason = reason;
+    const modal = document.getElementById("inactiveReasonModal");
+    if (modal) {
+      modal.style.display = 'block';
+      modal.classList.add('show');
+      modal.removeAttribute('aria-hidden');
+      document.body.classList.add('modal-open');
+      
+      if (!document.querySelector('.modal-backdrop')) {
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+      }
+    }
+  }
 
-
+  closeReasonModal() {
+    const modal = document.getElementById("inactiveReasonModal");
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = 'auto';
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
+  }
 
 }

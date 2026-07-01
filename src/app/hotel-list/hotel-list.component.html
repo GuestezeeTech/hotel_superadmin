@@ -97,9 +97,28 @@
                       <select id="statusSelect" class="form-control" [(ngModel)]="selectedStatus"
                         (click)="selectstat(selectedStatus)">
                         <option value="approved">Approved</option>
-                        <option value="Unapproved">Unapproved</option>
-                        <option value="pending">Pending</option>
+                        <option value="Unapproved" [disabled]="(data?.status || '').toLowerCase() === 'approved'">
+                          Unapproved</option>
                       </select>
+
+                      <!-- Reason input for unapproval -->
+                      <div class="form-group mt-3"
+                        *ngIf="selectedStatus === 'Unapproved' || selectedStatus === 'unapproved'">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <label for="unapprovalReason" style="font-weight: bold; margin-bottom: 0;">
+                            Reason for Unapproval <span class="text-danger">*</span>
+                          </label>
+                          <span class="text-muted" style="font-size: 11px;">
+                            {{ unapprovalReason?.length || 0 }}/100
+                          </span>
+                        </div>
+                        <textarea id="unapprovalReason" class="form-control" [(ngModel)]="unapprovalReason"
+                          (input)="reasonError = ''" placeholder="Enter reason for unapproval..." rows="3" required
+                          maxlength="100"></textarea>
+                        <div *ngIf="reasonError" class="text-danger mt-1" style="font-size: 13px;">
+                          {{ reasonError }}
+                        </div>
+                      </div>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal"
@@ -114,12 +133,7 @@
 
             <td *ngIf="userRoleName=='Super Admin'">
               <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active"
-                [disabled]="!isPaymentDone(customer.customer_member_id)"
-                [attr.data-toggle]="isPaymentDone(customer.customer_member_id) ? 'modal' : null"
-                [attr.data-target]="isPaymentDone(customer.customer_member_id) ? '#approvalModal' : null"
-                [ngStyle]="!isPaymentDone(customer.customer_member_id) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
-                [title]="!isPaymentDone(customer.customer_member_id) ? 'Payment not completed yet' : 'Change Status'"
-                (click)="openApprovalModal(customer)">Active</button>
+                style="cursor: default;">Active</button>
               <button *ngIf="(customer.status||'').toLowerCase()==='pending'" class="pending"
                 [disabled]="!isPaymentDone(customer.customer_member_id)"
                 [attr.data-toggle]="isPaymentDone(customer.customer_member_id) ? 'modal' : null"
@@ -134,6 +148,11 @@
                 [ngStyle]="!isPaymentDone(customer.customer_member_id) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
                 [title]="!isPaymentDone(customer.customer_member_id) ? 'Payment not completed yet' : 'Change Status'"
                 (click)="openApprovalModal(customer)">InActive</button>
+              <!--    <i *ngIf="(customer.status||'').toLowerCase()==='unapproved' && customer.status_remarks"
+                class="fa fa-info-circle text-danger"
+                style="cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle;" data-toggle="modal"
+                data-target="#reasonModal" (click)="currentRemarks = customer.status_remarks"
+                title="View Unapproval Reason"></i> -->
             </td>
 
 
@@ -141,7 +160,13 @@
             <td *ngIf="userRoleName!=='Super Admin'">
               <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active">Active</button>
               <button *ngIf="(customer.status||'').toLowerCase()==='pending'" class="pending">Pending</button>
-              <button *ngIf="(customer.status||'').toLowerCase()==='unapproved'" class="in-active">InActive</button>
+              <button *ngIf="(customer.status||'').toLowerCase()==='unapproved'" class="in-active"
+                style="cursor: default;">InActive</button>
+              <i *ngIf="(customer.status||'').toLowerCase()==='unapproved' && customer.status_remarks"
+                class="fa fa-info-circle text-danger"
+                style="cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle;" data-toggle="modal"
+                data-target="#reasonModal" (click)="currentRemarks = customer.status_remarks"
+                title="View Unapproval Reason"></i>
             </td>
             <!-- <td><button  class="active" (click)="openApprovalModal(customer)" data-toggle="modal" data-target="#approvalModal">Active</button></td> -->
             <!-- <td><i class="fa fa-pen-to-square" style="color: #800020; cursor: pointer;"
@@ -221,6 +246,35 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Unapproval Reason Modal -->
+    <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 10px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+          <div class="modal-header"
+            style="background-color: #d75f5b; color: white; border-top-left-radius: 9px; border-top-right-radius: 9px;">
+            <h5 class="modal-title" id="reasonModalLabel" style="font-weight: 600;">
+              <i class="fa fa-info-circle mr-2"></i> Unapproval Reason
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+              style="color: white; opacity: 0.8;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body"
+            style="padding: 24px; font-size: 15px; color: #333; line-height: 1.6; background-color: #fcfcfc;">
+            <div
+              style="background-color: #fff; border-left: 4px solid #d75f5b; padding: 15px; border-radius: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); text-align: left; word-break: break-word;">
+              {{ currentRemarks || 'No remarks provided.' }}
+            </div>
+          </div>
+          <div class="modal-footer"
+            style="border-top: 1px solid #eee; background-color: #f8f9fa; border-bottom-left-radius: 9px; border-bottom-right-radius: 9px;">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal"
+              style="background-color: #d75f5b; border-color: #d75f5b; padding: 8px 20px; font-weight: 500; color: white;">Close</button>
           </div>
         </div>
       </div>

@@ -690,6 +690,8 @@ export class PropertyDetailsComponent {
   }
   async customerUpdate() {
     delete this.customerdata._id;
+    delete this.customerdata.password;
+    delete this.customerdata.password_to_customer;
     const formValues = this.customerProprtyDetailsForm.getRawValue();
     const tempCustomerObjectUpdated = {
       contact_details: {

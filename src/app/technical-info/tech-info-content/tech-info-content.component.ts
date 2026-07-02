@@ -223,15 +223,16 @@ export class TechInfoContentComponent implements OnChanges {
       is_active: isChecked
     };
     const message = `${item.name} has been ${isChecked ? 'activated' : 'deactivated'} successfully.`;
-    this.updateItemStatus(updatedData, item.id, message);
+    this.updateItemStatus(updatedData, item, message);
   }
 
-  updateItemStatus(updatedData: any, id: number, message: string): void {
-    delete updatedData._id
-    delete updatedData.id
-    delete updatedData.created_on
-    delete updatedData.is_deleted
-    delete updatedData.modified_on
+  updateItemStatus(updatedData: any, item: any, message: string): void {
+    const id = item.id;
+    delete updatedData._id;
+    delete updatedData.id;
+    delete updatedData.created_on;
+    delete updatedData.is_deleted;
+    delete updatedData.modified_on;
     let createobj =
     {
       domain_name: this.authTokenService.getDomain(),
@@ -244,17 +245,27 @@ export class TechInfoContentComponent implements OnChanges {
           "id": id
         }
       }
-    }
+    };
     this.technicalInfoService.apiCall(createobj, ENDPOINTS.EDIT_APIINTEGRATION_SETTINGS).subscribe(
       resp => {
         if (resp.success == 1 && resp.status_code == 200) {
           this.alertService.success(message, this.options);
         }
+        else if (resp.status_code == 201) {
+          if (!updatedData.is_active) {
+            item.is_active = true;
+            this.alertService.error(resp.message, this.options);
+          } else {
+            this.alertService.success(message, this.options);
+          }
+        }
         else {
+          item.is_active = !updatedData.is_active;
           this.alertService.error(resp.message, this.options);
         }
       },
       err => {
+        item.is_active = !updatedData.is_active;
         if (err.error.statusCode === 403) {
           this.alertService.error('Session Time Out! Please login Again', this.options);
           this.router.navigate([`/login`], { skipLocationChange: false });

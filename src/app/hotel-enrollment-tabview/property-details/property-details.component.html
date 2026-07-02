@@ -377,6 +377,23 @@
       </div>
     </div>
   </div> -->
+  <div class="section pt-0 pb-3"
+    *ngIf="customerdata?.subscription_detail?.discountValue && customerdata?.subscription_detail?.discountValue > 0">
+    <div
+      style="display: inline-flex; align-items: center; background-color: #fdfafb; border: 1.5px dashed #8b0000; border-radius: 6px; padding: 8px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <i class="bi bi-tags-fill" style="color: #8b0000; font-size: 18px; margin-right: 12px;"></i>
+      <span style="font-size: 14px; font-weight: 500; color: #444;">
+        Special Discount Applied:
+        <strong style="color: #8b0000; font-size: 16px; margin-left: 4px;">
+          <span *ngIf="customerdata.subscription_detail.discountType === 'percentage'">{{
+            customerdata.subscription_detail.discountValue }}%</span>
+          <span *ngIf="customerdata.subscription_detail.discountType !== 'percentage'">₹{{
+            customerdata.subscription_detail.discountValue }}</span>
+          OFF
+        </strong>
+      </span>
+    </div>
+  </div>
 
   <div class="section">
     <h3 style="font-size: 20px; font-weight: 600;">

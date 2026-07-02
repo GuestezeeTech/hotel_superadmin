@@ -81,7 +81,7 @@ export class DashboardComponent implements OnInit {
     for (let y = 2026; y <= currentYear; y++) {
       this.yearsList.push(y);
     }
-    
+
     this.updateVisitMonths();
     this.updateReviewMonths();
 
@@ -349,6 +349,9 @@ export class DashboardComponent implements OnInit {
 
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
     setTimeout(() => {
       if (this.isExpanded) {
         this.renderChart(); // Reinitialize after expanding
@@ -384,6 +387,9 @@ export class DashboardComponent implements OnInit {
           this.getGuestVisitData();
           this.getGuestReviewData();
           console.log(this.propertySize, " this.propertySize")
+          if (typeof window !== 'undefined') {
+            window.scrollTo(0, 0);
+          }
         } else {
           //console.warn('Failed to fetch updated profile data.');
         }

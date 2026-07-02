@@ -147,6 +147,9 @@ export class AppComponent implements OnInit, OnDestroy {
       }
 
       if (event instanceof NavigationEnd) {
+        if (typeof window !== 'undefined') {
+          window.scrollTo(0, 0);
+        }
         const isLoggedIn = !!this.localservice.get('UserId') && this.localservice.get('loggedOut') !== 'true';
         const url = event.urlAfterRedirects.split('?')[0]; //newly added Ignore query params
         const cleanUrl = url.toLowerCase().replace(/\/+$/, '');

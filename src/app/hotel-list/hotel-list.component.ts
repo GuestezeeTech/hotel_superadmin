@@ -13,6 +13,7 @@ import { AlertsComponent } from '../shared/alerts/alerts.component';
 import { ENDPOINTS } from '../app.config';
 import { LocalStorageService } from '../auth-services/local-storage.service';
 import { SharedDataService } from '../shared/shared-data.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-hotel-list',
@@ -35,6 +36,8 @@ export class HotelListComponent implements OnInit {
   selectedStatus: string = 'approved';
   unapprovalReason: string = '';
   reasonError: string = '';
+  deletionReason: string = '';
+  deletionReasonError: string = '';
   customerdata: any;
   deleteAllCustomerData: boolean = false;
   selectedIds = new Set<number>();//newly added
@@ -395,58 +398,101 @@ export class HotelListComponent implements OnInit {
   }
 
   closeModal() {
-    var modal = document.getElementById("deleteModal"); // Get the element by its ID
-    if (modal) { // Check if the element exists
-      modal.style.display = 'none'; // Hide the modal
+    const closeButton = document.getElementById("closedelete");
+    if (closeButton) {
+      closeButton.click();
     } else {
-      //console.error("Element not found!");
+      var modal = document.getElementById("deleteModal"); // Get the element by its ID
+      if (modal) { // Check if the element exists
+        modal.style.display = 'none'; // Hide the modal
+      }
     }
   }
 
-  confirmDelete() {
-    //console.log('Item deleted!');
+  openDeleteModal(customer: any) {
+    this.idlistToDelete = [customer.id];
+    this.deletionReason = '';
+    this.deletionReasonError = '';
+  }
 
-    let requestBody =
-    {
-      "domain_name": this.authTokenService.getDomain(),
-      "user_id": this.authTokenService.getUserId(),
-      "payload": {
-        "delete_data": {},
-        "variants": []
-      },
-      "extras":
-      {
-        "find":
-          { "id": this.idlistToDelete }
-      }
+  async confirmDelete() {
+    if (this.idlistToDelete.length === 0) {
+      return;
+    }
+    if (!this.deletionReason || !this.deletionReason.trim()) {
+      this.deletionReasonError = 'Reason for deletion is mandatory.';
+      return;
     }
 
-    this.hotellistservice.deleteCustomer(requestBody).subscribe(resp => {
-      if (resp.status_code === 200) {
-        // this.customerList = resp.result.data;
-        // this.totalPages = resp.result.total_count;
-        this.closeModal();
-        location.reload();
-        // this.router.navigateByUrl("/hotel-list");
-      }
-      else {
-        this.alertService.error('Sorry, No data avilable for this Product', this.alertOptions);
-      }
-    },
-      err => {
-        if (err.error.statusCode === 403) {
-          this.alertService.error('Session Time Out! Please login Again', this.options)
-          this.router.navigate([`/login`], { skipLocationChange: false });
-        }
-        else if (err.error.message) {
+    this.isLoading = true;
+    this.loaderService.emitLoading();
 
-          this.alertService.error(err.error.message, this.alertOptions)
+    try {
+      // Fetch each customer document, update the deletion_reason, and save before deleting
+      for (const id of this.idlistToDelete) {
+        const customerDoc = await this.fetchCustomerDocumentById(id);
+        
+        delete customerDoc._id;
+        delete customerDoc.password;
+        delete customerDoc.password_to_customer;
+        
+        customerDoc.deletion_reason = this.deletionReason.trim();
+
+        const requestBody = {
+          domain_name: this.authTokenService.getDomain(),
+          user_id: this.authTokenService.getUserId(),
+          payload: {
+            customer_updation: customerDoc
+          },
+          extras: {
+            find: {
+              id: id
+            }
+          }
+        };
+
+        await firstValueFrom(this.hotellistservice.updateCustomer(requestBody));
+      }
+
+      // Perform deletion
+      const deleteRequestBody = {
+        domain_name: this.authTokenService.getDomain(),
+        user_id: this.authTokenService.getUserId(),
+        payload: {
+          delete_data: {},
+          variants: []
+        },
+        extras: {
+          find: {
+            id: this.idlistToDelete
+          }
         }
-        else {
-          this.alertService.error('Something bad happened. Please try again!', this.alertOptions);
-        }
-      })
-    this.closeModal();
+      };
+
+      const deleteResp = await firstValueFrom(this.hotellistservice.deleteCustomer(deleteRequestBody));
+      this.isLoading = false;
+      this.loaderService.emitComplete();
+
+      if (deleteResp && deleteResp.status_code === 200) {
+        this.closeModal();
+        this.alertService.success(deleteResp.message || 'Hotel deleted successfully', this.options);
+        this.getAllCustomers();
+      } else {
+        this.alertService.error('Sorry, No data available for this Product', this.alertOptions);
+      }
+    } catch (err: any) {
+      this.isLoading = false;
+      this.loaderService.emitComplete();
+      
+      if (err?.error?.statusCode === 403) {
+        this.alertService.error('Session Time Out! Please login Again', this.options);
+        this.router.navigate([`/login`], { skipLocationChange: false });
+      } else if (err?.error?.message) {
+        this.alertService.error(err.error.message, this.alertOptions);
+      } else {
+        this.alertService.error('Something bad happened. Please try again!', this.alertOptions);
+      }
+    }
   }
   openApprovalModal(data: any) {
 
@@ -652,6 +698,32 @@ export class HotelListComponent implements OnInit {
             this.alertService.error('Something bad happened. Please try again!', this.options);
           }
           reject(err);  // Reject promise if there is an error
+        }
+      );
+    });
+  }
+
+  fetchCustomerDocumentById(id: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let requestBody = {
+        domain_name: this.authTokenService.getDomain(),
+        user_id: this.authTokenService.getUserId(),
+        extras: {
+          find: {
+            id: Number(id)
+          }
+        }
+      };
+      this.hotellistservice.getCustomerById(requestBody).subscribe(
+        resp => {
+          if (resp && resp.result && resp.result.data && resp.result.data.length > 0) {
+            resolve(resp.result.data[0]);
+          } else {
+            reject(new Error('Customer not found'));
+          }
+        },
+        err => {
+          reject(err);
         }
       );
     });

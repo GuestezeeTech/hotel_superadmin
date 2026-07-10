@@ -12,16 +12,6 @@
     <!-- Buttons Section -->
     <div style="display: flex; justify-content: space-between; margin-top: 5px;">
       <div>
-        <!-- <button
-          style="background-color: #800020; color: white; padding: 10px 18px; border-radius: 5px;margin-top: 2%;    border: none;"
-          data-toggle="modal" data-target="#deleteModal">Delete Selected</button> -->
-        <button [disabled]="!hasSelection" [attr.data-toggle]="hasSelection ? 'modal' : null"
-          [attr.data-target]="hasSelection ? '#deleteModal' : null"
-          [ngStyle]="!hasSelection ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
-          style="background-color: #800020; color: white; padding: 10px 18px; border-radius: 5px; margin-top: 2%; border: none;">
-          Delete Selected
-        </button>
-
       </div>
       <div style="display: flex;    gap: 15px;">
         <div class="search-container">
@@ -49,8 +39,6 @@
       <table class="table">
         <thead>
           <tr>
-            <!-- <input type="checkbox" id="selectAll" name="vehicle1" (click)="deleteAllCustomer()" > -->
-            <th> <i class="fa fa-trash" style="cursor: pointer;" aria-hidden="true"></i></th>
             <th>Hotel Name</th>
             <th>Member Id</th>
             <th>Brand Name</th>
@@ -62,12 +50,6 @@
         </thead>
         <tbody>
           <tr *ngFor="let customer of paginatedCustomers; ; let i = index">
-            <td>
-              <!-- <input type="checkbox" id="vehicle1" name="vehicle1" (click)="deleteCustomer(customer.id)" 
-                class="row-checkbox" style="cursor:pointer;"> -->
-              <input type="checkbox" id="vehicle1" name="vehicle1" (click)="deleteCustomer(customer.id)"
-                (change)="toggleSelection(customer.id, $event)" class="row-checkbox" style="cursor:pointer;">
-            </td>
             <td>{{customer.name}}</td>
             <td>{{customer.customer_member_id}}</td>
             <td>{{customer?.property_details?.contact_details?.brand || ''}}</td>
@@ -83,7 +65,8 @@
 
               <!-- approvalmodal -->
               <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel"
-                [attr.inert]="isModalHidden ? true : null">
+                [attr.inert]="isModalHidden ? true : null" data-backdrop="static" data-keyboard="false"
+                data-bs-backdrop="static" data-bs-keyboard="false">
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -181,7 +164,10 @@
                 [title]="(customer.status||'').toLowerCase() === 'approved' ? 'Edit disabled for approved hotels' : 'Edit'">
               </i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <i class="fa fa-eye" style="color: #800020; cursor: pointer;" (click)="openFullPreview(customer.id)"
-                title="View"></i>
+                title="View"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <i class="fa fa-trash" style="color: #800020; cursor: pointer;"
+                data-toggle="modal" data-target="#deleteModal" (click)="openDeleteModal(customer)"
+                title="Delete"></i>
             </td>
           </tr>
         </tbody>
@@ -231,7 +217,8 @@
       </ul>
     </div>
     <!-- Delete Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true"
+      data-backdrop="static" data-keyboard="false" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -241,17 +228,36 @@
             </button>
           </div>
           <div class="modal-body">
-            Are you sure you want to delete this item?
+            <p>Are you sure you want to delete this hotel?</p>
+            
+            <!-- Reason input for deletion -->
+            <div class="form-group mt-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="deletionReason" style="font-weight: bold; margin-bottom: 0;">
+                  Reason for Deletion <span class="text-danger">*</span>
+                </label>
+                <span class="text-muted" style="font-size: 11px;">
+                  {{ deletionReason?.length || 0 }}/100
+                </span>
+              </div>
+              <textarea id="deletionReason" class="form-control" [(ngModel)]="deletionReason"
+                (input)="deletionReasonError = ''" placeholder="Enter reason for deletion..." rows="3" required
+                maxlength="100"></textarea>
+              <div *ngIf="deletionReasonError" class="text-danger mt-1" style="font-size: 13px;">
+                {{ deletionReasonError }}
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" id="closedelete" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
           </div>
         </div>
       </div>
     </div>
     <!-- Unapproval Reason Modal -->
-    <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+    <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true"
+      data-backdrop="static" data-keyboard="false" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 10px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
           <div class="modal-header"

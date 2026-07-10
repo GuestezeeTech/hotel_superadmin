@@ -487,7 +487,7 @@ export const ENDPOINTS = {
   ORDER_UPDATION: API_URL + ':5456/order/upsert',
   HDFC_PAYMENT: API_URL + ":5621/api/payment/generateHDFCLink",
   GETBYID_ORDERS: API_URL + ':9475/order/getbyid',
-  DELETE_CUSTOMER: API_URL + ":5430/customer/delete",
+
 
 
 
@@ -548,6 +548,9 @@ export const ENDPOINTS = {
   GENERRATE_NAME_PASSWORD: API_URL1 + ':8009/sms/send-customer-credentials',
 
   // Newly added for tech info check
-  CHECK_IS_TECHNICAL_INFO_EXIST: API_URL + ':3353/integrations/create'
+  CHECK_IS_TECHNICAL_INFO_EXIST: API_URL + ':3353/integrations/create',
 
+  // Newly commented for delete customer
+  // DELETE_CUSTOMER: API_URL + ":5430/customer/delete",
+  DELETE_CUSTOMER: API_URL + ":8007/customer/delete"
 }

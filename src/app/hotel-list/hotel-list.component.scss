@@ -287,3 +287,7 @@ ul {
     font-weight: 500;
   
 }
+
+::ng-deep .modal.modal-static .modal-dialog {
+    transform: none !important;
+}

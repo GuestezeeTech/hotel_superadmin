@@ -44,7 +44,7 @@ export class HotelListComponent implements OnInit {
     keepAfterRouteChange: false
   };
   isModalHidden: boolean = true;
- 
+
 
 
 
@@ -163,7 +163,7 @@ export class HotelListComponent implements OnInit {
   }
   // onsearch(text: any) {
   //   let data = text.target.value;
-    
+
 
   //   {
   //     let searchBody = {

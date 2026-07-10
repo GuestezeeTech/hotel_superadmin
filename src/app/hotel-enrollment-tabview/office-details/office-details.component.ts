@@ -352,14 +352,18 @@ export class OfficeDetailsComponent implements OnInit {
       last_name: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       designation: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       phone_number: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
-      email: new FormControl('', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/)]),
+      email: new FormControl('', [Validators.required, Validators.pattern(/^[a-zA-Z0-9_%+-]+(?:\.[a-zA-Z0-9_%+-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/)]),
+      // End of newly added & commented for consective dots
       gender: new FormControl('', Validators.required),
 
       sec_first_name: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       sec_last_name: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       sec_designation: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       sec_phone_number: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
-      sec_email: new FormControl('', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/)]),
+      // Newly added & commented for consective dots
+      // sec_email: new FormControl('', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/)]),
+      sec_email: new FormControl('', [Validators.required, Validators.pattern(/^[a-zA-Z0-9_%+-]+(?:\.[a-zA-Z0-9_%+-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/)]),
+      // End of newly added & commented for consective dots
       sec_gender: new FormControl('', Validators.required),
       company_name: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       door_no: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),

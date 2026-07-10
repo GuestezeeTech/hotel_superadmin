@@ -507,7 +507,9 @@ export class PropertyDetailsComponent {
       designation: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       primary_phone_number: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       secondary_phone_number: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
-      email: new FormControl('', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]),
+      // Newly added & commented for consective dots
+      email: new FormControl('', [Validators.required, Validators.pattern(/^[a-zA-Z0-9_%+-]+(?:\.[a-zA-Z0-9_%+-]+)*@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/)]),
+      // End of newly added & commented for consective dots
       brand: new FormControl('', Validators.required),
       property_doorno: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),
       property_address: new FormControl('', [Validators.required, CustomValidators.noWhitespaceValidator]),

@@ -644,9 +644,12 @@ export class HotelTechnicalInfoComponent implements OnInit {
       this.activeTab = 1;
     } else if (tab === 'pos') {
       this.activeTab = 2;
-    } else if (tab === 'other') {
-      this.activeTab = 3;
     }
+    // Commented out for 3rd sub tab removal
+    // else if (tab === 'other') {
+    //   this.activeTab = 3;
+    // }
+    // End of 3rd sub tab removal
     const uniqueInfos = this.technicalInfos?.filter(
       (item: any, index: any, self: any) => index === self?.findIndex((t: any) => t.id === item.id)
     );
@@ -807,10 +810,11 @@ export class HotelTechnicalInfoComponent implements OnInit {
     this.activeTab = 2;
   }
 
-  thirdTabCount() {
-    this.activeTab = 3;
-  }
-
+  // Commented out for 3rd sub tab removal
+  // thirdTabCount() {
+  //   this.activeTab = 3;
+  // }
+  // End of 3rd sub tab removal
   /*  nextTabInfo() {
      // console.log('Before navigation: activeTab =', this.activeTab);
      this.isTechnicalInfoExists
@@ -842,10 +846,12 @@ export class HotelTechnicalInfoComponent implements OnInit {
       this.selectTab('lock');
       this.firstTabCount();
     }
-    if (this.activeTab == 3) {
-      this.selectTab('pos');
-      this.secondTabCount();
-    }
+    // Commented out for 3rd sub tab removal
+    // if (this.activeTab == 3) {
+    //   this.selectTab('pos');
+    //   this.secondTabCount();
+    // }
+    // End of 3rd sub tab removal
   }
 
 
@@ -1292,7 +1298,10 @@ export class HotelTechnicalInfoComponent implements OnInit {
     );
 
     if (enabledIntegrations.length > 1) {
-      const tabName = this.selectedTab === 'lock' ? 'Lock' : (this.selectedTab === 'pos' ? 'PMS' : 'Other');
+      // Commented out for 3rd sub tab removal
+      // const tabName = this.selectedTab === 'lock' ? 'Lock' : (this.selectedTab === 'pos' ? 'PMS' : 'Other');
+      const tabName = this.selectedTab === 'lock' ? 'Lock' : 'PMS';
+      // End of 3rd sub tab removal
       this.alertsService.error(
         `Only one ${tabName} integration can be enabled at a time.`,
         this.options
@@ -1313,19 +1322,20 @@ export class HotelTechnicalInfoComponent implements OnInit {
       }
     }
 
-    if (this.activeTab === 2) {
-      const hasEnabledPms = this.allinfoData && this.allinfoData.some(
-        (item: any) => item.type === 'pos' && (item.is_enabled === true || item.is_enabled === 'true')
-      );
-      if (!hasEnabledPms) {
-        this.alertsService.error(
-          'Please enable at least one PMS integration before proceeding.',
-          this.options
-        );
-        return;
-      }
-    }
-
+    // Commented out for 3rd sub tab removal
+    // if (this.activeTab === 2) {
+    //   const hasEnabledPms = this.allinfoData && this.allinfoData.some(
+    //     (item: any) => item.type === 'pos' && (item.is_enabled === true || item.is_enabled === 'true')
+    //   );
+    //   if (!hasEnabledPms) {
+    //     this.alertsService.error(
+    //       'Please enable at least one PMS integration before proceeding.',
+    //       this.options
+    //     );
+    //     return;
+    //   }
+    // }
+    // End of 3rd sub tab removal
     const changedRecords = this.allinfoData.filter(
       (item: any) => {
         if (item.type !== this.selectedTab) {
@@ -1383,10 +1393,12 @@ export class HotelTechnicalInfoComponent implements OnInit {
         this.secondTabCount();
         break;
 
-      case 2:
-        this.selectTab('other');
-        this.thirdTabCount();
-        break;
+      // Commented out for 3rd sub tab removal
+      // case 2:
+      //   this.selectTab('other');
+      //   this.thirdTabCount();
+      //   break;
+      // End of 3rd sub tab removal
     }
   }
 
@@ -1529,7 +1541,10 @@ export class HotelTechnicalInfoComponent implements OnInit {
     );
 
     if (enabledIntegrations.length > 1) {
-      const tabName = this.selectedTab === 'lock' ? 'Lock' : (this.selectedTab === 'pos' ? 'PMS' : 'Other');
+      // Commented out for 3rd sub tab removal
+      // const tabName = this.selectedTab === 'lock' ? 'Lock' : (this.selectedTab === 'pos' ? 'PMS' : 'Other');
+      const tabName = this.selectedTab === 'lock' ? 'Lock' : 'PMS';
+      // End of 3rd sub tab removal
       this.alertsService.error(
         `Only one ${tabName} integration can be enabled at a time.`,
         this.options

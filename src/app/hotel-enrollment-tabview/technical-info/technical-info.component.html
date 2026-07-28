@@ -17,11 +17,14 @@
                 (click)="selectTab('pos')">PMS</a>
         </li>
 
+        <!-- Commented out for 3rd sub tab removal
         <li class="nav-item" role="presentation">
             <a class="nav-link Custom-tab-spacing" id="other-tab" data-toggle="tab" href="#other" role="tab"
                 [class.active]="selectedTab === 'other'" aria-controls="other" aria-selected="false"
                 (click)="selectTab('other')">Other Integration</a>
         </li>
+        -->
+        <!-- End of 3rd sub tab removal -->
     </ul>
     <!-- Loader: show until tab data is loaded (same pattern as service tab / department) -->
     <div *ngIf="isLoading" class="technical-info-loader d-flex justify-content-center align-items-center"
@@ -38,8 +41,10 @@
         <div class="tab-pane fade show active" id="lock" role="tabpanel" aria-labelledby="lock-tab">
             <div class="mb-4">
                 <!-- Single-selection hint for lock and pos tabs -->
-                <div *ngIf="(selectedTab === 'lock' || selectedTab === 'pos') && generalTechInfoData?.length > 0 && this.customerStatus !== 'approved' && !isViewMode"
+                <!-- Newly added code for avoid checking status  -->
+                <div *ngIf="(selectedTab === 'lock' || selectedTab === 'pos') && generalTechInfoData?.length > 0 && !isViewMode"
                     class="tech-single-select-hint d-flex align-items-start">
+                    <!-- End of newly commented & added code for avoid checking status  -->
                     <i class="fas fa-info-circle mt-1 me-2"></i>
                     <div>
                         <strong>Note:</strong><br>
@@ -59,7 +64,8 @@
                         <!-- <br> -->
                         <span>
                             {{ selectedTab === 'lock' ? '3)' : selectedTab === 'pos' ? '4)' : '' }}
-                            Click <strong>Next Info</strong> button to save changes. Direct tab selection won't
+                            Click <strong>{{ selectedTab === 'lock' ? 'Next Info' : 'Save & Continue' }}</strong> button
+                            to save changes. Direct tab selection won't
                             save.</span>
                         <br>
                         <span>{{ selectedTab === 'lock' ? '4)' : selectedTab === 'pos' ? '5)' : '' }}</span>Payment can
@@ -85,7 +91,7 @@
                                     [style.cursor]="isEcomSettingsEnabled(data) && this.customerStatus !== 'approved' && !isViewMode ? 'pointer' : 'not-allowed'"
                                     (click)="isEcomSettingsEnabled(data) && this.customerStatus !== 'approved' && !isViewMode ? onEcomSettingsClick(data) : null"
                                     [title]="isEcomSettingsEnabled(data) ? 'Ecom Integration Settings' : 'Enable & save to configure Ecom settings'">
-                                </i> -->
+                                 </i> -->
                                 <i class="fas fa-cog ecom-settings-icon"
                                     [ngClass]="{'ecom-settings-disabled': !isEcomSettingsEnabled(data)}"
                                     [style.cursor]="isEcomSettingsEnabled(data) ? 'pointer' : 'not-allowed'"
@@ -102,16 +108,26 @@
                             <!-- Newly added for disabling form on payment done to approving the customer -->
                             <label class="switch" *ngIf="isCustomerChoosen==false"
                                 [title]="(data.type === 'lock' || data.type === 'pos') ? 'Only one integration can be enabled at a time' : ''">
+                                <!-- Newly commented & added code for avoid checking status  -->
+                                <!--  <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
+                                    [checked]="data.is_enabled === true || data.is_enabled === 'true'"
+                                    [disabled]="isViewMode" /> -->
                                 <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
                                     [checked]="data.is_enabled === true || data.is_enabled === 'true'"
-                                    [disabled]="this.customerStatus === 'approved' || isViewMode" />
+                                    [disabled]="isViewMode" />
+                                <!-- End of newly commented & added code for avoid checking status  -->
                                 <span class="slider round"></span>
                             </label>
                             <label class="switch" *ngIf="isCustomerChoosen==true"
                                 [title]="(data.type === 'lock' || data.type === 'pos') ? 'Only one integration can be enabled at a time' : ''">
+                                <!-- Newly commented & added code for avoid checking status  -->
+                                <!--   <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
+                                    [checked]="data.is_enabled === true || data.is_enabled === 'true'"
+                                    [disabled]="isViewMode" /> -->
                                 <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
                                     [checked]="data.is_enabled === true || data.is_enabled === 'true'"
-                                    [disabled]="this.customerStatus === 'approved' || isViewMode" />
+                                    [disabled]="isViewMode" />
+                                <!-- End of newly commented & added code for avoid checking status  -->
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -192,15 +208,32 @@
     <button type="submit" class="cancel_bt" (click)="back()">Back</button>&nbsp;&nbsp;
     <!-- <button type="submit" class="next_bt" *ngIf="((this.activeTab == 1 || this.activeTab == 2)  && !paymentDone)"
     (click)="nextTabInfo()">Next Info</button> -->
-    <button type="submit" class="next_bt"
-        *ngIf="((this.activeTab == 1 || this.activeTab == 2)  && this.customerStatus !== 'approved' && !isViewMode)"
+    <!-- Newly commented & added code for avoid checking status  -->
+    <!--  <button type="submit" class="next_bt"
+        *ngIf="((this.activeTab == 1 || this.activeTab == 2)  && this.customerStatus !== 'approved' && !isViewMode)" -->
+    <!-- Commented out for 3rd sub tab removal
+    <button type="submit" class="next_bt" *ngIf="((this.activeTab == 1 || this.activeTab == 2) && !isViewMode)"
         (click)="nextTabInfo()"> Next Info</button>
+    -->
+    <!-- End of 3rd sub tab removal -->
+    <button type="submit" class="next_bt" *ngIf="(this.activeTab == 1 && !isViewMode)" (click)="nextTabInfo()"> Next
+        Info</button>
+    <!-- End of newly commented & added code for avoid checking status  -->
     <!-- <button type="submit" class="save_bt" data-toggle="modal" data-target="#paymentType" *ngIf="this.activeTab == 3 "
     (click)="save()">Save &
     Continue</button> -->
-    <button type="submit" class="save_bt"
+    <!-- Newly commented & added code for avoid checking status  -->
+    <!--  <button type="submit" class="save_bt"
         *ngIf="this.activeTab == 3 && this.customerStatus !== 'approved' && !isViewMode" (click)="save()">Save &
+        Continue</button> -->
+    <!-- Commented out for 3rd sub tab removal
+    <button type="submit" class="save_bt" *ngIf="this.activeTab == 3 && !isViewMode" (click)="save()">Save &
         Continue</button>
+    -->
+    <button type="submit" class="save_bt" *ngIf="this.activeTab == 2 && !isViewMode" (click)="save()">Save &
+        Continue</button>
+    <!-- End of 3rd sub tab removal -->
+    <!-- End of newly commented & added code for avoid checking status  -->
     <!-- <button *ngIf="isMemberid" type="submit" class="save_bt" (click)="save()" data-toggle="modal"
     data-target="#paymentType">Save &
     Continue</button> -->

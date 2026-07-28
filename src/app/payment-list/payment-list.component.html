@@ -44,21 +44,21 @@
             <div style="display: flex; align-items: center; gap: 6px;">
               <label class="switch" style="margin-bottom: 0;">
                 <input #checkboxRef type="checkbox" [checked]="customerData[data.customer_id]?.is_active || false"
-                    (click)="onToggle(customerData[data.customer_id], checkboxRef); $event.preventDefault(); $event.stopPropagation()">
+                  (click)="onToggle(customerData[data.customer_id], checkboxRef); $event.preventDefault(); $event.stopPropagation()">
                 <span class="slider round"></span>
               </label>
               <i *ngIf="customerData[data.customer_id] && !customerData[data.customer_id].is_active && customerData[data.customer_id].inactive_remark"
-                 class="fa fa-info-circle text-danger"
-                 style="cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center;"
-                 (click)="openReasonModal(customerData[data.customer_id].inactive_remark); $event.stopPropagation()"
-                 title="View Inactive Reason">
+                class="fa fa-info-circle text-danger"
+                style="cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center;"
+                (click)="openReasonModal(customerData[data.customer_id].inactive_remark); $event.stopPropagation()"
+                title="View Inactive Reason">
               </i>
             </div>
           </td>
           <td style="padding-left: 20px;"><i class="fa fa-eye" style="color: #800020; cursor: pointer;"
               (click)="goToPaymentDetails(data.customer_id)"></i>
 
-              <!-- <td style="padding-left: 20px;"><i class="fa fa-eye" style="color: #800020; cursor: pointer;"
+            <!-- <td style="padding-left: 20px;"><i class="fa fa-eye" style="color: #800020; cursor: pointer;"
                   (click)="goToPaymentDetails(data.customer_member_id)"></i> newly changed from customer_id to customer_member_id -->
             <!-- <span class="fa-stack" (click)="goToPaymentDetails(data.customer_id)"> -->
 
@@ -170,9 +170,32 @@
         </div>
         <div class="modal-body" *ngIf="!setCustomerStatus" style="color: #800020;">
           <p> Are you sure you want to set the customer as inactive?</p>
-          <label for="remark" style="color: #800020;">Remark <span class="text-danger">*</span></label>
-          <textarea class="form-control" id="remark" [(ngModel)]="remark" (input)="remarkError = ''" placeholder="Enter remark"
-            rows="3" required></textarea>
+          <label style="font-weight: bold; display: block; margin-top: 10px; margin-bottom: 8px;">Inactivation Reason
+            <span class="text-danger">*</span></label>
+          <div style="display: flex; gap: 24px; margin-top: 5px; margin-bottom: 15px;">
+            <label
+              style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500; margin-bottom: 0; color: #333333;">
+              <input type="radio" name="inactiveType" value="Subscription Expiry" [(ngModel)]="inactiveType"
+                (change)="remarkError = ''" style="accent-color: #800020; width: 16px; height: 16px; margin: 0;">
+              Subscription Expiry
+            </label>
+            <label
+              style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500; margin-bottom: 0; color: #333333;">
+              <input type="radio" name="inactiveType" value="Others" [(ngModel)]="inactiveType"
+                (change)="remarkError = ''" style="accent-color: #800020; width: 16px; height: 16px; margin: 0;">
+              Others
+            </label>
+          </div>
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 5px;">
+            <label for="remark" style="color: #800020; font-weight: bold; margin-bottom: 0;">Reason <span
+                class="text-danger">*</span></label>
+            <span style="font-size: 11px; color: #6c757d;">
+              {{ remark?.length || 0 }}/100
+            </span>
+          </div>
+          <textarea class="form-control" id="remark" [(ngModel)]="remark" (input)="remarkError = ''"
+            placeholder="Enter reason" rows="3" required maxlength="100"></textarea>
           <div *ngIf="remarkError" class="text-danger mt-1" style="font-size: 13px;">
             {{ remarkError }}
           </div>
@@ -194,7 +217,8 @@
   </div>
 
   <!-- Inactive Reason Modal -->
-  <div class="modal fade" id="inactiveReasonModal" tabindex="-1" aria-labelledby="inactiveReasonModalLabel" aria-hidden="true">
+  <div class="modal fade" id="inactiveReasonModal" tabindex="-1" aria-labelledby="inactiveReasonModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content" style="border-radius: 10px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
         <div class="modal-header"

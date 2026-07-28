@@ -1094,8 +1094,11 @@ export class PropertyDetailsComponent {
     this.getCustomerById()
       .then(() => {
         this.setFormValues() // Runs after data is fetched
-        // Newly added: disable form in view-only mode or if approved
-        if (this.isViewMode || this.status === 'approved') {
+        // Newly added: disable form in view-only mode
+        // Newly commented & added code for avoid checking status
+        // if (this.isViewMode || this.status === 'approved') {
+        if (this.isViewMode) {
+          // End of newly commented & added code for avoid checking status 
           setTimeout(() => {
             this.customerProprtyDetailsForm.disable();
           });

@@ -443,13 +443,22 @@
           <div class="upload-content">
             <div class="d-flex flex-column align-items-center"> <i class="bi bi-upload"
                 style="font-size: 22px; color: #8b0000"></i>
+              <!-- Newly commented & added code for avoid checking status  -->
+              <!-- <input type="file" #logoInput class="d-none" (change)="onLogoChange($event)"
+                accept=".jpg,.jpeg,.png" /><button type="button" class="btn btn-maroon upload-btn mt-2 w-50"
+              (click)="logoInput.click()" [disabled]="logoUploading || status === 'approved' || isViewMode" > {{
+                hotelLogoUrl ?
+                'Replace Logo'
+                : 'Upload Logo'
+                }}-->
               <input type="file" #logoInput class="d-none" (change)="onLogoChange($event)"
                 accept=".jpg,.jpeg,.png" /><button type="button" class="btn btn-maroon upload-btn mt-2 w-50"
-                (click)="logoInput.click()" [disabled]="logoUploading || status === 'approved' || isViewMode"> {{
+                (click)="logoInput.click()" [disabled]="logoUploading || isViewMode"> {{
                 hotelLogoUrl ?
                 'Replace Logo'
                 : 'Upload Logo'
                 }}
+                <!-- End of newly commented & added code for avoid checking status  -->
               </button>
             </div>
             <p class="text-muted small mt-1">Allowed formats: JPG, JPEG, PNG • Max size: 2MB • Dimensions: exactly 200 ×
@@ -480,8 +489,11 @@
                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.08); margin-bottom: 10px;" /> -->
             <div class="d-flex align-items-center gap-3" style="gap: 16px; margin-top: 4px;">
               <i class="bi bi-eye cursor-pointer" (click)="previewLogo()"></i>
-              <i class="bi bi-trash3 cursor-pointer" (click)="removeLogo()"
-                [class.disabled-icon]="this.status === 'approved' || isViewMode"></i>
+              <!-- Newly commented & added code for avoid checking status  -->
+              <!--  <i class="bi bi-trash3 cursor-pointer" (click)="removeLogo()"
+                [class.disabled-icon]="this.status === 'approved' || isViewMode"></i> -->
+              <i class="bi bi-trash3 cursor-pointer" (click)="removeLogo()" [class.disabled-icon]="isViewMode"></i>
+              <!-- End of newly commented & added code for avoid checking status -->
               <span class="badge text-white" [ngClass]="hotelLogoUrl ? 'bg-success' : 'bg-secondary'">
                 {{ hotelLogoUrl ? 'Uploaded' : 'No Logo Uploaded' }}
               </span>
@@ -568,10 +580,16 @@
                 Upload is required
               </div>
               <!-- Dynamic Upload Button -->
+              <!-- Newly commented & added code for avoid checking status -->
+              <!--  <button type="button" class="btn btn-maroon upload-btn mt-2" (click)="fileInput.click()"
+                [disabled]="!nextPendingDocument || isViewMode">
+                {{ nextPendingDocument ? 'Upload ' + nextPendingDocument : 'All Documents Uploaded' }}
+              </button> -->
               <button type="button" class="btn btn-maroon upload-btn mt-2" (click)="fileInput.click()"
-                [disabled]="!nextPendingDocument || this.status === 'approved' || isViewMode">
+                [disabled]="!nextPendingDocument || isViewMode">
                 {{ nextPendingDocument ? 'Upload ' + nextPendingDocument : 'All Documents Uploaded' }}
               </button>
+              <!--  End of newly commented & added code for avoid checking status  -->
             </div>
             <p class="text-muted small mt-1">Maximum file size 2MB</p>
           </div>
@@ -594,13 +612,20 @@
             </div>
           </div>
           <div class="action-icons d-flex align-items-center gap-3">
+            <!-- Newly commented & added code for avoid checking status  -->
+            <!--  <i class="bi bi-trash3 cursor-pointer" (click)="removeDocument(doc.name)"
+              [class.disabled-icon]="this.status === 'approved' || isViewMode"></i> -->
             <i class="bi bi-trash3 cursor-pointer" (click)="removeDocument(doc.name)"
-              [class.disabled-icon]="this.status === 'approved' || isViewMode"></i>
+              [class.disabled-icon]="isViewMode"></i>
+            <!-- End of newly commented & added code for avoid checking status  -->
             <i class="bi bi-eye cursor-pointer" (click)="previewDocument(doc.name)"></i>
             <i class="bi bi-upload cursor-pointer" *ngIf="!uploadedDocuments[doc.name] && !isViewMode"
               (click)="triggerUpload(doc.name, rowFileInput)"></i>
-            <span *ngIf="uploadedDocuments[doc.name] || this.status === 'approved'"
-              class="badge bg-success text-white">Uploaded</span>
+            <!-- Newly commented & added code for avoid checking status  -->
+            <!--  <span *ngIf="uploadedDocuments[doc.name] || this.status === 'approved'"
+              class="badge bg-success text-white">Uploaded</span> -->
+            <span *ngIf="uploadedDocuments[doc.name]" class="badge bg-success text-white">Uploaded</span>
+            <!-- End of newly commented & added code for avoid checking status -->
           </div>
         </div>
       </div>
@@ -621,10 +646,16 @@
                 Upload is required
               </div>
               <!-- Dynamic Upload Button -->
+              <!-- Newly commented & added code for avoid checking status  -->
+              <!--  <button type="button" class="btn btn-maroon upload-btn mt-2" (click)="fileInput.click()"
+                [disabled]="!hasPendingDocument || this.status === 'approved' || isViewMode"></button>
+                {{ hasPendingDocument ? 'Upload ' + nextApiPendingDocument : 'All Documents Uploaded' }}
+              </button> -->
               <button type="button" class="btn btn-maroon upload-btn mt-2" (click)="fileInput.click()"
-                [disabled]="!hasPendingDocument || this.status === 'approved' || isViewMode">
+                [disabled]="!hasPendingDocument || isViewMode">
                 {{ hasPendingDocument ? 'Upload ' + nextApiPendingDocument : 'All Documents Uploaded' }}
               </button>
+              <!-- End of newly commented & added code for avoid checking status  -->
             </div>
             <p class="text-muted small mt-1">Maximum file size 2MB</p>
           </div>
@@ -649,8 +680,12 @@
           <div class="action-icons d-flex align-items-center gap-3">
             <!-- {{this.customerStatus}} -->
             <!-- Newly added - paymentDone for button disable view -->
+            <!-- Newly commented & added code for avoid checking status -->
+            <!--  <i class="bi bi-trash3 cursor-pointer" (click)="removeDocumentApi(doc)"
+              [class.disabled-icon]="this.customerStatus === 'approved' || isViewMode"></i> -->
             <i class="bi bi-trash3 cursor-pointer" (click)="removeDocumentApi(doc)"
-              [class.disabled-icon]="this.customerStatus === 'approved' || isViewMode"></i>
+              [class.disabled-icon]="isViewMode"></i>
+            <!-- End of newly commented & added code for avoid checking status -->
             <i class="bi bi-eye cursor-pointer" (click)="previewApiDocument(doc.document_url)">
             </i>
             <i class="bi bi-upload cursor-pointer" *ngIf="(doc.document_url == '') && !isViewMode"
@@ -687,11 +722,18 @@
       [disabled]="(customerProprtyDetailsForm.invalid || (!isAllApiDocumentsUploaded()) || !hotelLogoUrl) || isViewMode">Save
       &
       Continue</button> -->
-    <button type="submit" class="save_bt"
+    <!-- Newly commented & added code for avoid checking status  -->
+    <!--  <button type="submit" class="save_bt"
       *ngIf="this.customerdata.property_details?.kyc_documents?.uploaded_documents.length > 0 && this.status !== 'approved' && !isViewMode"
       [disabled]="(customerProprtyDetailsForm.invalid || (!isAllApiDocumentsUploaded()) || !hotelLogoUrl) || isViewMode">Save
       &
+      Continue</button> -->
+    <button type="submit" class="save_bt"
+      *ngIf="this.customerdata.property_details?.kyc_documents?.uploaded_documents.length > 0 && !isViewMode"
+      [disabled]="(customerProprtyDetailsForm.invalid || (!isAllApiDocumentsUploaded()) || !hotelLogoUrl) || isViewMode">Save
+      &
       Continue</button>
+    <!-- End of newly commented & added code for avoid checking status  -->
   </div>
 </form>
 <div class="popup-overlay" *ngIf="isVisible">

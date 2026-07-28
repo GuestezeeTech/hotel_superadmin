@@ -155,19 +155,22 @@
             <!-- <td><i class="fa fa-pen-to-square" style="color: #800020; cursor: pointer;"
                   (click)="editCustomer(customer.id)"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"
                   style="color: #800020; cursor: pointer;" (click)="openFullPreview(customer.id)"></i></td> -->
-            <!--newly added for edit button disabled for approved hotels-->
             <td>
-              <i class="fa fa-pen-to-square"
+              <!-- Newly commented & added code for avoid checking status  -->
+              <!--   <i class="fa fa-pen-to-square"
                 [style.color]="(customer.status||'').toLowerCase() === 'approved' ? '#ccc' : '#800020'"
                 [style.cursor]="(customer.status||'').toLowerCase() === 'approved' ? 'not-allowed' : 'pointer'"
                 (click)="(customer.status||'').toLowerCase() !== 'approved' && editCustomer(customer.id)"
                 [title]="(customer.status||'').toLowerCase() === 'approved' ? 'Edit disabled for approved hotels' : 'Edit'">
+              </i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
+              <i class="fa fa-pen-to-square" style="color: #800020; cursor: pointer;"
+                (click)="editCustomer(customer.id)" title="Edit">
               </i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <!-- End of newly commented & added code for avoid checking status  -->
               <i class="fa fa-eye" style="color: #800020; cursor: pointer;" (click)="openFullPreview(customer.id)"
                 title="View"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <i class="fa fa-trash" style="color: #800020; cursor: pointer;"
-                data-toggle="modal" data-target="#deleteModal" (click)="openDeleteModal(customer)"
-                title="Delete"></i>
+              <i class="fa fa-trash" style="color: #800020; cursor: pointer;" data-toggle="modal"
+                data-target="#deleteModal" (click)="openDeleteModal(customer)" title="Delete"></i>
             </td>
           </tr>
         </tbody>
@@ -229,7 +232,7 @@
           </div>
           <div class="modal-body">
             <p>Are you sure you want to delete this hotel?</p>
-            
+
             <!-- Reason input for deletion -->
             <div class="form-group mt-3">
               <div class="d-flex justify-content-between align-items-center mb-1">

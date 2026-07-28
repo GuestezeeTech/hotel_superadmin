@@ -32,6 +32,7 @@ export class PaymentListComponent implements OnInit {
   remark: string = '';
   remarkError: string = '';
   inactiveReason: string = '';
+  inactiveType: string = '';
   customerId: any;
   setCustomerStatus: boolean = true;
   tabName: string = 'Subscription';
@@ -378,6 +379,7 @@ export class PaymentListComponent implements OnInit {
     this.memberId = customer.customer_member_id || customer.member_id;
     this.remark = '';
     this.remarkError = '';
+    this.inactiveType = 'Subscription Expiry';
 
     // Show modal
     const modal = document.getElementById("deleteModal");
@@ -386,7 +388,7 @@ export class PaymentListComponent implements OnInit {
       modal.classList.add('show');
       modal.removeAttribute('aria-hidden');
       document.body.classList.add('modal-open');
-      
+
       if (!document.querySelector('.modal-backdrop')) {
         const backdrop = document.createElement('div');
         backdrop.className = 'modal-backdrop fade show';
@@ -400,6 +402,7 @@ export class PaymentListComponent implements OnInit {
   closeModal() {
     this.remark = '';
     this.remarkError = '';
+    this.inactiveType = '';
     var modal = document.getElementById("deleteModal"); // Get the element by its ID
     if (modal) { // Check if the element exists
       modal.style.display = 'none'; // Hide the modal
@@ -419,10 +422,14 @@ export class PaymentListComponent implements OnInit {
     console.log('setCustomerInactive called with ID:', id);
     // Apply the toggle change now that user confirmed
     const toggles = document.querySelectorAll('input[type="checkbox"]');
-    
+
     if (!this.setCustomerStatus) {
+      if (!this.inactiveType) {
+        this.remarkError = 'Please select whether the inactivation is due to Subscription Expiry or Others.';
+        return;
+      }
       if (!this.remark || !this.remark.trim()) {
-        this.remarkError = 'Remark is mandatory when setting customer as inactive.';
+        this.remarkError = 'Reason is mandatory when setting customer as inactive.';
         return;
       }
     }
@@ -433,7 +440,8 @@ export class PaymentListComponent implements OnInit {
       payload: {
         "customer_update": {
           is_active: this.setCustomerStatus,
-          inactive_remark: !this.setCustomerStatus ? this.remark.trim() : ''
+          inactive_remark: !this.setCustomerStatus ? this.remark.trim() : '',
+          inactive_type: !this.setCustomerStatus ? this.inactiveType : ''
         }
 
       },
@@ -458,6 +466,7 @@ export class PaymentListComponent implements OnInit {
             if (this.customerData[id]) {
               this.customerData[id].is_active = this.setCustomerStatus;
               this.customerData[id].inactive_remark = !this.setCustomerStatus ? this.remark.trim() : '';
+              this.customerData[id].inactive_type = !this.setCustomerStatus ? this.inactiveType : '';
               console.log('Updated customerData:', this.customerData[id]);
             }
 
@@ -750,7 +759,7 @@ export class PaymentListComponent implements OnInit {
       modal.classList.add('show');
       modal.removeAttribute('aria-hidden');
       document.body.classList.add('modal-open');
-      
+
       if (!document.querySelector('.modal-backdrop')) {
         const backdrop = document.createElement('div');
         backdrop.className = 'modal-backdrop fade show';

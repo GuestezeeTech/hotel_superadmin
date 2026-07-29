@@ -116,7 +116,7 @@
 
             <td *ngIf="userRoleName=='Super Admin'">
               <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active"
-                style="cursor: default;">Active</button>
+                style="cursor: default;">Approved</button>
               <button *ngIf="(customer.status||'').toLowerCase()==='pending'" class="pending"
                 [disabled]="!isPaymentDone(customer.customer_member_id)"
                 [attr.data-toggle]="isPaymentDone(customer.customer_member_id) ? 'modal' : null"
@@ -130,7 +130,7 @@
                 [attr.data-target]="isPaymentDone(customer.customer_member_id) ? '#approvalModal' : null"
                 [ngStyle]="!isPaymentDone(customer.customer_member_id) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
                 [title]="!isPaymentDone(customer.customer_member_id) ? 'Payment not completed yet' : 'Change Status'"
-                (click)="openApprovalModal(customer)">InActive</button>
+                (click)="openApprovalModal(customer)">Unapproved</button>
               <!--    <i *ngIf="(customer.status||'').toLowerCase()==='unapproved' && customer.status_remarks"
                 class="fa fa-info-circle text-danger"
                 style="cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle;" data-toggle="modal"
@@ -141,10 +141,10 @@
 
 
             <td *ngIf="userRoleName!=='Super Admin'">
-              <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active">Active</button>
+              <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active">Approved</button>
               <button *ngIf="(customer.status||'').toLowerCase()==='pending'" class="pending">Pending</button>
               <button *ngIf="(customer.status||'').toLowerCase()==='unapproved'" class="in-active"
-                style="cursor: default;">InActive</button>
+                style="cursor: default;">Unapproved</button>
               <i *ngIf="(customer.status||'').toLowerCase()==='unapproved' && customer.status_remarks"
                 class="fa fa-info-circle text-danger"
                 style="cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle;" data-toggle="modal"

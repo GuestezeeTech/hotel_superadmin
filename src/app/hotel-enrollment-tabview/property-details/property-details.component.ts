@@ -565,7 +565,7 @@ export class PropertyDetailsComponent {
         if (selectedCountry) {
           // The template expects objects with a 'state' property
           this.statesDropdownList = selectedCountry.states.map(s => ({ state: s, code: '', flag: '' }));
-          if (this.customerProprtyDetailsForm.disabled || this.isViewMode) {
+          if (this.customerProprtyDetailsForm.disabled || this.isViewMode || this.paymentDone) {
             this.customerProprtyDetailsForm.get('property_state')?.disable();
           } else {
             this.customerProprtyDetailsForm.get('property_state')?.enable();
@@ -633,6 +633,14 @@ export class PropertyDetailsComponent {
     if (this.customerProprtyDetailsForm && (changes['paymentDone'] || this.paymentDone)) {
       this.customerProprtyDetailsForm.get('property_size')?.disable();
       this.customerProprtyDetailsForm.get('number_of_rooms')?.disable();
+      this.customerProprtyDetailsForm.get('property_country')?.disable();
+      this.customerProprtyDetailsForm.get('property_state')?.disable();
+      if (this.taxField1Key === 'property_vat') {
+        this.customerProprtyDetailsForm.get('property_vat')?.disable();
+      }
+      if (this.taxField2Key === 'property_gst') {
+        this.customerProprtyDetailsForm.get('property_gst')?.disable();
+      }
     }
   }
   refreshData() {
@@ -970,6 +978,14 @@ export class PropertyDetailsComponent {
               if (this.paymentDone) {
                 this.customerProprtyDetailsForm.get('property_size')?.disable();
                 this.customerProprtyDetailsForm.get('number_of_rooms')?.disable();
+                this.customerProprtyDetailsForm.get('property_country')?.disable();
+                this.customerProprtyDetailsForm.get('property_state')?.disable();
+                if (this.taxField1Key === 'property_vat') {
+                  this.customerProprtyDetailsForm.get('property_vat')?.disable();
+                }
+                if (this.taxField2Key === 'property_gst') {
+                  this.customerProprtyDetailsForm.get('property_gst')?.disable();
+                }
               }
               if (this.status === 'approved') {
                 // Disable the form if approved - handled in executeFunctions via setTimeout
@@ -1107,6 +1123,14 @@ export class PropertyDetailsComponent {
           setTimeout(() => {
             this.customerProprtyDetailsForm.get('property_size')?.disable();
             this.customerProprtyDetailsForm.get('number_of_rooms')?.disable();
+            this.customerProprtyDetailsForm.get('property_country')?.disable();
+            this.customerProprtyDetailsForm.get('property_state')?.disable();
+            if (this.taxField1Key === 'property_vat') {
+              this.customerProprtyDetailsForm.get('property_vat')?.disable();
+            }
+            if (this.taxField2Key === 'property_gst') {
+              this.customerProprtyDetailsForm.get('property_gst')?.disable();
+            }
           });
         }
       })
@@ -2031,6 +2055,13 @@ export class PropertyDetailsComponent {
     if (this.customerProprtyDetailsForm.disabled || this.isViewMode) {
       this.customerProprtyDetailsForm.get(newField1Key)?.disable();
       this.customerProprtyDetailsForm.get(newField2Key)?.disable();
+    } else if (this.paymentDone) {
+      if (newField1Key === 'property_vat') {
+        this.customerProprtyDetailsForm.get('property_vat')?.disable();
+      }
+      if (newField2Key === 'property_gst') {
+        this.customerProprtyDetailsForm.get('property_gst')?.disable();
+      }
     }
 
     // Programmatic error triggering on country/state changes

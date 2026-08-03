@@ -1,1 +1,0 @@
-import{J as e,s as o}from"./chunk-URWATHWJ.js";var i=class t{loading=new e;complete=new e;constructor(){}emitLoading(){this.loading.emit()}emitComplete(){this.complete.emit()}static \u0275fac=function(n){return new(n||t)};static \u0275prov=o({token:t,factory:t.\u0275fac,providedIn:"root"})};export{i as a};

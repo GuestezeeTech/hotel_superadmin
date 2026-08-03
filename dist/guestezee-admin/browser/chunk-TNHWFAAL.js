@@ -1,0 +1,1 @@
+import{s as o}from"./chunk-URWATHWJ.js";var a=class e{set(t,r){localStorage.setItem(t,r)}get(t){return localStorage.getItem(t)}remove(t){localStorage.removeItem(t)}static \u0275fac=function(r){return new(r||e)};static \u0275prov=o({token:e,factory:e.\u0275fac,providedIn:"root"})};export{a};

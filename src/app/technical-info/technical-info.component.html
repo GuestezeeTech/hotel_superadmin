@@ -154,7 +154,12 @@
       </div>
     </form>
     <div class="row">
-      <form [formGroup]="techInfoDataForm" class="col-10">
+      <form [formGroup]="techInfoDataForm" class="col-6">
+        <div *ngIf="employees().length > 0" class="tech-hint-note" style="margin-top: 0; margin-bottom: 15px;">
+          <i class="fas fa-info-circle"></i>
+          <span><strong>Note:</strong> The keys added here will be shown in admin to get integration-related
+            values.</span>
+        </div>
         <div formArrayName="technicalInfo">
           <div *ngFor="let employee of employees().controls; let empIndex=index">
             <!-- <div [formGroupName]="empIndex"
@@ -171,16 +176,16 @@
             </div>
           </div> -->
             <div [formGroupName]="empIndex"
-              style="padding: 10px; margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr auto; column-gap: 20px; align-items: flex-end; border-radius: 10px;">
-              <div class="form-group" style="width: 100%;">
+              style="padding: 0 10px; margin-bottom: 5px; display: grid; grid-template-columns: 1fr auto; column-gap: 20px; align-items: flex-end; border-radius: 10px;">
+              <div class="form-group" style="width: 100%; margin-bottom: 0px;">
                 <label> {{empIndex +1}}.Key Label</label>
+                <span>*</span>
                 <input class="input_box" type="text" placeholder="label name" formControlName="key"
                   style="width: 100%;" />
-              </div>
-              <div class="form-group" style="width: 100%;">
-                <label> {{empIndex+1}}.Key Value</label>
-                <input class="input_box" type="text" placeholder="enter the key value" formControlName="value"
-                  style="width: 100%;" />
+                <span class="text-danger small" *ngIf="employee.get('key')?.invalid && employee.get('key')?.touched">
+                  <span *ngIf="employee.get('key')?.hasError('required')">Key Label is required.</span>
+                  <span *ngIf="employee.get('key')?.hasError('pattern')">Invalid key (only spaces not allowed).</span>
+                </span>
               </div>
               <div style="padding-bottom: 12px;">
                 <i class="fa-regular fa-square-minus" (click)="removeEmployee(empIndex)"

@@ -42,7 +42,7 @@
             <div class="mb-4">
                 <!-- Single-selection hint for lock and pos tabs -->
                 <!-- Newly added code for avoid checking status  -->
-                <div *ngIf="(selectedTab === 'lock' || selectedTab === 'pos') && generalTechInfoData?.length > 0 && !isViewMode"
+                <div *ngIf="(selectedTab === 'lock' || selectedTab === 'pos') && generalTechInfoData?.length > 0 && !isViewMode && !isApproved"
                     class="tech-single-select-hint d-flex align-items-start">
                     <!-- End of newly commented & added code for avoid checking status  -->
                     <i class="fas fa-info-circle mt-1 me-2"></i>
@@ -111,10 +111,10 @@
                                 <!-- Newly commented & added code for avoid checking status  -->
                                 <!--  <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
                                     [checked]="data.is_enabled === true || data.is_enabled === 'true'"
-                                    [disabled]="isViewMode" /> -->
+                                    [disabled]="isViewMode || isApproved" /> -->
                                 <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
                                     [checked]="data.is_enabled === true || data.is_enabled === 'true'"
-                                    [disabled]="isViewMode" />
+                                    [disabled]="isViewMode || isApproved" />
                                 <!-- End of newly commented & added code for avoid checking status  -->
                                 <span class="slider round"></span>
                             </label>
@@ -123,10 +123,10 @@
                                 <!-- Newly commented & added code for avoid checking status  -->
                                 <!--   <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
                                     [checked]="data.is_enabled === true || data.is_enabled === 'true'"
-                                    [disabled]="isViewMode" /> -->
+                                    [disabled]="isViewMode || isApproved" /> -->
                                 <input type="checkbox" (change)="onCustomerToggleSwitch($event, data)"
                                     [checked]="data.is_enabled === true || data.is_enabled === 'true'"
-                                    [disabled]="isViewMode" />
+                                    [disabled]="isViewMode || isApproved" />
                                 <!-- End of newly commented & added code for avoid checking status  -->
                                 <span class="slider round"></span>
                             </label>
@@ -216,7 +216,8 @@
         (click)="nextTabInfo()"> Next Info</button>
     -->
     <!-- End of 3rd sub tab removal -->
-    <button type="submit" class="next_bt" *ngIf="(this.activeTab == 1 && !isViewMode)" (click)="nextTabInfo()"> Next
+    <button type="submit" class="next_bt" *ngIf="(this.activeTab == 1 && !isViewMode && !isApproved)"
+        (click)="nextTabInfo()"> Next
         Info</button>
     <!-- End of newly commented & added code for avoid checking status  -->
     <!-- <button type="submit" class="save_bt" data-toggle="modal" data-target="#paymentType" *ngIf="this.activeTab == 3 "
@@ -230,7 +231,8 @@
     <button type="submit" class="save_bt" *ngIf="this.activeTab == 3 && !isViewMode" (click)="save()">Save &
         Continue</button>
     -->
-    <button type="submit" class="save_bt" *ngIf="this.activeTab == 2 && !isViewMode" (click)="save()">Save &
+    <button type="submit" class="save_bt" *ngIf="(this.activeTab == 2 && !isViewMode && !isApproved)"
+        (click)="save()">Save &
         Continue</button>
     <!-- End of 3rd sub tab removal -->
     <!-- End of newly commented & added code for avoid checking status  -->
@@ -311,22 +313,24 @@
                             </div>
                         </form>
                     </div> -->
-                    <!-- NEW ecom-section: only shown on POS tab, and only the Hotel_Code row is rendered -->
-                    <div class="ecom-section" *ngIf="selectedTab === 'pos'">
+                    <!-- ecom-section: shown on POS (PMS) and Lock tabs, displaying all integration attributes with key labels disabled -->
+                    <div class="ecom-section" *ngIf="selectedTab === 'pos' || selectedTab === 'lock'">
                         <form [formGroup]="ecomTechnicalInfoForm" class="ecom-form">
-                            <div formArrayName="technicalInfo" class="ecom-technical-info-container">
-                                <ng-container
-                                    *ngFor="let field of getEcomTechnicalInfoControls().controls; let i = index">
+                            <div class="ecom-technical-info-container"
+                                *ngIf="getEcomTechnicalInfoControls().controls.length > 0">
+                                <!-- Single header row shown once at the top of the attributes list -->
+                                <div class="ecom-technical-info-header">
+                                    <div class="ecom-header-label">Key Label</div>
+                                    <div class="ecom-header-label">Key Value</div>
+                                </div>
+                                <div formArrayName="technicalInfo" class="ecom-form-array-wrapper">
                                     <div [formGroupName]="i" class="ecom-technical-info-item"
-                                        *ngIf="field.get('key')?.value?.trim()?.toLowerCase() === 'hotel_code'">
+                                        *ngFor="let field of getEcomTechnicalInfoControls().controls; let i = index">
                                         <div class="ecom-form-group">
-                                            <!-- <label class="ecom-label">Key Label</label> -->
-                                            <label class="ecom-label">Hotel Code</label>
                                             <input class="ecom-input-box" type="text" formControlName="key"
                                                 placeholder="label name" />
                                         </div>
-                                        <div class="ecom-form-group ecom-key-group">
-                                            <label class="ecom-label">Key Value</label>
+                                        <div class="ecom-form-group ecom-key-group-no-label">
                                             <input class="ecom-input-box" type="text" formControlName="value"
                                                 placeholder="enter the key value" />
                                             <span class="ecom-error"
@@ -335,20 +339,16 @@
                                             </span>
                                         </div>
                                     </div>
-                                </ng-container>
+                                </div>
                             </div>
                         </form>
                     </div>
                 </div>
                 <div class="ecom-modal-footer">
-                    <!--  <button type="button" class="ecom-cancel-btn" (click)="closeEcomIntegrationModal()">Cancel</button>
-                    <button type="button" class="ecom-save-btn" *ngIf="!isViewMode"
-                        (click)="saveEcomIntegration()">Save</button> -->
                     <button type="button" class="ecom-cancel-btn" (click)="closeEcomIntegrationModal()">{{
-                        (isViewMode || this.customerStatus === 'approved') ? 'Close' : (selectedTab === 'pos' ? 'Cancel'
-                        : 'Close') }}</button>
+                        (isViewMode || this.customerStatus === 'approved') ? 'Close' : 'Cancel' }}</button>
                     <button type="button" class="ecom-save-btn"
-                        *ngIf="!isViewMode && this.customerStatus !== 'approved' && selectedTab === 'pos'"
+                        *ngIf="!isViewMode && this.customerStatus !== 'approved' && ((selectedTab === 'pos') || (selectedTab === 'lock' && getEcomTechnicalInfoControls().controls.length > 0))"
                         (click)="saveEcomIntegration()">Save</button>
                 </div>
             </div>

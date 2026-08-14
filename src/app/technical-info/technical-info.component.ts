@@ -93,9 +93,8 @@ export class TechnicalInfoComponent implements OnInit {
 
   newEmployee(): FormGroup {
     return this.fb.group({
-      key: '',
-      value: '',
-      // skills:this.fb.array([])
+      key: ['', [Validators.required, Validators.pattern(/.*\S.*/)]],
+      value: ['']
     })
   }
 
@@ -458,8 +457,8 @@ export class TechnicalInfoComponent implements OnInit {
             const attributesArray = this.fb.array(
               this.ecomData.attributes.map((attr: any) =>
                 this.fb.group({
-                  key: [attr.key],
-                  value: [attr.value]
+                  key: [attr.key, [Validators.required, Validators.pattern(/.*\S.*/)]],
+                  value: [attr.value || '']
                 })
               )
             );

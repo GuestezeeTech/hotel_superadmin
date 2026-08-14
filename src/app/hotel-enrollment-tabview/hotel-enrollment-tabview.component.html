@@ -79,8 +79,10 @@
           </div>
           <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
             <!-- <app-service-details></app-service-details> -->
-            <app-technical-info></app-technical-info>
-
+            <!-- Newly added & commented for disabled after payment -->
+            <!-- <app-technical-info></app-technical-info> -->
+            <app-technical-info [isApproved]="isCustomerApproved"></app-technical-info>
+            <!-- End of ewly added & commented for disabled after payment -->
           </div>
           <div class="tab-pane fade" id="contact2" role="tabpanel" aria-labelledby="contact-tab2">
             <app-service-tab-list></app-service-tab-list>

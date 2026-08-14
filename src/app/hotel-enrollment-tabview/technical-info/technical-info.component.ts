@@ -78,6 +78,9 @@ export class HotelTechnicalInfoComponent implements OnInit {
   isViewMode: boolean = false;
   modifiedTechnicalInfos: any[] = [];
   originalEnabledState: { [key: number]: boolean } = {};
+  // Newly added & commented for disabled after payment 
+  @Input() isApproved: boolean = false;
+  //  End of newly added & commented for disabled after payment  
 
   constructor(
     private localService: LocalStorageService,
@@ -1006,31 +1009,13 @@ export class HotelTechnicalInfoComponent implements OnInit {
 
   // Create a FormGroup for Ecom attribute with conditional validation:
   // if key is entered, value becomes required.
-  // Hotel_Code key is disabled only when in the PMS (pos) tab.
+  // We disable the key field for all attributes across both Lock and PMS tabs.
   createEcomAttributeGroup(key: string = '', value: string = ''): FormGroup {
-    // Disable the key field only for Hotel_Code AND only for WIN HMS / Oracle integrations
-    // OLD: was checked by tab (selectedTab === 'pos') — now checked by integration name
-    // const isHotelCodeOnPms = this.selectedTab === 'pos' && key.trim().toLowerCase() === 'hotel_code';
-    const isHotelCodeOnPms = this.isHotelCodeIntegration() && key.trim().toLowerCase() === 'hotel_code';
-    // Newly added for hotel code value disabled 
-    /*  const group = this.fb.group({
-       key: [{ value: key, disabled: isHotelCodeOnPms }],
-       value: [value: value]
-     }); */
     const isValueDisabled = this.customerStatus === 'approved' || this.isViewMode;
     const group = this.fb.group({
-      key: [{ value: key, disabled: isHotelCodeOnPms || isValueDisabled }],
+      key: [{ value: key, disabled: true }],
       value: [{ value: value, disabled: isValueDisabled }]
     });
-    /*
-    // End of newly added for hotel code value disabled
-    // OLD: disabled Hotel_Code key on ALL tabs (not just PMS)
-    const isHotelCode = key.trim().toLowerCase() === 'hotel_code'.toLowerCase();
-    const group_old = this.fb.group({
-      key: [{ value: key, disabled: isHotelCode }],
-      value: [value]
-    });
-    */
     group.valueChanges.subscribe(() => {
       this.validateEcomAttributeGroup(group);
     });

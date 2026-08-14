@@ -134,7 +134,12 @@ export class EmailTemplateComponent implements OnInit {
       next: (res) => {
         this.loadingList = false;
         const data: TemplateDoc[] = res?.result?.data ?? res?.data ?? [];
-        this.templates = (data || []).filter((d) => !d['is_deleted']);
+        const allowedChannels = ['EMAIL', 'DOWNLOAD'];
+        this.templates = (data || []).filter((d) => {
+          if (d['is_deleted']) return false;
+          const ch = (d.channel || '').toUpperCase();
+          return allowedChannels.some((allowed) => ch.includes(allowed));
+        });
         this.applyFilter();
         if (!this.templates.length) this.setBanner('info', 'No templates found.');
       },
@@ -161,19 +166,22 @@ export class EmailTemplateComponent implements OnInit {
     this.selected = t;
     this.banner = null;
     this.subject = t.subject_template || '';
-    this.emailHtml = t.body_html || '';
+    this.emailHtml = this.normalizeLogoSize(t.body_html || '');
     this.emailOriginal = this.emailHtml;
     this.hasEmail = !!(t.body_html && t.body_html.trim());
     this.emailMode = 'content';
     this.emailContentText = this.extractContentText(this.emailHtml);
 
-    this.attachments = (t.attachments || []).map((a) => ({
-      filename: a.filename || 'attachment',
-      html: a.html || '',
-      original: a.html || '',
-      mode: 'content' as const,
-      contentText: this.extractContentText(a.html || '')
-    }));
+    this.attachments = (t.attachments || []).map((a) => {
+      const cleanAttHtml = this.normalizeLogoSize(a.html || '');
+      return {
+        filename: a.filename || 'attachment',
+        html: cleanAttHtml,
+        original: cleanAttHtml,
+        mode: 'content' as const,
+        contentText: this.extractContentText(cleanAttHtml)
+      };
+    });
 
     this.previewTarget = this.hasEmail ? { kind: 'email' } : { kind: 'attachment', index: 0 };
     this.aiTarget = this.previewTarget;
@@ -287,40 +295,90 @@ export class EmailTemplateComponent implements OnInit {
   }
 
   private buildPrompt(instruction: string, html: string): string {
+    const contentText = this.extractContentText(html);
+
     return [
-      'You are an expert HTML email designer. Refine ONLY the visual design',
-      '(layout, CSS, colours, spacing, structure) of the HTML document below,',
-      'following this instruction:',
+      'You are an expert HTML email and document designer for GuestEzee.',
       '',
-      instruction,
+      'BRAND PALETTE & ASSETS:',
+      '- Logo Image URL: https://www.guestezee.com/assets/images/guestezee/page_1%201.png',
+      '- LOGO SIZING & DISPLAY: Place the logo inside a clean header on a WHITE background card: <img src="https://www.guestezee.com/assets/images/guestezee/page_1%201.png" alt="" width="150" style="width: 150px; max-width: 150px; height: auto; display: block; background-color: #ffffff; padding: 8px 12px; border-radius: 6px; outline: none; border: 0;" />.',
+      '- Primary Brand Colors: Maroon (#800020) and White (#ffffff).',
+      '- Accent Colors: Black (#000000), Blue (#0056b3), Light Gray (#f8f9fa).',
       '',
-      'STRICT RULES — follow exactly:',
-      '- Do NOT change, add, remove, rephrase, translate or reorder any',
-      '  human-visible text content.',
-      '- Keep every {{placeholder}} token byte-for-byte identical and in the',
-      '  same place (including those inside attributes such as href).',
-      '- Keep the same number of visible text segments.',
-      '- Return ONLY the complete HTML document. No commentary, no markdown',
-      '  code fences.',
+      'DESIGN TASK:',
+      '- Build a COMPLETELY NEW, modern, beautifully styled, responsive HTML email template from scratch.',
+      '- Do NOT reuse broken or legacy table/div structures. Re-architect the layout with clean cards, key-value tables, and professional spacing.',
+      '- Organize headings, subheadings, key-value data fields, and block sections cleanly with professional padding, subtle borders, and harmonious maroon/white brand styling.',
+      instruction ? '  Client Instruction: ' + instruction : '  Client Instruction: Build a clean, structured key-value template design.',
       '',
-      'HTML:',
+      'STRICT WORD-FOR-WORD LOCK (CRITICAL REQUIREMENT):',
+      '- Build the HTML layout using ONLY the exact text lines and {{placeholder}} tokens provided in the RAW TEXT CONTENT below.',
+      '- Do NOT add new copy text, slogans, or extra words. Keep every word token and {{placeholder}} byte-for-byte identical in sequence.',
+      '- If Handlebars block syntax (such as {{#if ...}} and {{/if}}) is present in the text, preserve the block logic around the table rows/elements.',
+      '- Return ONLY the complete, self-contained HTML document. No markdown fences or extra commentary.',
+      '',
+      'RAW TEXT CONTENT TO FORMAT INTO FRESH HTML DESIGN:',
+      contentText,
+      '',
+      'EXISTING HTML REFERENCE (For context only):',
       html
     ].join('\n');
   }
 
   private applyRefinedHtml(target: RefineTarget, html: string): void {
+    const cleanHtml = this.normalizeLogoSize(html);
     if (target.kind === 'email') {
-      this.emailHtml = html;
-      if (this.emailMode === 'content') this.emailContentText = this.extractContentText(html);
+      this.emailHtml = cleanHtml;
+      if (this.emailMode === 'content') this.emailContentText = this.extractContentText(cleanHtml);
     } else {
       const att = this.attachments[target.index];
       if (att) {
-        att.html = html;
-        if (att.mode === 'content') att.contentText = this.extractContentText(html);
+        att.html = cleanHtml;
+        if (att.mode === 'content') att.contentText = this.extractContentText(cleanHtml);
       }
     }
     this.previewTarget = target;
     this.refreshPreview();
+  }
+
+  private normalizeLogoSize(html: string): string {
+    if (!html) return html;
+    const doc = this.parseDoc(html);
+    this.cleanEmptyElements(doc);
+
+    let outHtml = this.serialize(doc, html);
+    return outHtml.replace(/<img([^>]*src=["'][^"']*(?:guestezee|logo)[^"']*["'][^>]*)>/gi, (match, p1) => {
+      if (/width=/i.test(match) || /style=/i.test(match)) {
+        let updated = match;
+        if (!/width=["']?150/i.test(updated)) {
+          updated = updated.replace(/width=["'][^"']*["']/gi, 'width="150"');
+        }
+        if (/style=["']/i.test(updated)) {
+          updated = updated.replace(/style=["']([^"']*)["']/i, (m, s) => {
+            const clean = s.replace(/(width|max-width|height|background|background-color)\s*:[^;]+;?/gi, '').trim();
+            return `style="${clean ? clean + '; ' : ''}width: 150px; max-width: 150px; height: auto; background-color: #ffffff; padding: 8px 12px; border-radius: 6px;"`;
+          });
+        } else {
+          updated = updated.replace(/>$/, ' style="width: 150px; max-width: 150px; height: auto; background-color: #ffffff; padding: 8px 12px; border-radius: 6px;">');
+        }
+        return updated;
+      }
+      return `<img ${p1} width="150" style="width: 150px; max-width: 150px; height: auto; display: block; background-color: #ffffff; padding: 8px 12px; border-radius: 6px;" />`;
+    });
+  }
+
+  /** Clean up empty clickable elements (like buttons, links, CTA containers) that have no text and no images. */
+  private cleanEmptyElements(doc: Document): Document {
+    const candidates = doc.querySelectorAll('a, button, [class*="btn"], [class*="button"], [class*="cta"]');
+    candidates.forEach((el) => {
+      const text = (el.textContent || '').trim();
+      const hasImg = el.querySelector('img') !== null;
+      if (!text && !hasImg) {
+        el.remove();
+      }
+    });
+    return doc;
   }
 
   /* ── save ───────────────────────────────────────────────────────────── */
@@ -404,13 +462,41 @@ export class EmailTemplateComponent implements OnInit {
       .join('\n');
   }
 
-  /** Write edited lines back onto the matching text nodes, keep all markup. */
+  /** Write edited lines back onto matching text nodes and dynamically append any new lines. */
   private applyContentText(html: string, contentText: string): string {
     const doc = this.parseDoc(html);
     const nodes = this.meaningfulTextNodes(doc);
     const lines = contentText.split('\n');
-    const count = Math.min(nodes.length, lines.length);
-    for (let i = 0; i < count; i++) nodes[i].nodeValue = lines[i];
+    const minCount = Math.min(nodes.length, lines.length);
+
+    for (let i = 0; i < minCount; i++) {
+      nodes[i].nodeValue = lines[i];
+    }
+
+    // If lines were removed, clear out trailing text nodes
+    if (nodes.length > lines.length) {
+      for (let i = lines.length; i < nodes.length; i++) {
+        nodes[i].nodeValue = '';
+      }
+    }
+
+    // If new content lines were added, append them so they are included in the HTML tree
+    if (lines.length > nodes.length) {
+      const targetContainer = doc.body || doc.documentElement;
+      for (let i = nodes.length; i < lines.length; i++) {
+        if (lines[i].trim()) {
+          const p = doc.createElement('p');
+          p.style.margin = '10px 0';
+          p.style.lineHeight = '1.5';
+          p.textContent = lines[i];
+          targetContainer.appendChild(p);
+        }
+      }
+    }
+
+    // Clean up empty button/anchor/CTA elements whose text was deleted
+    this.cleanEmptyElements(doc);
+
     return this.serialize(doc, html);
   }
 
@@ -424,6 +510,14 @@ export class EmailTemplateComponent implements OnInit {
     return new Set(found.map((p) => p.replace(/\s+/g, '')));
   }
 
+  private normalizeToken(token: string): string {
+    if (!token) return '';
+    if (/^{{.*}}$/.test(token)) {
+      return token.replace(/\s+/g, '');
+    }
+    return token.toLowerCase().replace(/^[:.,!?\-\s]+|[:.,!?\-\s]+$/g, '').trim();
+  }
+
   /** Visible text as an ordered list of word tokens — agnostic to markup,
    *  element nesting and whitespace, so design/structure changes are allowed. */
   private visibleTokens(html: string): string[] {
@@ -434,10 +528,9 @@ export class EmailTemplateComponent implements OnInit {
   }
 
   /**
-   * Allow the AI to change design/structure but NOT the wording. We compare the
-   * ordered word tokens (not the text-node count), so wrapping a line in a
-   * heading, splitting/merging nodes, or restyling all pass — only a genuine
-   * change to the words (add / remove / edit / reorder) is rejected.
+   * Allow the AI to change design/structure but NOT the wording. We compare normalized word
+   * frequencies and placeholder tokens so restyling, table layout shifts, or node nesting all pass
+   * while genuine word additions or deletions are rejected.
    */
   private enforceTextPreservation(
     oldHtml: string,
@@ -450,8 +543,42 @@ export class EmailTemplateComponent implements OnInit {
 
     const oldTokens = this.visibleTokens(oldHtml);
     const newTokens = this.visibleTokens(newHtml);
-    const same = oldTokens.length === newTokens.length && oldTokens.every((t, i) => t === newTokens[i]);
-    if (!same) return { ok: false, reason: this.wordingDiff(oldTokens, newTokens) };
+
+    const normOld = oldTokens.map((t) => this.normalizeToken(t)).filter(Boolean);
+    const normNew = newTokens.map((t) => this.normalizeToken(t)).filter(Boolean);
+
+    const countMap = (arr: string[]) => {
+      const m = new Map<string, number>();
+      arr.forEach((t) => m.set(t, (m.get(t) || 0) + 1));
+      return m;
+    };
+
+    const mapOld = countMap(normOld);
+    const mapNew = countMap(normNew);
+
+    const added: string[] = [];
+    const removed: string[] = [];
+
+    mapOld.forEach((cnt, word) => {
+      const newCnt = mapNew.get(word) || 0;
+      if (newCnt < cnt) {
+        for (let k = 0; k < cnt - newCnt; k++) removed.push(word);
+      }
+    });
+
+    mapNew.forEach((cnt, word) => {
+      const oldCnt = mapOld.get(word) || 0;
+      if (oldCnt < cnt) {
+        for (let k = 0; k < cnt - oldCnt; k++) added.push(word);
+      }
+    });
+
+    if (added.length > 0 || removed.length > 0) {
+      let msg = `altered wording (${oldTokens.length} → ${newTokens.length})`;
+      if (added.length) msg += `; added: “${added.slice(0, 6).join(' ')}”`;
+      if (removed.length) msg += `; removed: “${removed.slice(0, 6).join(' ')}”`;
+      return { ok: false, reason: msg };
+    }
 
     return { ok: true, html: newHtml };
   }

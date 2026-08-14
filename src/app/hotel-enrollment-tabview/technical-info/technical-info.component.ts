@@ -919,9 +919,6 @@ export class HotelTechnicalInfoComponent implements OnInit {
       attributesToDisplay.forEach((attr: any) => {
         techInfoArray.push(this.createEcomAttributeGroup(attr.key || '', attr.value || ''));
       });
-    } else {
-      // At least one empty row
-      techInfoArray.push(this.createEcomAttributeGroup());
     }
     /*
         if (data.attributes && Array.isArray(data.attributes) && data.attributes.length) {

@@ -1770,20 +1770,22 @@ export class PropertyDetailsComponent {
         return;
       }
 
-      // Validate dimensions: must be exactly 200 × 200 pixels
+      // Validate dimensions: recommended size is 200 × 200 pixels (do not restrict uploading)
       const img = new Image();
       img.src = window.URL.createObjectURL(file);
       img.onload = () => {
+        // Newly commented for 200*200 check
         const width = img.naturalWidth;
         const height = img.naturalHeight;
+        // End of newly commented for 200*200 check
         window.URL.revokeObjectURL(img.src);
-
-        if (width !== 200 || height !== 200) {
-          this.alertService.error(`Image dimensions must be exactly 200 × 200 pixels. (Uploaded image: ${width} × ${height} pixels)`, this.options);
-          fileInput.value = '';
-          return;
-        }
-
+        // Newly commented for 200*200 check
+        // if (width !== 200 || height !== 200) {
+        //   this.alertService.error(`Image dimensions must be exactly 200 × 200 pixels. (Uploaded image: ${width} × ${height} pixels)`, this.options);
+        //   fileInput.value = '';
+        //   return;
+        // }
+        // End of newly commented for 200*200 check
         this.uploadAndPreviewLogo(file);
       };
 

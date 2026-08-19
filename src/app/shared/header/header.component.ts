@@ -120,6 +120,9 @@ export class HeaderComponent implements OnInit {
       return (this.selectedMenu = "Technical Info");
 
     }
+    else if (currentRoute.includes('payment-activation')) {
+      return (this.selectedMenu = "Payment Activation");
+    }
     else {
       return "set the name here";
     }

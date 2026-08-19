@@ -134,6 +134,10 @@ export const routes: Routes = [
     loadComponent: () => import('./payment-summary-list/payment-summary-list.component').then(m => m.PaymentSummaryListComponent)
   },
   {
+    path: 'payment-activation',
+    loadComponent: () => import('./payment-activation/payment-activation.component').then(m => m.PaymentActivationComponent)
+  },
+  {
     path: '**',
     component: PageNotFoundComponent
   }

@@ -59,7 +59,7 @@ export class MenuBarComponent implements OnInit {
     const currentRoute = this.currentRoute$.value;
     const targetElement = document.getElementById("sys_settings");
     //console.log("log12",targetElement,currentRoute)
-    if ((currentRoute.includes('service') || currentRoute.includes('hierar') || currentRoute.includes('subscription') || currentRoute.includes('tech')) && targetElement) {
+    if ((currentRoute.includes('service') || currentRoute.includes('hierar') || currentRoute.includes('subscription') || currentRoute.includes('tech') || currentRoute.includes('payment-activation')) && targetElement) {
 
       targetElement.className = 'sub-menu collapse show';
     }
@@ -112,7 +112,12 @@ export class MenuBarComponent implements OnInit {
   isSystemSettingsActive(): boolean {
     const currentRoute = this.currentRoute$.value;
 
-    return (currentRoute.includes('service') || currentRoute.includes('technical') || currentRoute.includes('hierarchy') || currentRoute.includes('subscription'));
+    return (currentRoute.includes('service') || currentRoute.includes('technical') || currentRoute.includes('hierarchy') || currentRoute.includes('subscription') || currentRoute.includes('payment-activation'));
+  }
+  ispaymentActivationActive(): boolean {
+    const currentRoute = this.currentRoute$.value;
+
+    return (currentRoute.includes('payment-activation'));
   }
   isserviceSettingsActive(): boolean {
     const currentRoute = this.currentRoute$.value;

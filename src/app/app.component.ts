@@ -187,6 +187,8 @@ export class AppComponent implements OnInit, OnDestroy {
           this.selectedMenuItem = "System Settings - Service Settings";
         } else if (url === '/profile') {
           this.selectedMenuItem = "Profile";
+        } else if (url === '/payment-activation') {
+          this.selectedMenuItem = "Payment Activation";
         }
       }
     });

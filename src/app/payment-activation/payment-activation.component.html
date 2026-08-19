@@ -1,0 +1,63 @@
+<div class="main">
+    <app-alerts></app-alerts>
+    <div class="centered-container">
+        <div class="container py-2">
+            <!-- Header Block -->
+            <div class="header-block mb-3 border-bottom pb-2">
+                <h4 class="settings-title mb-1 fw-bold" style="color: #1a1a1a;">Payment Button Activation</h4>
+                <p class="settings-subtitle text-muted mb-0" style="font-size: 14px; line-height: 1.4;">
+                    Configure when the Payment button should be enabled before the subscription payment deadline.
+                </p>
+            </div>
+            <!-- Form Area -->
+            <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" novalidate>
+                <div class="settings-body py-1">
+                    <h5 class="section-title mb-2 fw-bold" style="color: #333; font-size: 15px;">Enable Payment Button
+                        Before Deadline</h5>
+                    <div class="form-group mb-2">
+                        <label class="form-label d-block mb-1 fw-semibold"
+                            style="font-size: 13px; color: #495057;">Number of Days</label>
+                        <div class="d-flex align-items-center">
+                            <input type="text" class="form-control bg-white shadow-none me-2 text-center"
+                                placeholder="Enter number of days" formControlName="pay_now_days"
+                                [class.is-invalid]="(f['pay_now_days'].touched || validateForm) && f['pay_now_days'].errors"
+                                style="width: 200px; font-size: 14px; border-color: #E1E2EB; color: #1a1a1a; padding: 8px 10px; border-radius: 6px;" />
+                            <span class="unit-text fw-medium" style="font-size: 14px; color: #495057;">Days</span>
+                        </div>
+                        <!-- Validations -->
+                        <div class="invalid-feedback d-block mt-1"
+                            *ngIf="(f['pay_now_days'].touched || validateForm) && f['pay_now_days'].errors">
+                            <div *ngIf="f['pay_now_days'].errors['required']" style="color: red; font-size: 12px;">
+                                Payment Days is required.
+                            </div>
+                            <div *ngIf="f['pay_now_days'].errors['pattern']" style="color: red; font-size: 12px;">
+                                Only numbers are allowed.
+                            </div>
+                            <div *ngIf="f['pay_now_days'].errors['min']" style="color: red; font-size: 12px;">
+                                Please enter a value between 1 and 80.
+                            </div>
+                            <div *ngIf="f['pay_now_days'].errors['max']" style="color: red; font-size: 12px;">
+                                Maximum value allowed is 80.
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Dynamic helper line - hidden when input is invalid or '0' -->
+                    <div *ngIf="settingsForm.get('pay_now_days')?.valid"
+                        class="dynamic-explanation-box my-2 p-3 rounded"
+                        style="background-color: #f8f9fa; border-left: 4px solid #800020;">
+                        <p class="mb-0 fw-semibold" style="color: #495057; font-size: 13px;">
+                            Payment button will be enabled {{ getDisplayDays() }} days before the payment deadline.
+                        </p>
+                    </div>
+                    <!-- Action buttons - positioned at the right end of the container without cancel button -->
+                    <div class="d-flex justify-content-end align-items-center mt-4">
+                        <button type="submit" class="btn fw-semibold px-4 py-2"
+                            style="background-color: #800020; color: white; border-radius: 6px; border: none; font-size: 14px;">
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

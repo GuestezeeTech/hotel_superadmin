@@ -76,6 +76,8 @@
         <a class="submenu-item" [class.active]="issubscriptionSettingsActive()" routerLink="/payment-subscription"
           style=" color: #B1B1B1" (click)="sendValue('Payment Subscription')">Payment Settings</a>
         <!-- End of newly added & commented out for rename prupose(url, header) -->
+        <a class="submenu-item" [class.active]="ispaymentActivationActive()" routerLink="/payment-activation"
+          style=" color: #B1B1B1" (click)="sendValue('Payment Activation')">Payment Activation</a>
       </div>
     </li>
     <!-- 

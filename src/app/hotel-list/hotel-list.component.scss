@@ -288,6 +288,16 @@ ul {
   
 }
 
+.not-available {
+    color: #dc3545;
+    background-color: #f8d7da !important;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
 ::ng-deep .modal.modal-static .modal-dialog {
     transform: none !important;
 }

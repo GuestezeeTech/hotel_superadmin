@@ -431,11 +431,11 @@ export class HotelListComponent implements OnInit {
       // Fetch each customer document, update the deletion_reason, and save before deleting
       for (const id of this.idlistToDelete) {
         const customerDoc = await this.fetchCustomerDocumentById(id);
-        
+
         delete customerDoc._id;
         delete customerDoc.password;
         delete customerDoc.password_to_customer;
-        
+
         customerDoc.deletion_reason = this.deletionReason.trim();
 
         const requestBody = {
@@ -483,7 +483,7 @@ export class HotelListComponent implements OnInit {
     } catch (err: any) {
       this.isLoading = false;
       this.loaderService.emitComplete();
-      
+
       if (err?.error?.statusCode === 403) {
         this.alertService.error('Session Time Out! Please login Again', this.options);
         this.router.navigate([`/login`], { skipLocationChange: false });

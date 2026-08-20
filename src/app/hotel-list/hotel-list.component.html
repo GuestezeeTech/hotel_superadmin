@@ -51,7 +51,14 @@
         <tbody>
           <tr *ngFor="let customer of paginatedCustomers; ; let i = index">
             <td>{{customer.name}}</td>
-            <td>{{customer.customer_member_id}}</td>
+            <td>
+              <span *ngIf="customer.customer_member_id; else noMemberId">
+                {{ customer.customer_member_id }}
+              </span>
+              <ng-template #noMemberId>
+                <button class="not-available" style="cursor: default;">Not Available</button>
+              </ng-template>
+            </td>
             <td>{{customer?.property_details?.contact_details?.brand || ''}}</td>
             <td [ngClass]="getCategoryClass(customer?.property_details?.property_address?.property_size)">
               {{ getCategoryLabel(customer?.property_details?.property_address?.property_size) }}

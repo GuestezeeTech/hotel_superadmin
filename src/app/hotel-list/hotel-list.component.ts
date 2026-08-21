@@ -281,15 +281,11 @@ export class HotelListComponent implements OnInit {
             }
 
             const hotelName = (item.name || '').toLowerCase();
-            const propertySize = (item?.property_details?.property_address?.property_size || '').toLowerCase();
-            const categoryLabel = this.getCategoryLabel(
-              item?.property_details?.property_address?.property_size
-            ).toLowerCase();
+            const email = (item.email || '').toLowerCase();
 
             return (
               hotelName.includes(searchText) ||
-              propertySize.includes(searchText) ||
-              categoryLabel.includes(searchText)
+              email.includes(searchText)
             );
           }).sort((a: any, b: any) => {
             return new Date(b.created_on || 0).getTime() - new Date(a.created_on || 0).getTime();

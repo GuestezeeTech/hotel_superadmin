@@ -16,7 +16,7 @@
       <div style="display: flex;    gap: 15px;">
         <div class="search-container">
           <i class="fas fa-search search-icon"></i>
-          <input type="text" id="searchInput" class="search-bar" placeholder="Search Hotel Name, category "
+          <input type="text" id="searchInput" class="search-bar" placeholder="Search Hotel Name, email "
             (keyup)="onsearch($event)">
           <!-- <i class="fas fa-filter filter-icon" id="filterIcon"></i>
 
@@ -41,8 +41,7 @@
           <tr>
             <th>Hotel Name</th>
             <th>Member Id</th>
-            <th>Brand Name</th>
-            <th>Category</th>
+            <th>Email</th>
             <th>Contact Number</th>
             <th>Status</th>
             <th>Action</th>
@@ -59,10 +58,7 @@
                 <button class="not-available" style="cursor: default;">Not Available</button>
               </ng-template>
             </td>
-            <td>{{customer?.property_details?.contact_details?.brand || ''}}</td>
-            <td [ngClass]="getCategoryClass(customer?.property_details?.property_address?.property_size)">
-              {{ getCategoryLabel(customer?.property_details?.property_address?.property_size) }}
-            </td>
+            <td>{{customer.email}}</td>
 
             <!-- <td class="bronze" *ngIf="customer?.property_details?.property_address?.property_size=='01-50 Rooms'" >Bronze</td>
                         <td class="silver" *ngIf="customer?.property_details?.property_address?.property_size=='51-101 Rooms'" >Silver</td>

@@ -124,11 +124,10 @@ export class HotelListComponent implements OnInit {
         this.isLoading = false;
         this.loaderService.emitComplete();
         if (resp) {
-          // Filter out records that contain 'staff_employee_number' key and require 'customer_member_id'
+          // Filter out records that contain 'staff_employee_number' key or 'member_id' key
           this.customerList = resp.result.data.filter(
-            // (item: any) => !('staff_employee_number' in item)
-            //newly added to ignore user in the super admin
-            (item: any) => !('staff_employee_number' in item) && ('customer_member_id' in item)
+            // (item: any) => !('staff_employee_number' in item) && ('customer_member_id' in item)
+            (item: any) => !('staff_employee_number' in item) && !('member_id' in item)
           ).sort((a: any, b: any) => {
             return new Date(b.created_on || 0).getTime() - new Date(a.created_on || 0).getTime();
           });
@@ -275,8 +274,7 @@ export class HotelListComponent implements OnInit {
             if ('staff_employee_number' in item) {
               return false;
             }
-            //newly added to ignore user in the super admin
-            if (!('customer_member_id' in item)) {
+            if ('member_id' in item) {
               return false;
             }
 
@@ -768,9 +766,9 @@ export class HotelListComponent implements OnInit {
               this.loaderService.emitComplete();
               if (resp) {
                 // this.customerList = resp.result.data;
-                //newly added to ignore user in the super admin
+                // Ignore records containing staff_employee_number or member_id
                 this.customerList = resp.result.data.filter(
-                  (item: any) => !('staff_employee_number' in item) && ('customer_member_id' in item)
+                  (item: any) => !('staff_employee_number' in item) && !('member_id' in item)
                 ).sort((a: any, b: any) => {
                   return new Date(b.created_on || 0).getTime() - new Date(a.created_on || 0).getTime();
                 });

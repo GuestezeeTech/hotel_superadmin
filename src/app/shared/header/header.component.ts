@@ -168,6 +168,10 @@ export class HeaderComponent implements OnInit {
     this.localService.remove('domainName');
     this.localService.remove('rexpireTime');
     this.localService.remove('lastValidUrl');
+    // Newly added for pagination 
+    this.localService.remove('hotelPage');
+    this.localService.remove('paymentPage');
+    // End of newly added for pagination 
     this.localService.set('loggedOut', 'true');
     this.router.navigate([`/login`], { skipLocationChange: false });
     this.userAccessService.removeUserAccess();

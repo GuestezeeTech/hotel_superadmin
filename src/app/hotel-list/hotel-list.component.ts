@@ -70,7 +70,18 @@ export class HotelListComponent implements OnInit {
     private localStorageService: LocalStorageService,
     private sharedService: SharedDataService
   ) {
-
+    // Newly added for pagination 
+    const navigation = this.router.getCurrentNavigation();
+    const previousUrl = navigation?.previousNavigation?.finalUrl?.toString() || '';
+    const isFromHotelSubPage =
+      previousUrl.includes('edit-new-hotel') ||
+      previousUrl.includes('add-new-hotel') ||
+      previousUrl.includes('hotel-preview') ||
+      previousUrl.includes('confirmation');
+    if (previousUrl && !isFromHotelSubPage) {
+      this.sharedService.setHotelPage(1);
+    }
+    // End of newly added for pagination 
   }
   ngOnInit() {
     this.currentPage = this.sharedService.getHotelPage();

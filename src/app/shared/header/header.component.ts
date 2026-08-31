@@ -57,7 +57,8 @@ export class HeaderComponent implements OnInit {
     this.notificationService.showPanel$.subscribe(show => this.showNotification = show);
 
     this.profileService.profileImage$.subscribe(imageUrl => {
-      this.profile_image = imageUrl || 'https://images.ecbee.net/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp';
+      // this.profile_image = imageUrl || 'https://guestezee.s3.ap-south-2.amazonaws.com/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp';
+      this.profile_image = imageUrl || 'https://guestezee.s3.ap-south-2.amazonaws.com/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp';
     });
 
     this.profileService.profileName$.subscribe(name => {

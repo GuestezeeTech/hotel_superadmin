@@ -31,7 +31,7 @@ const TRIGGERCONFIG_UPDATE = 'https://www.guestezee.com:8012/triggerconfig/updat
  *  Leave this blank until the proxy exists – the AI button stays disabled
  *  with a "configure proxy" notice.
  * ──────────────────────────────────────────────────────────────────────── */
-const GEMINI_PROXY_ENDPOINT = 'http://164.52.214.114:8013/refine';
+const GEMINI_PROXY_ENDPOINT = 'http://40.192.104.15:8013/refine';
 
 interface AttachmentEdit {
   filename: string;
@@ -155,10 +155,10 @@ export class EmailTemplateComponent implements OnInit {
     this.filtered = !q
       ? [...this.templates]
       : this.templates.filter((t) =>
-          (t.title || '').toLowerCase().includes(q) ||
-          (t.template_code || '').toLowerCase().includes(q) ||
-          (t.system_label || '').toLowerCase().includes(q)
-        );
+        (t.title || '').toLowerCase().includes(q) ||
+        (t.template_code || '').toLowerCase().includes(q) ||
+        (t.system_label || '').toLowerCase().includes(q)
+      );
   }
 
   /* ── selection / editor init ────────────────────────────────────────── */

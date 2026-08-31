@@ -1,9 +1,0 @@
-<router-outlet>
-  
-    @if (!showSidebar) {
-        <app-menu-bar (menuSelected)="updateMenu($event)"></app-menu-bar>
-      }
-      @if (!showSidebar) {
-      <app-header [selectedMenu]="selectedMenuItem"></app-header>
-      }
-</router-outlet>

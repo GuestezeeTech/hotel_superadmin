@@ -39,7 +39,7 @@ export class HierarchyDetailsComponent implements OnInit {
     this.activatedRoute.paramMap.subscribe(params => {
       var temphotelid = params.get('id'); // Get the 'id' from the URL
       this.hotelId = Number(temphotelid);
-      console.log('Hotel ID:', this.hotelId); // Debugging
+      // console.log('Hotel ID:', this.hotelId); // Debugging
       this.getCustomerById().then(() => {
         this.getHierarchyById();
       });

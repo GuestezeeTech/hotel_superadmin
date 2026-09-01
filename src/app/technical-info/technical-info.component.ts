@@ -74,9 +74,9 @@ export class TechnicalInfoComponent implements OnInit {
 
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
-      console.log('Reactive ID:', id);
+      // console.log('Reactive ID:', id);
       this.tech_info_id = Number(id);
-      console.log(this.tech_info_id, " this.tech_info_id")
+      // console.log(this.tech_info_id, " this.tech_info_id")
       if (this.tech_info_id != 0 || this.tech_info_id != undefined || this.tech_info_id != null) {
         this.getTechInfoById();
       }
@@ -84,9 +84,9 @@ export class TechnicalInfoComponent implements OnInit {
   }
 
   employees(): FormArray {
-    console.log(this.techInfoDataForm.get("technicalInfo") as FormArray);
+    // console.log(this.techInfoDataForm.get("technicalInfo") as FormArray);
     const values = this.techInfoDataForm.value.technicalInfo;
-    console.log("123456", values);
+    // console.log("123456", values);
     return this.techInfoDataForm.get("technicalInfo") as FormArray
   }
 
@@ -100,7 +100,7 @@ export class TechnicalInfoComponent implements OnInit {
 
 
   addEmployee() {
-    console.log("Adding a employee");
+    // console.log("Adding a employee");
     this.employees().push(this.newEmployee());
   }
 
@@ -130,7 +130,7 @@ export class TechnicalInfoComponent implements OnInit {
     }
     this.technicalInfoService.apiCall(createobj, ENDPOINTS.CREATE_APIINTEGRATION_SETTINGS).subscribe(
       resp => {
-        console.log("test", "123")
+        // console.log("test", "123")
         if (resp && resp.status_code == 200 && resp.success == 1) {
           // this.techInfoData = resp.result.data[0];
           // this.tech_info_id=resp.result.data[0].id;
@@ -243,12 +243,12 @@ export class TechnicalInfoComponent implements OnInit {
       }
     }
     else {
-      console.log("Form is invalid!");
+      // console.log("Form is invalid!");
     }
   }
 
   imageupload(event: any): void {
-    console.log("1234")
+    // console.log("1234")
     let dragEvent = false
     let file_data = { name: "", size: 0 }
     //CHECKING DRAG EVENT OR UPLOAD EVENT
@@ -321,7 +321,7 @@ export class TechnicalInfoComponent implements OnInit {
         let imgVariable = resp.result.data[0];
         if (this.imgFile !== null) {
           this.service_image = imgVariable.location;
-          console.log("this.service_image" + this.service_image)
+          // console.log("this.service_image" + this.service_image)
           // Store profile image in localStorage
         }
       }
@@ -452,7 +452,7 @@ export class TechnicalInfoComponent implements OnInit {
 
               description: this.ecomData.description
             });
-            console.log(this.techInfoForm.value,)
+            // console.log(this.techInfoForm.value,)
 
             const attributesArray = this.fb.array(
               this.ecomData.attributes.map((attr: any) =>

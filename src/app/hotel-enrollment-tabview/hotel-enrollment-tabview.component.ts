@@ -399,7 +399,7 @@ export class HotelEnrollmentTabviewComponent implements OnInit {
 
   // Navigate to the last filled (or next pending) tab on load
   checkAndActivateLastTab() {
-    console.log('checkAndActivateLastTab started');
+    // console.log('checkAndActivateLastTab started');
     if (this.tabSetFromQuery) {
       if (this.requestedTab) {
         const tab = document.getElementById(this.requestedTab);

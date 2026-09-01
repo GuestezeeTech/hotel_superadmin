@@ -425,40 +425,40 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
         // this.loaderService.emitComplete();
         if (resp) {
 
-          console.log("customer data", this.customerdata)
+          // console.log("customer data", this.customerdata)
           if (this.customerdata?.property_details?.property_address?.property_size == "01-50 Rooms") {
-            console.log("11");
+            // console.log("11");
 
             this.plans = [];
             this.plans.push(resp.result.data[1]);
 
           }
           else if (this.customerdata?.property_details?.property_address?.property_size == "51-100 Rooms") {
-            console.log("12")
+            // console.log("12")
             this.plans = [];
-            console.log("test test")
+            // console.log("test test")
             this.plans.push(resp.result.data[2]);
-            console.log(this.plans, "test")
+            // console.log(this.plans, "test")
 
           }
           else if (this.customerdata?.property_details?.property_address?.property_size == "101-150 Rooms") {
-            console.log("13")
+            // console.log("13")
             this.plans = [];
             this.plans.push(resp.result.data[3]);
 
           }
           else if (this.customerdata?.property_details?.property_address?.property_size == "150 and above Rooms") {
             this.plans = [];
-            console.log("14")
+            // console.log("14")
             this.plans.push(resp.result.data[4]);
 
           }
           else {
-            console.log("15")
+            // console.log("15")
             this.plans = resp.result.data;
 
           }
-          console.log(this.plans, "   ");
+          // console.log(this.plans, "   ");
           // this.customerList = resp.result.data;
           // Filter out records that contain 'staff_employee_number' key
 
@@ -507,9 +507,9 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
               if (this.customerdata.subscription_detail) {  //newly added
                 this.plans.push(this.customerdata.subscription_detail);
               }
-              console.log(this.plans, "plan")
+              // console.log(this.plans, "plan")
               if (this.plans == undefined || this.plans.length == 0 || this.plans[0] == undefined) {
-                console.log("ccchh")
+                // console.log("ccchh")
                 this.plans = []; // newly added
                 this.getAllSubscriptions();
 
@@ -517,7 +517,7 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
 
             }
 
-            console.log(this.plans, "555555555555555")
+            // console.log(this.plans, "555555555555555")
             //console.log(this.customerdata, "RESPDATA");
             //console.log(Array.isArray(this.customerdata)); 
             resolve();  // Resolve promise when data is set

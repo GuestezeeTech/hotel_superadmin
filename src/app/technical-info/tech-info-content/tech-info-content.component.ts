@@ -139,12 +139,12 @@ export class TechInfoContentComponent implements OnChanges {
             // this.overallData = respdata.filter((item: any) => (item.customer_id == undefined));
             // this.overallData = respdata.filter((item: any) => (item.customer_member_id == undefined)); //newly changed from customer_id to customer_member_id
             this.overallData = respdata.filter((item: any) => (item.member_id == undefined || item.member_id == null));
-            console.log(this.overallData, "respdata");
+            // console.log(this.overallData, "respdata");
 
             // this.ecomData = this.overallData.filter((item: any) => item.e == this.filterType); // Old line with typo
             this.ecomData = this.overallData.filter((item: any) => item.type == this.filterType); // New corrected line
 
-            console.log(this.ecomData, " this.ecomData")
+            // console.log(this.ecomData, " this.ecomData")
           }
           resolve(resp);
         },
@@ -186,11 +186,11 @@ export class TechInfoContentComponent implements OnChanges {
             let respdata = resp.result.data;
             this.overallData = respdata;
 
-            console.log(this.overallData, "respdata");
+            // console.log(this.overallData, "respdata");
 
             this.ecomData = this.overallData[0].customer_technical_info.filter((item: any) => item.type == this.filterType);
 
-            console.log(this.ecomData, " this.ecomData")
+            // console.log(this.ecomData, " this.ecomData")
           }
           resolve(resp);
         },

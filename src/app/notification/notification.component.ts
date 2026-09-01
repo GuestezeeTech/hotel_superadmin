@@ -25,9 +25,9 @@ export class NotificationComponent {
       this.notifications = this.groupNotificationsByDay(list);
     
      
-      console.log('Notifications in component:', this.notifications);
+      // console.log('Notifications in component:', this.notifications);
     });
-    console.log(this.notifications, "notifications in notification component")
+    // console.log(this.notifications, "notifications in notification component")
   }
 
    private groupNotificationsByDay(flatList: any[]): any[] {

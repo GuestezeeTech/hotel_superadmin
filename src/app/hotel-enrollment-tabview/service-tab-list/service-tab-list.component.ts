@@ -175,7 +175,7 @@ export class ServiceTabListComponent {
         if (resp.success === 1 && resp.status_code === 200) {
           // Assigns ServiceTabs data
           this.serviceTabs = resp.result.data;
-          console.log('Service Tab Data:', this.serviceTabs);
+          // console.log('Service Tab Data:', this.serviceTabs);
           // --- AUTO-SELECT FIRST TAB ---
           if (this.serviceTabs && this.serviceTabs.length > 0) {
             this.onSelectServiceTab(this.serviceTabs[0]);
@@ -224,7 +224,7 @@ export class ServiceTabListComponent {
       (resp: any) => {
         if (resp.success === 1 && resp.status_code === 200) {
           this.services = resp.result.data;
-          console.log('Services data based on selected Tab:', this.services);
+          // console.log('Services data based on selected Tab:', this.services);
           
         }
         else {

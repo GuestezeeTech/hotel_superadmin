@@ -73,12 +73,12 @@ export class BookingsManagementComponent {
                 (item: any) => item.status === status
               );
             this.customerlist = statusData?.members || [];
-            console.log(this.customerlist);
+            // console.log(this.customerlist);
           }
           else {
             this.customerlist = [];
-            console.log("No members found for the status: " + status);
-            console.log("Message:" + resp.message);
+            // console.log("No members found for the status: " + status);
+            // console.log("Message:" + resp.message);
           }
         },
         error: (err) => {

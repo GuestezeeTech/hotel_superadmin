@@ -65,7 +65,7 @@ export class PaymentListComponent implements OnInit {
 
   ngOnInit(): void {
     //console.log(this.data, 'test');
-    console.log('Alert options:', this.options);
+    // console.log('Alert options:', this.options);
     // setTimeout(() => {
     //   console.log('Testing alert service...');
     //   // this.alertService.success('Test message', this.options);
@@ -171,7 +171,7 @@ export class PaymentListComponent implements OnInit {
           }, {});
 
 
-          console.log('Customer data loaded:', Object.keys(this.customerData).length, 'customers');
+          // console.log('Customer data loaded:', Object.keys(this.customerData).length, 'customers');
         }
         this.checkDataLoaded();
       },
@@ -366,8 +366,8 @@ export class PaymentListComponent implements OnInit {
   //  }
 
   onToggle(customer: any, inputdata: HTMLInputElement) {
-    console.log('Customer from lookup:', customer);
-    console.log('Customer is_active:', customer?.is_active);
+    // console.log('Customer from lookup:', customer);
+    // console.log('Customer is_active:', customer?.is_active);
     if (!customer) {
       console.error('Customer not found');
       return;
@@ -396,7 +396,7 @@ export class PaymentListComponent implements OnInit {
       }
     }
 
-    console.log('Customer is_active:', customer?.is_active);
+    // console.log('Customer is_active:', customer?.is_active);
   }
 
   closeModal() {
@@ -419,7 +419,7 @@ export class PaymentListComponent implements OnInit {
 
   //original code for setCustomerInactive
   setCustomerInactive(id: number) { //undo --
-    console.log('setCustomerInactive called with ID:', id);
+    // console.log('setCustomerInactive called with ID:', id);
     // Apply the toggle change now that user confirmed
     const toggles = document.querySelectorAll('input[type="checkbox"]');
 
@@ -460,14 +460,14 @@ export class PaymentListComponent implements OnInit {
       resp => {
         this.loaderService.emitComplete();
         if (resp) {
-          console.log('API Response:', resp); // DEBUG
+          // console.log('API Response:', resp); // DEBUG
           if (resp.success === 1 && resp.status_code === 200) {
-            console.log('Showing success alert with message:', resp.message); // DEBUG
+            // console.log('Showing success alert with message:', resp.message); // DEBUG
             if (this.customerData[id]) {
               this.customerData[id].is_active = this.setCustomerStatus;
               this.customerData[id].inactive_remark = !this.setCustomerStatus ? this.remark.trim() : '';
               this.customerData[id].inactive_type = !this.setCustomerStatus ? this.inactiveType : '';
-              console.log('Updated customerData:', this.customerData[id]);
+              // console.log('Updated customerData:', this.customerData[id]);
             }
 
             const closeButton = document.getElementById("closeapproval");

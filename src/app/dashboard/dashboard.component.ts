@@ -123,7 +123,7 @@ export class DashboardComponent implements OnInit {
   }
 
   renderChart() {
-    console.log(this.visitdata, 'this.visitdata');
+    // console.log(this.visitdata, 'this.visitdata');
     const canvas = document.getElementById('guestVisitChart') as HTMLCanvasElement;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -386,7 +386,7 @@ export class DashboardComponent implements OnInit {
           }
           this.getGuestVisitData();
           this.getGuestReviewData();
-          console.log(this.propertySize, " this.propertySize")
+          // console.log(this.propertySize, " this.propertySize")
           if (typeof window !== 'undefined') {
             window.scrollTo(0, 0);
           }
@@ -425,7 +425,7 @@ export class DashboardComponent implements OnInit {
           if (this.propertySize.hotel_reviews) {
             this.propertySize.hotel_reviews = this.propertySize.hotel_reviews.slice(0, 6);
           }
-          console.log(this.propertySize, " this.propertySize")
+          // console.log(this.propertySize, " this.propertySize")
         } else {
           //console.warn('Failed to fetch updated profile data.');
         }

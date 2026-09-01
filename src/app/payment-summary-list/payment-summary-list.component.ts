@@ -79,14 +79,14 @@ export class PaymentSummaryListComponent implements OnInit {
   }
 
   processPaymentData() {
-    console.log('Processing Payment Data:', this.paymentData);
+    // console.log('Processing Payment Data:', this.paymentData);
     if (!this.paymentData) {
       console.warn('No payment data available to process');
       return;
     }
 
     let splits = this.findPaymentSplit(this.paymentData);
-    console.log('Found Splits:', splits);
+    // console.log('Found Splits:', splits);
 
     if (splits && Array.isArray(splits) && splits.length > 0) {
       this.installments = [];
@@ -118,12 +118,12 @@ export class PaymentSummaryListComponent implements OnInit {
       this.totalPaidAmount = this.installments.reduce((sum, inst) => sum + inst.due_amount_paid, 0);
       this.totalPendingAmount = this.installments.reduce((sum, inst) => sum + inst.due_balance_amount, 0);
 
-      console.log('Processed Installments:', this.installments);
-      console.log('Totals:', {
-        payment: this.totalPaymentAmount,
-        paid: this.totalPaidAmount,
-        pending: this.totalPendingAmount
-      });
+      // console.log('Processed Installments:', this.installments);
+      // console.log('Totals:', {
+        // payment: this.totalPaymentAmount,
+        // paid: this.totalPaidAmount,
+        // pending: this.totalPendingAmount
+      // });
     }
   }
 

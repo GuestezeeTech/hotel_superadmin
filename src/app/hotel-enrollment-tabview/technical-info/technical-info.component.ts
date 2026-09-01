@@ -1727,7 +1727,7 @@ export class HotelTechnicalInfoComponent implements OnInit {
       }
     }
 
-    console.log('Modified Records', this.modifiedTechnicalInfos);
+    // console.log('Modified Records', this.modifiedTechnicalInfos);
   }
 
 

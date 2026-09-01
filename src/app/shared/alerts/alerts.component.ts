@@ -25,11 +25,11 @@ export class AlertsComponent implements OnInit {
     constructor(private router: Router, private alertService: AlertsService) { }
 
     ngOnInit() {
-        console.log('Alert component initialized with ID:', this.id);
+        // console.log('Alert component initialized with ID:', this.id);
         // subscribe to new alert notifications
         this.alertSubscription = this.alertService.onAlert(this.id)
             .subscribe(alert => {
-                console.log(`Alert received by component ${this.id}:`, alert);
+                // console.log(`Alert received by component ${this.id}:`, alert);
                 // clear alerts when an empty alert is received
                 if (!alert.message) {
                     // filter out alerts without 'keepAfterRouteChange' flag

@@ -135,7 +135,7 @@ export class PaymentDetailsComponent implements OnInit {
 
 
 
-            console.log(this.customerdata, "RESPDATA");
+            // console.log(this.customerdata, "RESPDATA");
             //console.log(Array.isArray(this.customerdata)); 
 
           }

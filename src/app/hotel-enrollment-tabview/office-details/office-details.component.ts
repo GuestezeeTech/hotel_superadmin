@@ -620,7 +620,7 @@ export class OfficeDetailsComponent implements OnInit {
                   // const email = this.customerForm.value?.email;
                   // 2. Create Admin role for that customer
                   const createdRole = await this.createAdminRole(this.customerdata);
-                  console.log('Role Created Successfully:', createdRole);
+                  // console.log('Role Created Successfully:', createdRole);
                   if (createdRole) {
                     // After fetching customer details, load role info similar to sign-in
                     const role_id = createdRole.id;
@@ -641,7 +641,7 @@ export class OfficeDetailsComponent implements OnInit {
                   console.error('Error during role creation:', err);
                 }
                 this.localStorageService.set('MemberId', this.customerdata.customer_member_id);
-                console.log("MemberId", this.customerdata.customer_member_id);
+                // console.log("MemberId", this.customerdata.customer_member_id);
               }
               //console.log( this.customerdata,"cst");
               this.router.navigate(["/edit-new-hotel", this.customerdata.id]).then(() => {
@@ -1119,7 +1119,7 @@ export class OfficeDetailsComponent implements OnInit {
     }
     this.roleService.postApiCall(requestBody, ENDPOINTS.GETBYID_ROLES).subscribe(resp => {
       if (resp) {
-        console.log('Verified Role Details:', resp.result.data[0]);
+        // console.log('Verified Role Details:', resp.result.data[0]);
       }
     });
   }
@@ -1415,11 +1415,11 @@ export class OfficeDetailsComponent implements OnInit {
     this.hotelenrollmenttabviewService.sendSMS(payload).subscribe({
       next: async (res) => {
         if (res && (res.success === 1)) {
-          console.log('Welcome SMS sent successfully:', res);
+          // console.log('Welcome SMS sent successfully:', res);
           await this.updateCustomerWelcomeSms(customerData.id);
         }
         else {
-          console.log('Failed to send welcome SMS:', res);
+          // console.log('Failed to send welcome SMS:', res);
         }
       },
       error: (err) => {

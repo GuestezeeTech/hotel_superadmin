@@ -153,28 +153,28 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
 
 
         const discountedTotal = total - discount;
-        console.log('Discounted Total:', discountedTotal);
+        // console.log('Discounted Total:', discountedTotal);
 
         // ✅ Calculate total for 12 months
         const yearlyTotal = discountedTotal * 12;
-        console.log('Yearly Total:', yearlyTotal);
+        // console.log('Yearly Total:', yearlyTotal);
 
         // ✅ GST (18% of yearly total)
         p.gstAmount = +(discountedTotal * 0.18).toFixed(2); //(250 * 0.18) = 45
         // p.gstAmount = +(yearlyTotal * 0.18).toFixed(2);
-        console.log('GST Amount:', p.gstAmount);
+        // console.log('GST Amount:', p.gstAmount);
 
         // ✅ Final price = yearly total + GST
         p.finalPrice = +(discountedTotal + p.gstAmount).toFixed(2); // (250 + 45) = 295
-        console.log('Final Price:', p.finalPrice);
+        // console.log('Final Price:', p.finalPrice);
         // p.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
         p.peryeargstAmount = +(p.gstAmount * 12).toFixed(2);
-        console.log('Per Year GST Amount:', p.peryeargstAmount);
+        // console.log('Per Year GST Amount:', p.peryeargstAmount);
         // p.peryeargstAmount = +(yearlyTotal + (yearlyTotal * 0.18)).toFixed(2);
         // p.peryearcost = +(yearlyTotal + p.pergstAmount).toFixed(2);
         // p.peryearcost = +(yearlyTotal + p.peryeargstAmount).toFixed(2);
         p.peryearcost = +(p.finalPrice * 12).toFixed(2); // (295 * 12) = 3540
-        console.log('Per Year Cost:', p.peryearcost);
+        // console.log('Per Year Cost:', p.peryearcost);
       });
     }
     else {
@@ -196,23 +196,23 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
       // ✅ GST based on total (after discount)
       // ✅ Calculate total for 12 months
       const yearlyTotal = discountedTotal * 12;
-      console.log('Yearly Total:', yearlyTotal);
+      // console.log('Yearly Total:', yearlyTotal);
 
       // ✅ GST (18% of yearly total)
       plan.gstAmount = +(discountedTotal * 0.18).toFixed(2);
       // plan.gstAmount = +(yearlyTotal * 0.18).toFixed(2);
-      console.log('GST Amount:', plan.gstAmount);
+      // console.log('GST Amount:', plan.gstAmount);
 
       // ✅ Final price = yearly total + GST
       plan.finalPrice = +(discountedTotal + plan.gstAmount).toFixed(2);
-      console.log('Final Price:', plan.finalPrice);
+      // console.log('Final Price:', plan.finalPrice);
       // plan.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
       plan.peryeargstAmount = +(plan.gstAmount * 12).toFixed(2);
-      console.log('Per Year GST Amount:', plan.peryeargstAmount);
+      // console.log('Per Year GST Amount:', plan.peryeargstAmount);
       // plan.peryearcost = +(yearlyTotal + plan.gstAmount).toFixed(2);
       // plan.peryearcost = +(yearlyTotal + plan.peryeargstAmount).toFixed(2);
       plan.peryearcost = +(plan.finalPrice * 12).toFixed(2);
-      console.log('Per Year Cost:', plan.peryearcost);
+      // console.log('Per Year Cost:', plan.peryearcost);
     }
   }
 
@@ -261,7 +261,7 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
     }
 
     const discountType = plan.discountType || 'selected';
-    console.log('Discount Type:', discountType);
+    // console.log('Discount Type:', discountType);
 
     let discountValue = Number(plan.discountValue) || 0;
 
@@ -279,12 +279,12 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
 
     // Determine which plans to update
     const plansToUpdate = plan.id === 18 ? this.plans : [plan]; // SingleRoomPricing updates all
-    console.log('Plans to Update:', plansToUpdate);
+    // console.log('Plans to Update:', plansToUpdate);
     plansToUpdate.forEach((p: any) => {
       const roomCount = Number(p.roomCount) || 1;
-      console.log('Room Count:', roomCount);
+      // console.log('Room Count:', roomCount);
       const total = (Number(p.perRoomCost) || 0) * roomCount;
-      console.log('Total before discount:', total);
+      // console.log('Total before discount:', total);
 
       let currentDiscountValue = Number(p.discountValue) || 0;
       let isInvalid = false;
@@ -309,25 +309,25 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
       }
 
       const discountedTotal = total - discount;
-      console.log('Discounted Total:', discountedTotal);
+      // console.log('Discounted Total:', discountedTotal);
       // ✅ Calculate total for 12 months
       const yearlyTotal = discountedTotal * 12;
-      console.log('Yearly Total:', yearlyTotal);
+      // console.log('Yearly Total:', yearlyTotal);
 
       // ✅ GST (18% of yearly total)
       p.gstAmount = +(discountedTotal * 0.18).toFixed(2);
-      console.log('GST Amount:', p.gstAmount);
+      // console.log('GST Amount:', p.gstAmount);
 
       // ✅ Final price = yearly total + GST
       p.finalPrice = +(discountedTotal + p.gstAmount).toFixed(2);
-      console.log('Final Price:', p.finalPrice);
+      // console.log('Final Price:', p.finalPrice);
 
       // p.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
       p.peryeargstAmount = +(p.gstAmount * 12).toFixed(2);
-      console.log('Per Year GST Amount:', p.peryeargstAmount);
+      // console.log('Per Year GST Amount:', p.peryeargstAmount);
       // p.peryearcost = +(yearlyTotal + p.gstAmount).toFixed(2);
       p.peryearcost = +(p.finalPrice * 12).toFixed(2);
-      console.log('Per Year Cost:', p.peryearcost);
+      // console.log('Per Year Cost:', p.peryearcost);
 
     });
 
@@ -436,7 +436,7 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
           this.gstFor101Rooms = this.plans[0].gst_amount * 101;
           this.gstFor151Rooms = this.plans[0].gst_amount * 151;
           this.gstFor200Rooms = this.plans[0].gst_amount * 200;
-          console.log(this.plans, " this.plans")
+          // console.log(this.plans, " this.plans")
           // this.customerList = resp.result.data;
           // Filter out records that contain 'staff_employee_number' key
 

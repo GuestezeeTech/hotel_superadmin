@@ -262,7 +262,7 @@ export class ProfileComponent implements OnInit {
           // this.profile_image = this.adminUserData.profile_image || 'https://guestezee.s3.ap-south-2.amazonaws.com/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp';
           this.profile_image = this.adminUserData.profile_image || 'https://guestezee.s3.ap-south-2.amazonaws.com/GuestEzee/Brand/ChatGPT_Image_Jun_19__2026__01_25_37_PM.webp';
           this.profileService.updateProfileName(this.adminUserData.first_name + ' ' + this.adminUserData.last_name);
-          console.log('Name:', this.localService.get('profile_name'));
+          // console.log('Name:', this.localService.get('profile_name'));
         }
       }
     });

@@ -217,7 +217,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (typeof navigator !== 'undefined' && navigator.serviceWorker) {
       navigator.serviceWorker.addEventListener('message', (event: any) => {
         if (event.data?.type === 'notification-click') {
-          console.log('Notification clicked payload:', event.data.payload);
+          // console.log('Notification clicked payload:', event.data.payload);
           this.router.navigate(['/task-management']);
         }
       });

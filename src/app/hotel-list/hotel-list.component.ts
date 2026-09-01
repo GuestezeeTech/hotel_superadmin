@@ -151,7 +151,7 @@ export class HotelListComponent implements OnInit {
           const startIndex = (this.currentPage - 1) * itemsPerPage;
           const endIndex = startIndex + itemsPerPage;
           this.paginatedCustomers = this.customerList.slice(startIndex, endIndex);
-          console.log(this.customerList, "this.customerList", this.totalPages)
+          // console.log(this.customerList, "this.customerList", this.totalPages)
 
         }
       },
@@ -555,7 +555,7 @@ export class HotelListComponent implements OnInit {
 
     this.hotellistservice.sendWelcomeEmail(payload).subscribe({
       next: (res) => {
-        console.log('Email API response:', res);
+        // console.log('Email API response:', res);
       },
       error: (err) => {
         console.error('Email API error:', err);
@@ -576,7 +576,7 @@ export class HotelListComponent implements OnInit {
     }
     this.hotellistservice.sendApprovalSMS(payload).subscribe({
       next: (res) => {
-        console.log('Email API response:', res);
+        // console.log('Email API response:', res);
       },
       error: (err) => {
         console.error('Email API error:', err);

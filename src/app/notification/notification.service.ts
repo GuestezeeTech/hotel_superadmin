@@ -13,7 +13,7 @@ export class NotificationService {
 
   // Adds a new notification to the list and optionally opens the panel automatically.
   addNotification(notification: any) {
-    console.log('Notification added:', notification);
+    // console.log('Notification added:', notification);
     const current = this.notificationsSubject.value;
     this.notificationsSubject.next([notification, ...current]);
     this.showPanelSubject.next(true); // auto-open panel

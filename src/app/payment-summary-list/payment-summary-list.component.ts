@@ -120,9 +120,9 @@ export class PaymentSummaryListComponent implements OnInit {
 
       // console.log('Processed Installments:', this.installments);
       // console.log('Totals:', {
-        // payment: this.totalPaymentAmount,
-        // paid: this.totalPaidAmount,
-        // pending: this.totalPendingAmount
+      // payment: this.totalPaymentAmount,
+      // paid: this.totalPaidAmount,
+      // pending: this.totalPendingAmount
       // });
     }
   }
@@ -196,8 +196,10 @@ export class PaymentSummaryListComponent implements OnInit {
   }
 
   goBack() {
-    if (this.paymentData && this.paymentData.customer_id) {
-      this.router.navigate(['/payment-details', this.paymentData.customer_id]);
+    if (this.paymentData) {
+      // Navigate back using the customer_member_id (since payment-details route now expects member ID)
+      const memberId = (this.customerdata && (this.customerdata.customer_member_id || this.customerdata.member_id)) || this.paymentData.customer_id;
+      this.router.navigate(['/payment-details', memberId]);
     }
   }
 }

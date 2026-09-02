@@ -20,7 +20,7 @@ import { Location } from '@angular/common';
 export class PaymentDetailsComponent implements OnInit {
   orderData: Array<any> = [];
   customerId: string | null = null;
-  hotel_Id: Number | null = null;
+  hotel_Id: any = null;
   hotelId: Number | null = null;
   latestOrderId: any = null;
 
@@ -58,7 +58,7 @@ export class PaymentDetailsComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       var temphotelid = params.get('id');
       if (temphotelid) {
-        this.hotel_Id = Number(temphotelid);
+        this.hotel_Id = temphotelid;
         this.apiCallsCount = 2;
         this.loaderService.emitLoading();
         this.getOrderDetails();
@@ -84,7 +84,7 @@ export class PaymentDetailsComponent implements OnInit {
       user_id: this.authTokenService.getUserId(),
       "extras": {
         "find": {
-          "customer_id": Number(this.hotel_Id)
+          "customer_member_id": this.hotel_Id
         },
 
         "pagination": false,
@@ -122,7 +122,7 @@ export class PaymentDetailsComponent implements OnInit {
         user_id: this.authTokenService.getUserId(),
         extras: {
           find: {
-            id: Number(this.hotel_Id)
+            customer_member_id: this.hotel_Id
           }
         }
       };

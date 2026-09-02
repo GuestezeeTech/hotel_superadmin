@@ -268,11 +268,11 @@ export class PaymentListComponent implements OnInit {
     }
   }
 
-  goToPaymentDetails(customer_id: number) {
+  goToPaymentDetails(customer_id: any) {
     this.sendData("Subscription")
     this.router.navigate(["/payment-details", customer_id]);
   }
-  goToCommisionPaymentDetails(customerId: number) {
+  goToCommisionPaymentDetails(customerId: any) {
     this.sendData("Commission")
     this.router.navigate(["/payment-details", customerId]);
   }

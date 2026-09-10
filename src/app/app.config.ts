@@ -10,7 +10,6 @@ export const appConfig: ApplicationConfig = {
 };
 export const API_URL = environment.devURL
 export const API_URL1 = "https://www.guestezee.com"
-// export const API_URL1 = "https://ssltest.ecbee.net"
 export const DOMAIN_NAME = "https://www.guestezee.com"
 export const ENDPOINTS = {
   GETNEWACCESSTOKEN: API_URL + ':5200/refreshtoken',

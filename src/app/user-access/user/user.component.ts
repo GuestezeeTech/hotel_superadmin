@@ -58,7 +58,7 @@ export class UserComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // let req_body = { "domain_name": "https://guestezee.ecbee.net", "user_id": 1, "extras": { "find": {} } }
+
     this.userService.clearEvent();
     this.showalertmsg = true;
 

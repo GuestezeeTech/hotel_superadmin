@@ -11,8 +11,8 @@ import { LocalStorageService } from '../../auth-services/local-storage.service';
 import { AlertsComponent } from '../../shared/alerts/alerts.component';
 import { DOMAIN_NAME } from '../../app.config';
 import { ENDPOINTS } from '../../app.config';
- 
- 
+
+
 @Component({
   selector: 'app-user',
   standalone: true,
@@ -20,29 +20,29 @@ import { ENDPOINTS } from '../../app.config';
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss'
 })
- 
+
 export class UserComponent implements OnInit {
   users = [];
   showAddUserForm = false;
- 
+
   options = {
     autoClose: true,
     keepAfterRouteChange: false
   };
- 
+
   editScreen: boolean = false;
   inventoryId: any;
   editorConfig: any;
- 
+
   roleList = [] as any[];
- 
+
   usersForm !: FormGroup;
   validateForm: boolean = false;
   intialValue: boolean = false;
   showalertmsg: boolean = true;
   enableEdit = false;
   isExitModalOpen: boolean = false;
- 
+
   constructor(
     private formBuilder: FormBuilder,
     private userService: UserService,
@@ -52,18 +52,18 @@ export class UserComponent implements OnInit {
     private routeUrl: Router,
     private authTokenService: AuthTokenService,
     private localService: LocalStorageService,
- 
+
   ) {
- 
+
   }
- 
+
   ngOnInit(): void {
-    let req_body = { "domain_name": "https://guestezee.ecbee.net", "user_id": 1, "extras": { "find": {} } }
+    // let req_body = { "domain_name": "https://guestezee.ecbee.net", "user_id": 1, "extras": { "find": {} } }
     this.userService.clearEvent();
     this.showalertmsg = true;
- 
+
     //console.log('User name:', this.localService.get('UserName'), 'User id:', this.localService.get('UserId'), 'Db schema:', this.localService.get('db_schema'))
- 
+
     // For getting id from router
     if (this.router.snapshot.params['id'] !== undefined) {
       this.inventoryId = this.router.snapshot.params['id'];
@@ -96,10 +96,10 @@ export class UserComponent implements OnInit {
       const role = this.roleList.find(r => r.name === roleName);
       this.usersForm.patchValue({ role_id: role?.id || null });
     });
- 
+
     this.getRoles();
   }
- 
+
   getRoles() {
     // get roles list
     this.userService.getAllRoles().subscribe(
@@ -112,7 +112,7 @@ export class UserComponent implements OnInit {
           this.alertService.error('Session Time Out! Please login Again', this.options)
           this.routeUrl.navigate([`/login`], { skipLocationChange: false });
         }
- 
+
         if (err.error.message) {
           this.alertService.error(err.error.message, this.options)
         }
@@ -123,9 +123,9 @@ export class UserComponent implements OnInit {
     )
   }
   roleId: any;
- 
+
   get f() { return this.usersForm.controls; }
- 
+
   sendData() {
     //this.alertService.clear();
     this.editScreen = this.enableEdit;
@@ -137,7 +137,7 @@ export class UserComponent implements OnInit {
       const control = this.usersForm.get(field);
       //console.log(`Field: ${field}, Valid: ${control?.valid}, Errors:`, control?.errors);
     });
- 
+
     if (this.usersForm.valid) {
       this.loaderService.emitLoading();
       this.validateForm = false;
@@ -152,7 +152,7 @@ export class UserComponent implements OnInit {
       form_value["role_name"] = this.usersForm.value.role_name
       form_value["is_locked"] = this.usersForm.value.is_locked
       form_value["is_active"] = this.usersForm.value.is_active
- 
+
       if (!this.enableEdit) {
         form_value["password"] = this.usersForm.value.password;
         form_value["created_by_id"] = this.localService.get('UserId');
@@ -160,7 +160,7 @@ export class UserComponent implements OnInit {
         form_value["last_login"] = '';
         form_value["is_password_reset_next_login"] = false
       }
- 
+
       //UPDATE CALL
       if (this.editScreen) {
         //console.log('Edit1:', this.editScreen)
@@ -174,7 +174,7 @@ export class UserComponent implements OnInit {
             }
           }
         }
- 
+
         this.userService.updateUser(formatJson).subscribe(resp => {
           this.loaderService.emitComplete();
           if (resp) {
@@ -205,7 +205,7 @@ export class UserComponent implements OnInit {
               this.routeUrl.navigate([`/login`], { skipLocationChange: false });
             }
             else if (err.error.message) {
- 
+
               this.alertService.error(err.error.message, this.options)
             }
             else {
@@ -250,9 +250,9 @@ export class UserComponent implements OnInit {
               this.alertService.error('Session Time Out! Please login Again', this.options)
               this.routeUrl.navigate([`/login`], { skipLocationChange: false });
             }
- 
+
             else if (err.error.message) {
- 
+
               this.alertService.error(err.error.message, this.options)
             }
             else {
@@ -265,7 +265,7 @@ export class UserComponent implements OnInit {
       this.validateForm = true;
     }
   }
- 
+
   setInitialValues(inventory_id: any) {
     this.editScreen = true
     let jsonObj = {
@@ -277,7 +277,7 @@ export class UserComponent implements OnInit {
         }
       }
     }
- 
+
     this.userService.getUserById(jsonObj).subscribe(resp => {
       if (resp.success === 1 && resp.status_code === 200) {
         let respData = resp.result.data[0];
@@ -310,7 +310,7 @@ export class UserComponent implements OnInit {
           this.alertService.error('Session Time Out! Please login Again', this.options)
           this.routeUrl.navigate([`/login`], { skipLocationChange: false });
         }
- 
+
         else if (err.error.message) {
           this.alertService.error(err.error.message, this.options)
         }
@@ -318,9 +318,9 @@ export class UserComponent implements OnInit {
           this.alertService.error('Something bad happened. Please try again!', this.options);
         }
       })
- 
+
   }
- 
+
   // cancelData(){
   //   this.routeUrl.navigate(['/user'], { skipLocationChange: false })
   //   // if(!confirm("Do you want to cancel the changes?"))
@@ -349,7 +349,7 @@ export class UserComponent implements OnInit {
   //   this.getRoles();
   //   this.validateForm = false;
   // }
- 
+
   // resetData(){
   //   // if(!confirm("Do you want to reset the changes?"))
   //   // {
@@ -370,7 +370,7 @@ export class UserComponent implements OnInit {
   //     }
   //   )
   // }
- 
+
   handleRoles(evt: any) {
     if (evt.target.value === "") {
       this.usersForm.controls['role_name'].setValue("")
@@ -382,24 +382,24 @@ export class UserComponent implements OnInit {
       this.usersForm.controls['role_id'].setValue(target_value[1])
     }
   }
- 
- 
- 
+
+
+
   toggleAddUser() {
     this.showAddUserForm = true;
   }
- 
+
   togglCloseAddUser() {
     this.routeUrl.navigate(['/user-list'])
   }
- 
- 
+
+
   openExitModal() {
     this.isExitModalOpen = true;
   }
- 
+
   closeExitModal() {
     this.isExitModalOpen = false;
   }
- 
+
 }

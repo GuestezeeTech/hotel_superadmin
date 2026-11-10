@@ -1,0 +1,132 @@
+<div class="main">
+  <app-alerts></app-alerts>
+  <div class="centered-container">
+    <div class="page-head">
+      <div>
+        <h4>Countries &amp; States</h4>
+        <p>Countries and states offered when hotels sign up and fill in their address.</p>
+      </div>
+      <div class="head-actions">
+        <input type="text" class="search" placeholder="Search country or dial code" [(ngModel)]="search" />
+        <button type="button" class="btn-maroon" (click)="openAddCountry()" [disabled]="loading || !!loadError">
+          Add Country
+        </button>
+      </div>
+    </div>
+
+    <p class="state-msg" *ngIf="loading">Loading countries…</p>
+    <div class="state-msg error" *ngIf="!loading && loadError">
+      <p>{{ loadError }}</p>
+      <button type="button" class="btn-light" (click)="loadCountries()">Retry</button>
+    </div>
+
+    <div class="table-wrap" *ngIf="!loading && !loadError">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Country</th>
+            <th>Dial Code</th>
+            <th>States</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="filteredCountries.length === 0">
+            <td colspan="6" class="text-center">{{ countries.length ? 'No matching countries' : 'No countries yet' }}</td>
+          </tr>
+          <tr *ngFor="let country of filteredCountries; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ country.country }}</td>
+            <td>{{ country.code }}</td>
+            <td>
+              <button type="button" class="link-btn" (click)="openStates(country)">
+                {{ activeStateCount(country) }} of {{ country.states.length || 0 }} active · Manage
+              </button>
+            </td>
+            <td>
+              <span class="badge" [class.on]="country.is_active !== false">
+                {{ country.is_active !== false ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-icons">
+                <i class="fa fa-pen-to-square" title="Edit country" (click)="openEditCountry(country)"></i>
+                <i class="fa fa-list" title="Manage states" (click)="openStates(country)"></i>
+                <i class="fa fa-trash" title="Delete country" (click)="openDelete(country)"></i>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add / edit country -->
+  <div class="overlay" *ngIf="showCountryModal">
+    <div class="popup" role="dialog" aria-modal="true" aria-labelledby="countryPopupTitle">
+      <h5 id="countryPopupTitle">{{ editingCountry ? 'Edit Country' : 'Add Country' }}</h5>
+      <label for="countryName">Country name <span class="req">*</span></label>
+      <input id="countryName" type="text" maxlength="60" [(ngModel)]="countryForm.country" />
+      <label for="countryCode">Dial code <span class="req">*</span></label>
+      <input id="countryCode" type="text" maxlength="5" placeholder="+91" [(ngModel)]="countryForm.code" />
+      <label class="check">
+        <input type="checkbox" [(ngModel)]="countryForm.is_active" />
+        Active (shown to hotels)
+      </label>
+      <p class="err" *ngIf="countryError">{{ countryError }}</p>
+      <div class="popup-actions">
+        <button type="button" class="btn-light" [disabled]="saving" (click)="closeCountryModal()">Cancel</button>
+        <button type="button" class="btn-maroon" [disabled]="saving" (click)="saveCountry()">
+          {{ saving ? 'Saving…' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage states -->
+  <div class="overlay" *ngIf="showStatesModal">
+    <div class="popup popup-wide" role="dialog" aria-modal="true" aria-labelledby="statesPopupTitle">
+      <h5 id="statesPopupTitle">States of {{ statesCountry?.country }}</h5>
+      <div class="add-row">
+        <input type="text" maxlength="60" placeholder="New state name" [(ngModel)]="newStateName"
+          (keydown.enter)="addState()" />
+        <button type="button" class="btn-maroon" (click)="addState()" [disabled]="!newStateName.trim()">Add</button>
+      </div>
+      <div class="states-list">
+        <p class="text-muted" *ngIf="statesDraft.length === 0">No states yet. Add the first one above.</p>
+        <div class="state-row" *ngFor="let state of statesDraft; let i = index">
+          <input type="text" maxlength="60" [(ngModel)]="state.name" [attr.aria-label]="'State ' + (i + 1)" />
+          <label class="check" title="Inactive states are hidden from hotels">
+            <input type="checkbox" [(ngModel)]="state.is_active" /> Active
+          </label>
+          <i class="fa fa-trash" title="Remove state" (click)="removeState(i)"></i>
+        </div>
+      </div>
+      <p class="err" *ngIf="statesError">{{ statesError }}</p>
+      <div class="popup-actions">
+        <button type="button" class="btn-light" [disabled]="saving" (click)="closeStatesModal()">Cancel</button>
+        <button type="button" class="btn-maroon" [disabled]="saving" (click)="saveStates()">
+          {{ saving ? 'Saving…' : 'Save States' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete -->
+  <div class="overlay" *ngIf="deleteTarget">
+    <div class="popup" role="dialog" aria-modal="true" aria-labelledby="deletePopupTitle">
+      <h5 id="deletePopupTitle">Delete {{ deleteTarget.country }}?</h5>
+      <p>This removes the country and its {{ deleteTarget.states.length || 0 }} states. Hotels already registered in
+        {{ deleteTarget.country }} keep their saved address.</p>
+      <p class="hint">To hide it from new hotels instead, edit it and turn off Active.</p>
+      <div class="popup-actions">
+        <button type="button" class="btn-light" [disabled]="saving" (click)="closeDelete()">Cancel</button>
+        <button type="button" class="btn-danger-solid" [disabled]="saving" (click)="confirmDelete()">
+          {{ saving ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

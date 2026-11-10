@@ -28,6 +28,11 @@
       <span>Payment</span>
       <!-- <a routerLink="/payment-tab-view" (click)="sendValue('Payment')">Payment</a> -->
     </li>
+    <li class="list_container" [class.active]="isCountriesStatesActive()" routerLink="/countries-states"
+      (click)="sendValue('Countries & States')" *ngIf="userAccess?.SYSTEMSETTINGS?.has_read_permission==true">
+      <i class="fa fa-globe menu-icon" aria-hidden="true"></i>
+      <span>Countries</span>
+    </li>
     <!-- <li  class="list_container"  [class.active]="isUserAccessActive()"  *ngIf="userAccess?.USERACCESS?.has_read_permission==true">
            <img src="../../assets/images/guestezee/secure-access (1).png" >
            <a  (click)="toggleSubmenu()"   data-toggle="collapse" data-target="#demo" >User Access</a>

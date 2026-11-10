@@ -46,6 +46,8 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
   ];
 
   planName: string = "";
+  /** True until the customer's registration is approved: every plan can be chosen */
+  showAllPlans: boolean = false;
 
   billingDetails = {
     nextPaymentDate: '28 March 2025',
@@ -319,16 +321,19 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
       finalPrice: plan.finalPrice,
       gst_amount: plan.gstAmount
     };
+    const paymentPlan = this.buildPaymentPlan(plan);
+    if (paymentPlan) {
+      this.customerdata.payment_plan = paymentPlan;
+    }
 
-
-    delete this.customerdata._id;
-    delete this.customerdata.password_to_customer;
-    delete this.customerdata.password;
     let requestBody = {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
       payload: {
-        customer_updation: this.customerdata
+        customer_update: {
+          subscription_detail: this.customerdata.subscription_detail,
+          ...(paymentPlan ? { payment_plan: paymentPlan } : {})
+        }
       },
       extras: {
         find: {
@@ -343,6 +348,7 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
         if (resp) {
           if (resp.success === 1 && resp.status_code === 200) {
             // //console.log(resp);
+            this.plans.forEach((p: any) => p.isCurrent = p === plan);
             this.hotelenrollmenttabviewService.clearAdminFormEvent();
             //console.log("alerttttt")
             this.alertService.success(resp.message || "Record Successfully Updated", this.options);
@@ -389,6 +395,63 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
 
   }
 
+  isFreePlan(plan: any): boolean {
+    return plan?.name === 'Free';
+  }
+
+  /** Last day of the customer's free period (DD-MM-YYYY), when one is set */
+  get freePeriodEndDate(): string {
+    return this.customerdata?.payment_plan?.free_period?.end_date || '';
+  }
+
+  /**
+   * register_status decides when it is set, so false always means not registered.
+   * Older customers have no status: they count as registered once their
+   * Registered Office details are saved.
+   */
+  private isRegistered(customer: any): boolean {
+    const status = customer?.register_status;
+    if (status === undefined || status === null) {
+      return customer?.is_office_details_exists === true;
+    }
+    return status === true || status === 'true' || status === 1;
+  }
+
+  private parseDate(value: string): Date | null {
+    const [day, month, year] = String(value || '').split('-').map(Number);
+    return day && month && year ? new Date(year, month - 1, day) : null;
+  }
+
+  private formatDate(date: Date): string {
+    return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+  }
+
+  /**
+   * payment_plan to save with the chosen plan, or null if it does not change.
+   * Free adds a three-month free_period, which the hotel admin app reads to switch
+   * payment off. Saving Free again keeps the running period's start date, so it cannot
+   * be extended by accident. Any other plan removes the period. Paid dates are never touched.
+   */
+  private buildPaymentPlan(plan: any): any | null {
+    const { free_period, ...rest } = this.customerdata?.payment_plan || {};
+    if (!this.isFreePlan(plan)) {
+      return free_period ? rest : null;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const addFreeMonths = (start: Date) => {
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 3);
+      return end;
+    };
+    const currentStart = this.parseDate(free_period?.start_date);
+    const start = currentStart && addFreeMonths(currentStart) >= today ? currentStart : today;
+    return {
+      ...rest,
+      free_period: { start_date: this.formatDate(start), end_date: this.formatDate(addFreeMonths(start)) }
+    };
+  }
+
   goBack() {
     this.routerUrl.navigate(['/settings']);
   }
@@ -412,7 +475,7 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
         "pagination": true,
         "paginationDetails": {
           "limit": 0,
-          "pageSize": 10
+          "pageSize": 100
         },
         "sorting": true,
         "sortingDetails": {
@@ -426,7 +489,14 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
         if (resp) {
 
           // console.log("customer data", this.customerdata)
-          if (this.customerdata?.property_details?.property_address?.property_size == "01-50 Rooms") {
+          if (this.showAllPlans) {
+            // The customer's saved plan keeps its own prices and is marked as current
+            const saved = this.customerdata?.subscription_detail;
+            this.plans = (resp.result.data || []).map((p: any) => saved?.name === p.name
+              ? { ...p, ...saved, gstAmount: saved.gstAmount ?? saved.gst_amount, isCurrent: true }
+              : { ...p, isCurrent: false });
+          }
+          else if (this.customerdata?.property_details?.property_address?.property_size == "01-50 Rooms") {
             // console.log("11");
 
             this.plans = [];
@@ -502,7 +572,11 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
           if (resp) {
             this.customerdata = resp.result.data[0];
             this.planName = this.customerdata?.property_details?.property_address?.property_size;
-            if (this.customerdata?.property_details?.property_address?.property_size != undefined) {
+            this.showAllPlans = !this.isRegistered(this.customerdata);
+            if (this.showAllPlans) {
+              this.getAllSubscriptions();
+            }
+            else if (this.customerdata?.property_details?.property_address?.property_size != undefined) {
               this.plans = [];
               if (this.customerdata.subscription_detail) {  //newly added
                 this.plans.push(this.customerdata.subscription_detail);

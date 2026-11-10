@@ -119,6 +119,10 @@ export class MenuBarComponent implements OnInit {
 
     return (currentRoute.includes('payment-activation'));
   }
+
+  isCountriesStatesActive(): boolean {
+    return this.currentRoute$.value.includes('countries-states');
+  }
   isserviceSettingsActive(): boolean {
     const currentRoute = this.currentRoute$.value;
 

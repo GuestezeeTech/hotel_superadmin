@@ -20,6 +20,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ENDPOINTS } from '../app.config';
 import html2pdf from 'html2pdf.js';
+import { CountryListService } from '../shared/constants/country-list.service';
 
 
 
@@ -47,6 +48,8 @@ export class HotelEnrollmentTabviewComponent implements OnInit {
 
   };
   ngOnInit(): void {
+    // Country and state dropdowns in the Office / Property tabs (Countries & States page)
+    this.countryListService.load();
     // Newly added: detect view-only mode
     this.isViewMode = this.router.url.includes('hotel-preview');
 
@@ -104,7 +107,8 @@ export class HotelEnrollmentTabviewComponent implements OnInit {
     private hotelenrollmentservice: HotelEnrollmentTabviewService,
     private loaderService: LoaderService,
     private alertService: AlertsService, private cdr: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    private countryListService: CountryListService
   ) {
     this.currentRoute$ = new BehaviorSubject<string>(this.router.url); // ✅
   }
@@ -160,76 +164,6 @@ export class HotelEnrollmentTabviewComponent implements OnInit {
   // Services, Hierarchy & Payment use the same conditions in both modes
   // (isServicesAndHierarchyAccessible & isAllThreeTabsFilled) since
   // they inherently require all 3 tabs to have data.
-
-  // ── Tab click guard ───────────────────────────────────────────────────────────
-
-  /**
-   * Returns a specific alert message pointing to exactly which tab is blocking.
-   * Checks each condition in order so the user knows precisely what to fill next.
-   */
-  private getTabBlockMessage(tab: 'property' | 'technical' | 'services' | 'hierarchy' | 'payment'): string {
-    const d = this.customerdata;
-    switch (tab) {
-
-      case 'property':
-        // Can only be blocked because Office Details is not filled
-        return 'Please fill the Registered Office Details.';
-
-      case 'technical':
-        // Walk conditions in order to find the first missing step
-        if (!d?.is_office_details_exists) {
-          return 'Please fill the Registered Office Details.';
-        }
-        return 'Please fill the Property Details.';
-
-      case 'services':
-      case 'hierarchy':
-        /* if (!d?.is_office_details_exists) {
-          return 'Please fill the Registered Office Details.';
-        }
-        if (!d?.is_property_details_exists) {
-          return 'Please fill the Property Details.';
-        }
-        if (!d?.is_technical_info_exists) {
-          return 'Please fill the Technical Info.';
-        } */
-        // All 3 filled but not approved
-        return 'Hotel status must be Approved to access the Services & Hierarchy tabs.';
-
-      case 'payment':
-        /*  if (!d?.is_office_details_exists) {
-           return 'Please fill the Registered Office Details.';
-         }
-         if (!d?.is_property_details_exists) {
-           return 'Please fill the Property Details.';
-         }
-         return 'Please fill the Technical Info.'; */
-        return 'Registration Process Not Completed - Please fill all required details first.';
-
-      default:
-        return 'This tab is not accessible yet.';
-    }
-  }
-
-
-  /**
-   * Called on every tab anchor click (edit mode only — view mode uses pointer-events:none).
-   * Prevents navigation and shows a contextual alert if the tab is locked.
-   *
-   * NOTE: event.isTrusted is true for genuine user clicks and false for
-   * programmatic .click() calls (e.g. from "Save & Continue" in child tabs).
-   * We skip the guard for programmatic clicks so they always pass through.
-   */
-  onTabClick(event: Event, isAccessible: boolean, tab: 'property' | 'technical' | 'services' | 'hierarchy' | 'payment'): void {
-    // Programmatic clicks (Save & Continue) must never be blocked
-    if (!event.isTrusted) return;
-
-    if (!isAccessible) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.alertService.error(this.getTabBlockMessage(tab), this.options);
-    }
-  }
 
   /**
    * Returns a short tooltip string for locked tabs in VIEW mode.

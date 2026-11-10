@@ -20,18 +20,18 @@
           <li class="nav-item" [class.tab-li-locked]="isViewMode && !isTab2ViewAccessible"
             [attr.title]="isViewMode && !isTab2ViewAccessible ? getTabTooltip('property') : null" role="presentation">
             <!--  <a class="nav-link Custom-tab-spacing" id="profile-tab" data-toggle="tab" href="#profile" role="tab -->
-            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isTab2Accessible && !isViewMode"
+            <a class="nav-link Custom-tab-spacing"
               [class.tab-locked-view]="!isTab2ViewAccessible && isViewMode"
-              (click)="onTabClick($event, isTab2Accessible, 'property')" id="property-tab" data-toggle="tab"
+              id="property-tab" data-toggle="tab"
               href="#profile" role="tab" aria-controls="profile" aria-selected="false">Property Details</a>
           </li>
           <!-- Technical Info tab -->
           <li class="nav-item" [class.tab-li-locked]="isViewMode && !isTab3ViewAccessible"
             [attr.title]="isViewMode && !isTab3ViewAccessible ? getTabTooltip('technical') : null" role="presentation">
             <!-- <a class="nav-link Custom-tab-spacing" id="contact-tab3" data-toggle="tab" href="#contact" role="tab" -->
-            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isTab3Accessible && !isViewMode"
+            <a class="nav-link Custom-tab-spacing"
               [class.tab-locked-view]="!isTab3ViewAccessible && isViewMode"
-              (click)="onTabClick($event, isTab3Accessible, 'technical')" id="technical-tab" data-toggle="tab"
+              id="technical-tab" data-toggle="tab"
               href="#contact" role="tab" aria-controls="contact" aria-selected="false">Technical Info</a>
           </li>
           <!-- Services tab -->
@@ -39,9 +39,9 @@
             [attr.title]="isViewMode && !isServicesAndHierarchyAccessible ? getTabTooltip('services') : null"
             role="presentation">
             <!-- <a class="nav-link Custom-tab-spacing" id="services-tab" data-toggle="tab" href="#contact2" role="tab" -->
-            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isServicesAndHierarchyAccessible && !isViewMode"
+            <a class="nav-link Custom-tab-spacing"
               [class.tab-locked-view]="!isServicesAndHierarchyAccessible && isViewMode"
-              (click)="onTabClick($event, isServicesAndHierarchyAccessible, 'services')" id="services-tab"
+              id="services-tab"
               data-toggle="tab" href="#contact2" role="tab" aria-controls="contact" aria-selected="false">Services</a>
           </li>
           <!-- Hierarchy tab -->
@@ -50,9 +50,9 @@
             role="presentation">
             <!-- <a class="nav-link Custom-tab-spacing" id="hierarchy-tab" data-toggle="tab" href="#contact3" #contactTab2
                 role="tab" aria-controls="contact" aria-selected="false">Hierarchy</a> -->
-            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isServicesAndHierarchyAccessible && !isViewMode"
+            <a class="nav-link Custom-tab-spacing"
               [class.tab-locked-view]="!isServicesAndHierarchyAccessible && isViewMode"
-              (click)="onTabClick($event, isServicesAndHierarchyAccessible, 'hierarchy')" id="hierarchy-tab"
+              id="hierarchy-tab"
               data-toggle="tab" href="#contact3" #contactTab2 role="tab" aria-controls="contact"
               aria-selected="false">Hierarchy</a>
           </li>
@@ -62,9 +62,9 @@
             [attr.title]="isViewMode && !isAllThreeTabsFilled ? getTabTooltip('payment') : null" role="presentation">
             <!-- <a class="nav-link Custom-tab-spacing" id="payment-tab" data-toggle="tab" href="#contact4" role="tab"
                 aria-controls="contact" aria-selected="false">Payment Settings</a> -->
-            <a class="nav-link Custom-tab-spacing" [class.tab-locked]="!isAllThreeTabsFilled && !isViewMode"
+            <a class="nav-link Custom-tab-spacing"
               [class.tab-locked-view]="!isAllThreeTabsFilled && isViewMode"
-              (click)="onTabClick($event, isAllThreeTabsFilled, 'payment')" id="payment-tab" data-toggle="tab"
+              id="payment-tab" data-toggle="tab"
               href="#contact4" role="tab" aria-controls="contact" aria-selected="false">Payment Settings</a>
           </li>
         </ul>

@@ -104,6 +104,14 @@ ul {
     height: 20px; /* Set image size for consistency */
 }
 
+/* Font icons sized like the 20px menu images */
+.list_container .menu-icon {
+    width: 20px;
+    font-size: 19px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
 .list_container a {
     color: #fff; /* Default color for links */
     text-decoration: none;

@@ -44,6 +44,8 @@
             <th>Email</th>
             <th>Contact Number</th>
             <th>Status</th>
+            <th>Verify</th>
+            <th class="nowrap">Go Live</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -121,18 +123,18 @@
               <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active"
                 style="cursor: default;">Approved</button>
               <button *ngIf="(customer.status||'').toLowerCase()==='pending'" class="pending"
-                [disabled]="!isPaymentDone(customer.customer_member_id)"
-                [attr.data-toggle]="isPaymentDone(customer.customer_member_id) ? 'modal' : null"
-                [attr.data-target]="isPaymentDone(customer.customer_member_id) ? '#approvalModal' : null"
-                [ngStyle]="!isPaymentDone(customer.customer_member_id) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
-                [title]="!isPaymentDone(customer.customer_member_id) ? 'Payment not completed yet' : 'Change Status'"
+                [disabled]="!canChangeStatus(customer)"
+                [attr.data-toggle]="canChangeStatus(customer) ? 'modal' : null"
+                [attr.data-target]="canChangeStatus(customer) ? '#approvalModal' : null"
+                [ngStyle]="!canChangeStatus(customer) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
+                [title]="statusButtonTitle(customer)"
                 (click)="openApprovalModal(customer)">Pending</button>
               <button *ngIf="(customer.status||'').toLowerCase()==='unapproved'" class="in-active"
-                [disabled]="!isPaymentDone(customer.customer_member_id)"
-                [attr.data-toggle]="isPaymentDone(customer.customer_member_id) ? 'modal' : null"
-                [attr.data-target]="isPaymentDone(customer.customer_member_id) ? '#approvalModal' : null"
-                [ngStyle]="!isPaymentDone(customer.customer_member_id) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
-                [title]="!isPaymentDone(customer.customer_member_id) ? 'Payment not completed yet' : 'Change Status'"
+                [disabled]="!canChangeStatus(customer)"
+                [attr.data-toggle]="canChangeStatus(customer) ? 'modal' : null"
+                [attr.data-target]="canChangeStatus(customer) ? '#approvalModal' : null"
+                [ngStyle]="!canChangeStatus(customer) ? {'opacity': '0.5' , cursor:'not-allowed'} : null"
+                [title]="statusButtonTitle(customer)"
                 (click)="openApprovalModal(customer)">Unapproved</button>
               <!--    <i *ngIf="(customer.status||'').toLowerCase()==='unapproved' && customer.status_remarks"
                 class="fa fa-info-circle text-danger"
@@ -154,6 +156,23 @@
                 data-target="#reasonModal" (click)="currentRemarks = customer.status_remarks"
                 title="View Unapproval Reason"></i>
             </td>
+            <td>
+              <button *ngIf="customer.verify_status === true" class="active" style="cursor: default;">Verified</button>
+              <ng-container *ngIf="customer.verify_status !== true">
+                <button *ngIf="userRoleName=='Super Admin'" class="pending" (click)="openVerifyModal(customer)"
+                  title="Verify this hotel">Verify</button>
+                <button *ngIf="userRoleName!=='Super Admin'" class="pending" style="cursor: default;">Not
+                  Verified</button>
+              </ng-container>
+            </td>
+            <td>
+              <label class="switch" [title]="goLiveTitle(customer)">
+                <input type="checkbox" [checked]="customer.go_live === true"
+                  [disabled]="userRoleName !== 'Super Admin' || goLiveSaving.has(customer.id) || (customer.go_live !== true && !isReadyToGoLive(customer))"
+                  (change)="toggleGoLive(customer, $event)" />
+                <span class="slider round"></span>
+              </label>
+            </td>
             <!-- <td><button  class="active" (click)="openApprovalModal(customer)" data-toggle="modal" data-target="#approvalModal">Active</button></td> -->
             <!-- <td><i class="fa fa-pen-to-square" style="color: #800020; cursor: pointer;"
                   (click)="editCustomer(customer.id)"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"
@@ -166,14 +185,16 @@
                 (click)="(customer.status||'').toLowerCase() !== 'approved' && editCustomer(customer.id)"
                 [title]="(customer.status||'').toLowerCase() === 'approved' ? 'Edit disabled for approved hotels' : 'Edit'">
               </i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
-              <i class="fa fa-pen-to-square" style="color: #800020; cursor: pointer;"
-                (click)="editCustomer(customer.id)" title="Edit">
-              </i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <!-- End of newly commented & added code for avoid checking status  -->
-              <i class="fa fa-eye" style="color: #800020; cursor: pointer;" (click)="openFullPreview(customer.id)"
-                title="View"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <i class="fa fa-trash" style="color: #800020; cursor: pointer;" data-toggle="modal"
-                data-target="#deleteModal" (click)="openDeleteModal(customer)" title="Delete"></i>
+              <div class="action-icons">
+                <i class="fa fa-pen-to-square" style="color: #800020; cursor: pointer;"
+                  (click)="editCustomer(customer.id)" title="Edit">
+                </i>
+                <!-- End of newly commented & added code for avoid checking status  -->
+                <i class="fa fa-eye" style="color: #800020; cursor: pointer;" (click)="openFullPreview(customer.id)"
+                  title="View"></i>
+                <i class="fa fa-trash" style="color: #800020; cursor: pointer;" data-toggle="modal"
+                  data-target="#deleteModal" (click)="openDeleteModal(customer)" title="Delete"></i>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -221,6 +242,28 @@
         </li>
 
       </ul>
+    </div>
+    <!-- Verify Popup -->
+    <div class="verify-overlay" *ngIf="showVerifyModal">
+      <div class="verify-popup" role="dialog" aria-modal="true" aria-labelledby="verifyPopupTitle">
+        <h5 id="verifyPopupTitle">{{ verifyPlanName ? 'Verify Hotel' : 'Subscription Plan Required' }}</h5>
+        <ng-container *ngIf="verifyPlanName; else noPlan">
+          <p>Are you sure you want to verify <strong>{{ verifyCustomer?.name }}</strong>?</p>
+          <p>Subscription plan: <strong>{{ verifyPlanName }}</strong></p>
+        </ng-container>
+        <ng-template #noPlan>
+          <p>Choose a subscription plan for <strong>{{ verifyCustomer?.name }}</strong> in Payment Settings before
+            verifying.</p>
+        </ng-template>
+        <div class="verify-actions">
+          <button type="button" class="btn btn-secondary" [disabled]="isVerifying"
+            (click)="closeVerifyModal()">Cancel</button>
+          <button *ngIf="verifyPlanName" type="button" class="btn verify-confirm" [disabled]="isVerifying"
+            (click)="confirmVerify()">{{ isVerifying ? 'Verifying...' : 'Verify' }}</button>
+          <button *ngIf="!verifyPlanName" type="button" class="btn verify-confirm"
+            (click)="goToPaymentSettings()">Choose Plan</button>
+        </div>
+      </div>
     </div>
     <!-- Delete Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true"

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from '../shared/loader/loader.service';
 import { AuthTokenService } from '../auth-services/auth-token.service';
 import { HotelListService } from './hotel-list.service';
+import { HotelEnrollmentTabviewService } from '../hotel-enrollment-tabview/hotel-enrollment-tabview.service';
 import { AlertsService } from '../shared/alerts/alerts.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -54,6 +55,13 @@ export class HotelListComponent implements OnInit {
   // Newly added for status button active/inactive based on payment done
   paidCustomerMemberIds = new Set<string>();
   // End of newly added for status button active/inactive based on payment done
+  // Verify popup
+  showVerifyModal: boolean = false;
+  verifyCustomer: any = null;
+  verifyPlanName: string = '';
+  isVerifying: boolean = false;
+  // Customers whose Go Live change is being saved
+  goLiveSaving = new Set<number>();
 
   //pagination
   currentPage: number = 1;
@@ -64,6 +72,7 @@ export class HotelListComponent implements OnInit {
     private router: Router,
     private authTokenService: AuthTokenService,
     private hotellistservice: HotelListService,
+    private hotelEnrollmentService: HotelEnrollmentTabviewService,
     private loaderService: LoaderService,
     private alertService: AlertsService,
     private renderer: Renderer2, private el: ElementRef,
@@ -515,6 +524,148 @@ export class HotelListComponent implements OnInit {
     }
   }
 
+  /** The status popup opens once the hotel has paid and has been verified. */
+  canChangeStatus(customer: any): boolean {
+    return customer?.verify_status === true && this.isPaymentDone(customer?.customer_member_id);
+  }
+
+  statusButtonTitle(customer: any): string {
+    if (!this.isPaymentDone(customer?.customer_member_id)) {
+      return 'Payment not completed yet';
+    }
+    return customer?.verify_status === true ? 'Change Status' : 'Verify the hotel first';
+  }
+
+  /** Reads the customer fresh, so a plan saved a moment ago is seen. */
+  async openVerifyModal(customer: any) {
+    this.data = customer;
+    try {
+      await this.getCustomerById(customer.id);
+    } catch {
+      return; // getCustomerById has already shown the error
+    }
+    this.verifyCustomer = customer;
+    this.verifyPlanName = this.customerdata?.subscription_detail?.name || '';
+    this.showVerifyModal = true;
+  }
+
+  closeVerifyModal() {
+    this.showVerifyModal = false;
+    this.verifyCustomer = null;
+    this.verifyPlanName = '';
+  }
+
+  goToPaymentSettings() {
+    const id = this.verifyCustomer?.id;
+    this.closeVerifyModal();
+    this.router.navigate(['/edit-new-hotel', id], { queryParams: { tab: 'payment-tab' } });
+  }
+
+  confirmVerify() {
+    if (!this.verifyPlanName || this.isVerifying) {
+      return;
+    }
+    this.isVerifying = true;
+    const requestBody = {
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      payload: {
+        customer_update: { verify_status: true }
+      },
+      extras: {
+        find: { id: this.verifyCustomer.id }
+      }
+    };
+    this.hotelEnrollmentService.updateCustomer(requestBody).subscribe({
+      next: (resp: any) => {
+        this.isVerifying = false;
+        if (resp?.success === 1) {
+          this.verifyCustomer.verify_status = true;
+          this.closeVerifyModal();
+          this.alertService.success('Hotel verified successfully.', this.options);
+        } else {
+          this.alertService.error(resp?.message || 'Unable to verify the hotel. Please try again.', this.options);
+        }
+      },
+      error: (err: any) => {
+        this.isVerifying = false;
+        this.alertService.error(err?.error?.message || 'Unable to verify the hotel. Please try again.', this.options);
+      }
+    });
+  }
+
+  /** A hotel can go live once it has been verified and approved. */
+  isReadyToGoLive(customer: any): boolean {
+    return customer?.verify_status === true && (customer?.status || '').toLowerCase() === 'approved';
+  }
+
+  goLiveTitle(customer: any): string {
+    if (customer?.go_live === true) {
+      return 'Live';
+    }
+    if (customer?.verify_status !== true) {
+      return 'Verify the hotel first';
+    }
+    if ((customer?.status || '').toLowerCase() !== 'approved') {
+      return 'Approve the hotel first';
+    }
+    return 'Not live';
+  }
+
+  /**
+   * Saves go_live (true/false) on the customer; the switch flips back if the save fails.
+   * Turning it on rechecks the latest customer, since the list may be out of date.
+   * Turning it off is always allowed.
+   */
+  async toggleGoLive(customer: any, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const goLive = input.checked;
+    const revert = (message: string) => {
+      input.checked = !goLive;
+      this.alertService.error(message, this.options);
+    };
+    this.goLiveSaving.add(customer.id);
+    if (goLive) {
+      this.data = customer;
+      try {
+        await this.getCustomerById(customer.id);
+      } catch {
+        this.goLiveSaving.delete(customer.id);
+        input.checked = false; // getCustomerById has already shown the error
+        return;
+      }
+      if (!this.isReadyToGoLive(this.customerdata)) {
+        this.goLiveSaving.delete(customer.id);
+        revert('Verify and approve the hotel before it goes live.');
+        return;
+      }
+    }
+    this.hotelEnrollmentService.updateCustomer({
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      payload: {
+        customer_update: { go_live: goLive }
+      },
+      extras: {
+        find: { id: customer.id }
+      }
+    }).subscribe({
+      next: (resp: any) => {
+        this.goLiveSaving.delete(customer.id);
+        if (resp?.success === 1) {
+          customer.go_live = goLive;
+          this.alertService.success(goLive ? 'Hotel is now live.' : 'Hotel is no longer live.', this.options);
+        } else {
+          revert(resp?.message || 'Unable to update Go Live. Please try again.');
+        }
+      },
+      error: (err: any) => {
+        this.goLiveSaving.delete(customer.id);
+        revert(err?.error?.message || 'Unable to update Go Live. Please try again.');
+      }
+    });
+  }
+
   selectstat(value: any) {
     this.selectedStatus = value;
     this.reasonError = '';
@@ -527,6 +678,11 @@ export class HotelListComponent implements OnInit {
     }
     this.getCustomerById(this.data.id)
       .then(() => {
+        // The list may be out of date, so check the customer just loaded
+        if (this.customerdata?.verify_status !== true) {
+          this.alertService.error('Verify the hotel before changing its status.', this.options);
+          return;
+        }
         return this.customerUpdate(this.selectedStatus);  // Once function12 completes, call function1
       })
       .then(() => {

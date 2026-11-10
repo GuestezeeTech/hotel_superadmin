@@ -138,6 +138,10 @@ export const routes: Routes = [
     loadComponent: () => import('./payment-activation/payment-activation.component').then(m => m.PaymentActivationComponent)
   },
   {
+    path: 'countries-states',
+    loadComponent: () => import('./countries-states/countries-states.component').then(m => m.CountriesStatesComponent)
+  },
+  {
     path: '**',
     component: PageNotFoundComponent
   }

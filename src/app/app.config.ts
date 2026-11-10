@@ -521,9 +521,9 @@ export const ENDPOINTS = {
   GET_ALL_SUBSCRIPTION: API_URL1 + ':1250/paymentsubscription/getall',
   // Countries collection: one document per country, states stored inside it
   GET_ALL_COUNTRIES_STATES: 'https://guestezee.com:5407/countries-states/getall',
-  CREATE_COUNTRY: 'https://guestezee.com:5407/countries-states/create',
-  UPDATE_COUNTRY: 'https://guestezee.com:5407/countries-states/update',
-  DELETE_COUNTRY: 'https://guestezee.com:5407/countries-states/delete',
+  CREATE_COUNTRY: 'https://guestezee.com:5409/countries-states/create',
+  UPDATE_COUNTRY: 'https://guestezee.com:5409/countries-states/update',
+  DELETE_COUNTRY: 'https://guestezee.com:5409/countries-states/delete',
 
   CREATE_PAYMENT_SUBSCRIPTION: API_URL + ':8839/paymentsubscription/create',
   UPDATE_PAYMENT_SUBSCRIPTION: API_URL + ':8839/paymentsubscription/update',

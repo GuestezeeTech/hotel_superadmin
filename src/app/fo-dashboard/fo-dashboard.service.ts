@@ -33,6 +33,8 @@ export type FoMobileKeyRow = {
   guestEmail: string;
   keyCount: number;
   totalGuests: number;
+  /** Key document created_on (Date / Time column). */
+  createdOn: string;
   checkIn: string;
   checkOut: string;
   checkInRaw: string;
@@ -1000,6 +1002,7 @@ export class FoDashboardService {
     const checkOutRaw = String(reservation?.check_out ?? reservation?.checkOut ?? '').trim();
     const checkInDate = this.parseLooseDate(checkInRaw);
     const checkOutDate = this.parseLooseDate(checkOutRaw);
+    const createdDate = this.mobileKeyCreatedDate(row);
     const sortDate = this.mobileKeySortDate(row);
     const opened = String(key?.opened_status ?? key?.openedStatus ?? 'unused').trim() || 'unused';
     const attempts = Array.isArray(key?.unlock_attempts)
@@ -1026,6 +1029,7 @@ export class FoDashboardService {
       guestEmail: String(guest?.guest_email ?? guest?.guestEmail ?? '').trim() || '—',
       keyCount: Number.isFinite(keyCount) ? keyCount : 1,
       totalGuests: Number.isFinite(totalGuests) ? totalGuests : 1,
+      createdOn: createdDate ? this.formatDisplayDateTime(createdDate) : '—',
       checkIn: checkInDate ? this.formatDisplayDateTime(checkInDate) : checkInRaw || '—',
       checkOut: checkOutDate ? this.formatDisplayDateTime(checkOutDate) : checkOutRaw || '—',
       checkInRaw,
@@ -1051,13 +1055,24 @@ export class FoDashboardService {
     };
   }
 
+  /** Prefer document created_on for Date / Time display. */
+  private mobileKeyCreatedDate(row: any): Date | null {
+    const report = this.unwrapMobileKeyReport(row);
+    return (
+      this.parseLooseDate(row?.created_on) ||
+      this.parseLooseDate(row?.created_at) ||
+      this.parseLooseDate(report?.created_on) ||
+      this.parseLooseDate(report?.created_at) ||
+      this.parseLooseDate(row?.modified_on) ||
+      this.parseLooseDate(report?.modified_on)
+    );
+  }
+
   private mobileKeySortDate(row: any): Date | null {
     const report = this.unwrapMobileKeyReport(row);
     const reservation = report?.reservation || {};
     return (
-      this.parseLooseDate(row?.created_on) ||
-      this.parseLooseDate(row?.created_at) ||
-      this.parseLooseDate(row?.modified_on) ||
+      this.mobileKeyCreatedDate(row) ||
       this.parseLooseDate(reservation?.check_in || reservation?.checkIn)
     );
   }

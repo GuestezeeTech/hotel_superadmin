@@ -141,7 +141,7 @@
               <td colspan="11">No mobile keys for this hotel / filter</td>
             </tr>
             <tr *ngFor="let row of filteredMobileKeyRows" class="track-row--active" (click)="viewMobileKey(row)">
-              <td>{{ row.checkIn }}</td>
+              <td>{{ row.createdOn }}</td>
               <td>{{ row.guestName }}</td>
               <td>{{ row.roomNo }}</td>
               <td>{{ row.checkIn }}</td>
@@ -177,7 +177,7 @@
               <td colspan="10">No unused mobile keys for this hotel / filter</td>
             </tr>
             <tr *ngFor="let row of filteredUnusedMobileKeyRows" class="track-row--active" (click)="viewMobileKey(row)">
-              <td>{{ row.checkIn }}</td>
+              <td>{{ row.createdOn }}</td>
               <td>{{ row.guestName }}</td>
               <td>{{ row.roomNo }}</td>
               <td>{{ row.checkIn }}</td>

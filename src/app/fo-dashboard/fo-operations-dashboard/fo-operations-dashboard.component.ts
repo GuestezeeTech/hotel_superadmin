@@ -476,7 +476,7 @@ export class FoOperationsDashboardComponent implements OnInit {
   viewMobileKey(row: FoMobileKeyRow): void {
     this.openModal(
       `Mobile Key · ${row.guestName}`,
-      `Guest: ${row.guestName}<br>Room: ${row.roomNo}<br>Check-in: ${row.checkIn}<br>Check-out: ${row.checkOut}<br>Key count: ${row.keyCount}<br>Lock: ${row.lockName}<br>Opened status: ${row.openedStatus}<br>Key used: ${row.keyUsedCount}<br>Device: ${row.deviceBrand} · ${row.deviceName}<br>In-house: ${row.inHouseStatus}`
+      `Guest: ${row.guestName}<br>Room: ${row.roomNo}<br>Created on: ${row.createdOn}<br>Check-in: ${row.checkIn}<br>Check-out: ${row.checkOut}<br>Key count: ${row.keyCount}<br>Lock: ${row.lockName}<br>Opened status: ${row.openedStatus}<br>Key used: ${row.keyUsedCount}<br>Device: ${row.deviceBrand} · ${row.deviceName}<br>In-house: ${row.inHouseStatus}`
     );
   }
 

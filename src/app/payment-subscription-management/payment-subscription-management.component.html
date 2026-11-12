@@ -24,10 +24,10 @@
               <div class="plan-details-scrollable">
                 <!-- Base Price -->
                 <h4 class="fw-bold">
-                  <small *ngIf="plan.name=='SingleRoomPricing'"> ₹{{ plan.peryearcost| number:'1.2-2' }}</small>
+                  <small *ngIf="plan.name=='SingleRoomPricing'"> {{ currencySymbol(plan) }}{{ plan.peryearcost| number:'1.2-2' }}</small>
                   <small *ngIf="plan.name!='SingleRoomPricing'"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </small>
                   <!-- <small *ngIf="plan.name!='SingleRoomPricing'"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </small> -->
-                  <small *ngIf="plan.name=='SingleRoomPricing'">/ year (GST inclusive)</small>
+                  <small *ngIf="plan.name=='SingleRoomPricing'">/ year (GST {{ gstPercentage(plan) }}% inclusive)</small>
                   <small *ngIf="plan.name!='SingleRoomPricing'"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </small>
                   <!-- <small  *ngIf="plan.name!='SingleRoomPricing'" >  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </small> -->
                 </h4>
@@ -58,14 +58,30 @@
                     [placeholder]="plan.discountType === 'percentage' ? '0 %' : '0'" />
                 </div>
 
-                <!-- GST (readonly) -->
+                <!-- GST rate (saved on the plan as gst_percentage) -->
+                <div class="mt-3">
+                  <label class="fw-semibold" style="font-size: 13px;">GST (%)</label>
+                  <input type="number" class="form-control text-center" [(ngModel)]="plan.gst_percentage"
+                    (input)="calculateDiscount(plan)" step="0.01" min="0" max="100"
+                    [placeholder]="gstPercentage(plan) + ' %'" />
+                </div>
+
+                <!-- Exchange rate: CCAvenue (Indian hotels only) charges the USD amount in INR at this rate -->
+                <div class="mt-3">
+                  <label class="fw-semibold" style="font-size: 13px;">USD → INR rate (for CCAvenue)</label>
+                  <input type="number" class="form-control text-center" [(ngModel)]="plan.inr_per_usd" step="0.01" min="0"
+                    [placeholder]="'1 USD = ' + inrPerUsd(plan) + ' INR'" />
+                  <small class="text-muted" style="font-size: 11px;">Prices are shown in USD. Indian hotels paying with CCAvenue are charged in INR at this rate. GST applies to both.</small>
+                </div>
+
+                <!-- GST amount (readonly) -->
                 <div class="mt-3 fw-bold">
-                  GST (18%): ₹{{ plan.gstAmount | number:'1.2-2' }}
+                  GST ({{ gstPercentage(plan) }}%): {{ currencySymbol(plan) }}{{ plan.gstAmount | number:'1.2-2' }}
                 </div>
 
                 <!-- Final Price -->
                 <div class="mt-3 fw-bold">
-                  Final Price: ₹{{ plan.finalPrice | number:'1.2-2' }}
+                  Final Price: {{ currencySymbol(plan) }}{{ plan.finalPrice | number:'1.2-2' }}
                 </div>
               </div>
 

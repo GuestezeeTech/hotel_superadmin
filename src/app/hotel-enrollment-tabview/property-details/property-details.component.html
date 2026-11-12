@@ -307,58 +307,19 @@
       </div>
     </div>
   </div> -->
-  <!-- newly added -->
+  <!-- PMS and door lock type, entered in the admin onboarding popup (read-only here) -->
   <div class="section">
-    <h3 style="font-size: 20px;font-weight: 600;">
-      Property Size
-      <a style="font-size: 13px;color: #A0A0A0;">
-        <!-- Newly commented & added for single room pricing -->
-        <!-- – Each room is charged ₹{{ singleRoomFinalPrice }} per month - All fields are required -->
-        <a *ngIf="selectedPropertySize && propertyPricingMap[selectedPropertySize]">– Each room is charged ₹{{
-          propertyPricingMap[selectedPropertySize] }} per month </a>- All fields are required
-        <!-- End of newly commented & added for single room pricing -->
-      </a>
-    </h3>
-    <div style="display: grid;grid-template-columns: repeat(4, 1fr);row-gap: 3%;">
-      <div class="form-group form2_div">
-        <div class="form-check">
-          <input type="radio" class="form-check-input" id="radio1" name="property_size" value="01-50 Rooms"
-            formControlName="property_size" [checked]="selectedPropertySize === '01-50 Rooms'"
-            (change)="onPropertySizeChange('01-50 Rooms')">
-          <small style="white-space: nowrap;">01-50 Rooms (Rs. {{ getTotalCostForOption('01-50 Rooms') | number:'1.0-0'
-            }})</small>
-          <label class="form-check-label" for="radio1"></label>
-        </div>
+    <h3 style="font-size: 20px;font-weight: 600;">PMS &amp; Door Lock</h3>
+    <div style="display: grid;grid-template-columns: repeat(2, minmax(0, 1fr));row-gap: 3%;">
+      <div class="form-group form1_div">
+        <label for="registerPmsType">PMS Type</label>
+        <input id="registerPmsType" class="input_box" type="text" readonly placeholder="Not provided"
+          [value]="customerdata?.register_pms_type || ''" />
       </div>
-      <div class="form-group form2_div">
-        <div class="form-check">
-          <input type="radio" class="form-check-input" id="radio2" name="property_size" value="51-100 Rooms"
-            formControlName="property_size" [checked]="selectedPropertySize === '51-100 Rooms'"
-            (change)="onPropertySizeChange('51-100 Rooms')">
-          <small style="white-space: nowrap;">51-100 Rooms (Rs. {{ getTotalCostForOption('51-100 Rooms') |
-            number:'1.0-0' }})</small>
-          <label class="form-check-label" for="radio2"></label>
-        </div>
-      </div>
-      <div class="form-group form2_div">
-        <div class="form-check">
-          <input type="radio" class="form-check-input" id="radio3" name="property_size" value="101-150 Rooms"
-            formControlName="property_size" [checked]="selectedPropertySize === '101-150 Rooms'"
-            (change)="onPropertySizeChange('101-150 Rooms')">
-          <small style="white-space: nowrap;">101-150 Rooms (Rs. {{ getTotalCostForOption('101-150 Rooms') |
-            number:'1.0-0' }})</small>
-          <label class="form-check-label" for="radio3"></label>
-        </div>
-      </div>
-      <div class="form-group form2_div">
-        <div class="form-check">
-          <input type="radio" class="form-check-input" id="radio4" name="property_size" value="150 and above Rooms"
-            formControlName="property_size" [checked]="selectedPropertySize === '150 and above Rooms'"
-            (change)="onPropertySizeChange('150 and above Rooms')">
-          <small style="white-space: nowrap;">150 and above Rooms (Rs. {{ getTotalCostForOption('150 and above Rooms') |
-            number:'1.0-0' }})</small>
-          <label class="form-check-label" for="radio4"></label>
-        </div>
+      <div class="form-group form1_div">
+        <label for="registerDoorLockType">Door Lock Type</label>
+        <input id="registerDoorLockType" class="input_box" type="text" readonly placeholder="Not provided"
+          [value]="customerdata?.register_door_lock_type || ''" />
       </div>
     </div>
   </div>
@@ -387,7 +348,7 @@
         <strong style="color: #8b0000; font-size: 16px; margin-left: 4px;">
           <span *ngIf="customerdata.subscription_detail.discountType === 'percentage'">{{
             customerdata.subscription_detail.discountValue }}%</span>
-          <span *ngIf="customerdata.subscription_detail.discountType !== 'percentage'">₹{{
+          <span *ngIf="customerdata.subscription_detail.discountType !== 'percentage'">${{
             customerdata.subscription_detail.discountValue }}</span>
           OFF
         </strong>
@@ -414,16 +375,6 @@
       </span>
       <span *ngIf="customerProprtyDetailsForm.get('number_of_rooms')?.errors?.['min']">
         Must be greater than 0.
-      </span>
-      <span *ngIf="customerProprtyDetailsForm.get('number_of_rooms')?.errors?.['maxExceeded']">
-        Number of rooms exceeds the limit for the selected property size
-        (Max: {{ propertySizeLimits[selectedPropertySize] }} rooms).
-        Please enter a value within the range or select a larger property size.
-      </span>
-      <span *ngIf="customerProprtyDetailsForm.get('number_of_rooms')?.errors?.['belowMin']">
-        Number of rooms is too low for the selected property size
-        (Min: {{ propertySizeRanges[selectedPropertySize].min }} rooms).
-        Please enter a higher value or select a smaller property size.
       </span>
     </div>
   </div>

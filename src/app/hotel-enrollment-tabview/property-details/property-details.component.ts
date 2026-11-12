@@ -1097,6 +1097,8 @@ export class PropertyDetailsComponent {
       const savedSize = this.customerdata.property_details?.property_address?.property_size;
       if (savedSize) {
         this.selectedPropertySize = savedSize;
+      } else {
+        this.syncPropertySizeFromRooms(this.customerdata.property_details?.property_address?.number_of_rooms);
       }
       // Newly added for documents upload
       //  this.uploadedDocumentsApi = this.customerdata.property_details?.kyc_documents?.uploaded_documents;
@@ -1526,7 +1528,21 @@ export class PropertyDetailsComponent {
   // Triggered when number input changes
   onRoomNumberChange() {
     const rooms = this.customerProprtyDetailsForm.get('number_of_rooms')?.value;
+    this.syncPropertySizeFromRooms(rooms);
     this.updatePricingAndValidation(rooms, undefined);
+  }
+
+  /** Property size is no longer picked on screen; it follows the number of rooms. */
+  private syncPropertySizeFromRooms(rooms: any): void {
+    const count = Number(rooms);
+    const size = Object.keys(this.propertySizeRanges).find((key) => {
+      const range = this.propertySizeRanges[key];
+      return count >= range.min && count <= range.max;
+    });
+    if (size) {
+      this.selectedPropertySize = size;
+      this.customerProprtyDetailsForm.get('property_size')?.setValue(size);
+    }
   }
 
   // Triggered when property size radio is changed

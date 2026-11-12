@@ -2,88 +2,74 @@
   <app-alerts></app-alerts>
   <div class="centered-container">
     <div class="container mt-1">
+      <div class="state" *ngIf="!plan">Loading…</div>
 
-      <!-- Back Button -->
-      <!-- <p class="fw-medium" style="font-size: 18px; color: #1A1A1A; cursor: pointer;" (click)="goBack()">
-        <i class="fas fa-angle-left" style="font-size: 13px"></i> Back
-      </p> -->
+      <div class="card text-center pricing-card" *ngIf="plan">
+        <div class="card-body text-center">
+          <div class="plan-details-scrollable">
 
-      <!-- Pricing Plans -->
-      <div class="row row-cols-1 row-cols-md-4 g-3">
-        <div class="col" *ngFor="let plan of plans; let i = index">
-          <div class="card h-100 text-center" [ngClass]="plan.isCurrent ? 'isCurrent' : 'isNotCurrent'">
-
-            <!-- Header -->
-            <div class="card-header fw-bold" style="font-size: 17px">
-              <i class="fas fa-crown" *ngIf="plan.isCurrent"></i>&nbsp;{{ plan.name }}
+            <!-- Plan type: Cost (pay from now on) or Free (no payment for 3 months, then this price) -->
+            <div class="mt-2">
+              <label class="fw-semibold" for="planType" style="font-size: 13px;">Plan</label>
+              <select id="planType" class="form-select text-center" [(ngModel)]="planType">
+                <option value="cost">Cost</option>
+                <option value="free">Free</option>
+              </select>
             </div>
 
-            <!-- Body -->
-            <div class="card-body text-center">
+            <p class="plan-note" *ngIf="planType === 'free'">
+              No payment until <strong>{{ freePeriodEndDate }}</strong>.
+              The cost below is charged after the free 3 months.
+            </p>
+            <p class="plan-note" *ngIf="planType === 'cost'">
+              The cost below is charged from now on.
+            </p>
 
-              <!-- Scrollable Content -->
-              <div class="plan-details-scrollable">
-                <!-- Base Price -->
-                <!-- <h4 class="fw-bold">
-                  ₹{{ plan.finalPrice | number:'1.2-2' }}
-                  <small>/Year</small>
-                </h4> -->
+            <!-- Per Room Cost Input -->
+            <div class="mt-3">
+              <label class="fw-semibold" style="font-size: 13px;">Per Room Cost (per month):</label>
+              <input type="number" class="form-control text-center" [(ngModel)]="plan.perRoomCost"
+                (input)="calculateDiscount()" (keydown)="preventDecimal($event)" step="1" min="0"
+                placeholder="Enter cost per room" />
+            </div>
 
-                <!-- Per Room Cost Input -->
-                <div class="mt-2">
-                  <label class="fw-semibold" style="font-size: 13px;">Per Room Cost (per month):</label>
-                  <input type="number" class="form-control text-center" [(ngModel)]="plan.perRoomCost"
-                    (input)="calculateDiscount(plan)" (keydown)="preventDecimal($event)" step="1" min="0"
-                    placeholder="Enter cost per room" />
-                </div>
+            <!-- Discount Type Select -->
+            <div class="mt-3">
+              <label class="fw-semibold" style="font-size: 13px;">Discount Type:</label>
+              <select class="form-select text-center" [(ngModel)]="plan.discountType" (change)="calculateDiscount()">
+                <option value="percentage">Percentage</option>
+                <option value="flat">Flat Price</option>
+              </select>
+            </div>
 
-                <!-- Discount Type Select -->
-                <div class="mt-3">
-                  <label class="fw-semibold" style="font-size: 13px;">Discount Type:</label>
-                  <select class="form-select text-center" [(ngModel)]="plan.discountType"
-                    (change)="calculateDiscount(plan)">
-                    <!-- <option value="selected" disabled>select</option> -->
-                    <option value="percentage">Percentage</option>
-                    <option value="flat">Flat Price</option>
-                  </select>
-                </div>
+            <!-- Discount Value Input -->
+            <div class="mt-3">
+              <label class="fw-semibold" style="font-size: 13px;">Discount Value</label>
+              <input type="number" class="form-control text-center" [(ngModel)]="plan.discountValue"
+                (input)="calculateDiscount()" (keydown)="preventDecimal($event)" step="1" min="0"
+                [placeholder]="plan.discountType === 'percentage' ? '0 %' : '0'" />
+            </div>
 
-                <!-- Discount Value Input -->
-                <div class="mt-3">
-                  <label class="fw-semibold" style="font-size: 13px;">Discount Value</label>
-                  <input type="number" class="form-control text-center" [(ngModel)]="plan.discountValue"
-                    (input)="calculateDiscount(plan)" (keydown)="preventDecimal($event)" step="1" min="0"
-                    [placeholder]="plan.discountType === 'percentage' ? '0 %' : '0'" />
-                </div>
+            <!-- GST rate: the price below is recalculated from this value -->
+            <div class="mt-3">
+              <label class="fw-semibold" style="font-size: 13px;">GST (%)</label>
+              <input type="number" class="form-control text-center" [(ngModel)]="plan.gst_percentage"
+                (input)="calculateDiscount()" step="0.01" min="0" max="100"
+                [placeholder]="gstPercentage(plan) + ' %'" />
+            </div>
 
-                <!-- GST (readonly) -->
-                <div class="mt-3 fw-bold">
-                  <!-- GST (18%): ₹{{ plan.gstAmount | number:'1.2-2'}} -->
-                  GST (18%): ₹{{ (plan.gstAmount ?? plan.gst_amount) | number:'1.2-2'}}
-                </div>
+            <div class="mt-3 fw-bold">
+              GST ({{ gstPercentage(plan) }}%): {{ currencySymbol(plan) }}{{ plan.gstAmount | number:'1.2-2' }}
+            </div>
 
-                <!-- Final Price -->
-                <div class="mt-3 fw-bold">
-                  Final Price: ₹{{ plan.finalPrice | number:'1.2-2' }} / room / month
-                </div>
-
-                <!-- Free plan: no payment for three months -->
-                <div class="mt-3 fw-semibold" style="font-size: 13px;" *ngIf="isFreePlan(plan)">
-                  <ng-container *ngIf="plan.isCurrent && freePeriodEndDate; else freeInfo">
-                    Payment disabled until {{ freePeriodEndDate }}
-                  </ng-container>
-                  <ng-template #freeInfo>Payment is disabled for 3 months</ng-template>
-                </div>
-              </div>
-
-              <!-- Save Button -->
-              <button class="btn w-100 py-2 my-2 fw-bold save-btn"
-                [ngClass]="plan.isCurrent ? 'isBtnCurrent' : 'isBtnNotCurrent'" (click)="calculateDiscount1(plan)">
-                <i class="fas fa-crown" *ngIf="plan.isCurrent"></i>&nbsp; SAVE
-              </button>
-
+            <div class="mt-3 fw-bold">
+              Final Price: {{ currencySymbol(plan) }}{{ plan.finalPrice | number:'1.2-2' }} / room / month
             </div>
           </div>
+
+          <button class="btn w-100 py-2 my-2 fw-bold save-btn isBtnNotCurrent" [disabled]="saving" (click)="save()">
+            {{ saving ? 'SAVING…' : 'SAVE' }}
+          </button>
         </div>
       </div>
 
@@ -93,5 +79,4 @@
 
 <div style="display: flex;justify-content: flex-end;">
   <button type="submit" class="cancel_bt mr-3" (click)="previousTab()">Back</button>
-  <!-- <button type="submit" class="save_bt" (click)="nextTab()">Save & Continue</button> -->
 </div>

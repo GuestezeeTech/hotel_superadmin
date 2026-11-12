@@ -15,6 +15,7 @@ import { ENDPOINTS } from '../app.config';
 import { LocalStorageService } from '../auth-services/local-storage.service';
 import { SharedDataService } from '../shared/shared-data.service';
 import { firstValueFrom } from 'rxjs';
+import { OnboardingEmailService } from '../shared/onboarding-email.service';
 
 @Component({
   selector: 'app-hotel-list',
@@ -77,9 +78,10 @@ export class HotelListComponent implements OnInit {
     private alertService: AlertsService,
     private renderer: Renderer2, private el: ElementRef,
     private localStorageService: LocalStorageService,
-    private sharedService: SharedDataService
+    private sharedService: SharedDataService,
+    private onboardingEmail: OnboardingEmailService
   ) {
-    // Newly added for pagination 
+    // Newly added for pagination
     const navigation = this.router.getCurrentNavigation();
     const previousUrl = navigation?.previousNavigation?.finalUrl?.toString() || '';
     const isFromHotelSubPage =
@@ -570,7 +572,8 @@ export class HotelListComponent implements OnInit {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
       payload: {
-        customer_update: { verify_status: true }
+        // register_status unlocks the hotel's admin: it moves on to the subscription payment
+        customer_update: { verify_status: true, register_status: true }
       },
       extras: {
         find: { id: this.verifyCustomer.id }
@@ -580,7 +583,10 @@ export class HotelListComponent implements OnInit {
       next: (resp: any) => {
         this.isVerifying = false;
         if (resp?.success === 1) {
+          // Hotel can now pay: "Subscription Request" to the hotel
+          this.onboardingEmail.sendToCustomer('Subscription Request', { ...this.verifyCustomer, ...(this.customerdata || {}) });
           this.verifyCustomer.verify_status = true;
+          this.verifyCustomer.register_status = true;
           this.closeVerifyModal();
           this.alertService.success('Hotel verified successfully.', this.options);
         } else {
@@ -653,6 +659,10 @@ export class HotelListComponent implements OnInit {
       next: (resp: any) => {
         this.goLiveSaving.delete(customer.id);
         if (resp?.success === 1) {
+          if (goLive && customer.go_live !== true) {
+            // "Go live Approved" to the hotel
+            this.onboardingEmail.sendToCustomer('Go live Approved', { ...customer, ...(this.customerdata || {}) });
+          }
           customer.go_live = goLive;
           this.alertService.success(goLive ? 'Hotel is now live.' : 'Hotel is no longer live.', this.options);
         } else {
@@ -759,6 +769,9 @@ export class HotelListComponent implements OnInit {
     delete this.customerdata.password;
     delete this.customerdata.password_to_customer;
     //console.log(this.customerdata, "this.customerdata")
+    const wasApproved = String(this.customerdata.status || '').toLowerCase() === 'approved';
+    const nowApproved = String(status || '').toLowerCase() === 'approved';
+    const approvedCustomer = this.customerdata;
     this.customerdata.status = status;
     this.customerdata.status_remarks = (status || '').toLowerCase() === 'unapproved' ? this.unapprovalReason : '';
 
@@ -788,6 +801,10 @@ export class HotelListComponent implements OnInit {
             }
 
 
+            if (nowApproved && !wasApproved) {
+              // Status just changed to approved: "Complete Onboarding" to the hotel
+              this.onboardingEmail.sendToCustomer('Complete Onboarding', approvedCustomer);
+            }
             this.alertService.success(resp.message, this.options);
             this.getAllCustomers();
 

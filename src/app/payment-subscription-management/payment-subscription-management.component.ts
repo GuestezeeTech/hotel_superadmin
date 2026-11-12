@@ -6,6 +6,7 @@ import { PaymentDetailsService } from '../payment-details/payment-details.servic
 import { AuthTokenService } from '../auth-services/auth-token.service';
 import { AlertsService } from '../shared/alerts/alerts.service';
 import { AlertsComponent } from '../shared/alerts/alerts.component';
+import { currencySymbolOf, gstFor, gstPercentageOf, inrPerUsdOf } from '../shared/plan-pricing.util';
 
 @Component({
   selector: 'app-payment-subscription-management',
@@ -160,14 +161,14 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
         // console.log('Yearly Total:', yearlyTotal);
 
         // ✅ GST (18% of yearly total)
-        p.gstAmount = +(discountedTotal * 0.18).toFixed(2); //(250 * 0.18) = 45
-        // p.gstAmount = +(yearlyTotal * 0.18).toFixed(2);
+        p.gstAmount = gstFor(discountedTotal, p); // e.g. 250 at 18% = 45
+        // p.gstAmount = gstFor(yearlyTotal, p);
         // console.log('GST Amount:', p.gstAmount);
 
         // ✅ Final price = yearly total + GST
         p.finalPrice = +(discountedTotal + p.gstAmount).toFixed(2); // (250 + 45) = 295
         // console.log('Final Price:', p.finalPrice);
-        // p.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
+        // p.peryeargstAmount = gstFor(yearlyTotal, p);
         p.peryeargstAmount = +(p.gstAmount * 12).toFixed(2);
         // console.log('Per Year GST Amount:', p.peryeargstAmount);
         // p.peryeargstAmount = +(yearlyTotal + (yearlyTotal * 0.18)).toFixed(2);
@@ -199,14 +200,14 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
       // console.log('Yearly Total:', yearlyTotal);
 
       // ✅ GST (18% of yearly total)
-      plan.gstAmount = +(discountedTotal * 0.18).toFixed(2);
-      // plan.gstAmount = +(yearlyTotal * 0.18).toFixed(2);
+      plan.gstAmount = gstFor(discountedTotal, plan);
+      // plan.gstAmount = gstFor(yearlyTotal, plan);
       // console.log('GST Amount:', plan.gstAmount);
 
       // ✅ Final price = yearly total + GST
       plan.finalPrice = +(discountedTotal + plan.gstAmount).toFixed(2);
       // console.log('Final Price:', plan.finalPrice);
-      // plan.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
+      // plan.peryeargstAmount = gstFor(yearlyTotal, plan);
       plan.peryeargstAmount = +(plan.gstAmount * 12).toFixed(2);
       // console.log('Per Year GST Amount:', plan.peryeargstAmount);
       // plan.peryearcost = +(yearlyTotal + plan.gstAmount).toFixed(2);
@@ -237,8 +238,8 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
     const yearlyTotal = discountedTotal * 12;
 
     // ✅ GST (18% of yearly total)
-    // plan.gstAmount = +(yearlyTotal * 0.18).toFixed(2);
-    plan.gstAmount = +(discountedTotal * 0.18).toFixed(2);
+    // plan.gstAmount = gstFor(yearlyTotal, plan);
+    plan.gstAmount = gstFor(discountedTotal, plan);
 
     // ✅ Final price = yearly total + GST
     // plan.finalPrice = +(yearlyTotal + plan.gstAmount).toFixed(2);
@@ -268,6 +269,21 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
     // Validation: Percentage should not be more than 100
     if (discountType === 'percentage' && discountValue > 100) {
       this.alertService.error(`Discount percentage cannot exceed 100% for ${plan.name}`, this.options);
+      return;
+    }
+
+    // Validation: GST must be 0-100%; an empty box keeps the default 18%
+    const gstValue = plan.gst_percentage;
+    if (gstValue !== null && gstValue !== undefined && gstValue !== '' &&
+      (!Number.isFinite(Number(gstValue)) || Number(gstValue) < 0 || Number(gstValue) > 100)) {
+      this.alertService.error(`GST must be between 0% and 100% for ${plan.name}`, this.options);
+      return;
+    }
+
+    // Exchange rate must be a positive number; an empty box keeps the default
+    const rateValue = plan.inr_per_usd;
+    if (rateValue !== null && rateValue !== undefined && rateValue !== '' && !(Number(rateValue) > 0)) {
+      this.alertService.error(`USD to INR rate must be greater than 0 for ${plan.name}`, this.options);
       return;
     }
 
@@ -315,14 +331,14 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
       // console.log('Yearly Total:', yearlyTotal);
 
       // ✅ GST (18% of yearly total)
-      p.gstAmount = +(discountedTotal * 0.18).toFixed(2);
+      p.gstAmount = gstFor(discountedTotal, p);
       // console.log('GST Amount:', p.gstAmount);
 
       // ✅ Final price = yearly total + GST
       p.finalPrice = +(discountedTotal + p.gstAmount).toFixed(2);
       // console.log('Final Price:', p.finalPrice);
 
-      // p.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
+      // p.peryeargstAmount = gstFor(yearlyTotal, p);
       p.peryeargstAmount = +(p.gstAmount * 12).toFixed(2);
       // console.log('Per Year GST Amount:', p.peryeargstAmount);
       // p.peryearcost = +(yearlyTotal + p.gstAmount).toFixed(2);
@@ -341,6 +357,9 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
       discountValue: plan.discountValue,
       finalPrice: plan.finalPrice,
       gstAmount: plan.gstAmount,
+      gst_percentage: gstPercentageOf(plan),
+      currency_type: plan.currency_type || '$',
+      inr_per_usd: inrPerUsdOf(plan),
       peryeargstAmount: plan.peryeargstAmount,
       peryearcost: plan.peryearcost
     };
@@ -392,6 +411,21 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
 
   goBack() {
     this.routerUrl.navigate(['/settings']);
+  }
+
+  /** Currency symbol from the plan's currency_type ("dollar" -> "$"). */
+  currencySymbol(plan: any): string {
+    return currencySymbolOf(plan);
+  }
+
+  /** The plan's GST percentage (18 when not set). */
+  gstPercentage(plan: any): number {
+    return gstPercentageOf(plan);
+  }
+
+  /** Rupees per dollar used to bill Indian hotels (83 when not set). */
+  inrPerUsd(plan: any): number {
+    return inrPerUsdOf(plan);
   }
 
   preventDecimal(event: KeyboardEvent) {

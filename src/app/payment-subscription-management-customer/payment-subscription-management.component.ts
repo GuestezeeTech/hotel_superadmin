@@ -1,13 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { AlertsComponent } from '../shared/alerts/alerts.component'
+import { currencySymbolOf, gstFor, gstPercentageOf, inrPerUsdOf } from '../shared/plan-pricing.util';
 import { FormsModule } from '@angular/forms';
 import { PaymentDetailsService } from '../payment-details/payment-details.service';
 import { AuthTokenService } from '../auth-services/auth-token.service';
 import { AlertsService } from '../shared/alerts/alerts.service';
 import { HotelEnrollmentTabviewService } from '../hotel-enrollment-tabview/hotel-enrollment-tabview.service';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
+export type PlanType = 'cost' | 'free';
+
+/** Months with no payment when the plan type is Free */
+export const FREE_MONTHS = 3;
+
+/**
+ * Payment Settings tab of one hotel. One price (per room cost, discount, GST) plus a
+ * plan type:
+ *  - Cost: the hotel pays this price from now on.
+ *  - Free: no payment for the next three months (payment_plan.free_period), then this price.
+ */
 @Component({
   selector: 'app-payment-subscription-management-customer',
   standalone: true,
@@ -16,7 +28,7 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
   styleUrls: ['./payment-subscription-management.component.scss']
 })
 export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
-  constructor(private routerUrl: Router,
+  constructor(
     private PaymentDetailsService: PaymentDetailsService,
     private authTokenService: AuthTokenService,
     private alertService: AlertsService,
@@ -24,397 +36,193 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
   ) { }
-  hotelId: Number | null = null;
-  customerdata: any = [];
+
+  hotelId: number | null = null;
+  customerdata: any = {};
   options = {
     autoClose: true,
     keepAfterRouteChange: false
   };
-  plans: any[] = [
-    // {
-    // name: 'Basic',
-    // price: 450,
-    // perRoomCost: 450,
-    // roomCount: 1,
-    // discountType: 'percentage', // 'percentage' or 'flat'
-    // discountValue: 0,
-    // finalPrice: 450,
-    // isCurrent: true,
-    // features: ['Feature 1', 'Feature 2']
-    // }
 
-  ];
-
-  planName: string = "";
-  /** True until the customer's registration is approved: every plan can be chosen */
-  showAllPlans: boolean = false;
-
-  billingDetails = {
-    nextPaymentDate: '28 March 2025',
-    nextPaymentAmount: 56.0,
-    lastPayment: {
-      status: 'Payment Successful',
-      cardNumber: '**** **** **** 5714',
-      cardType: 'VISA',
-      amount: 56.0
-    },
-    lastBilling: {
-      name: 'Aswin Kumar R',
-      date: '28 Feb, 2025',
-      address: '#46 Ambattur, Chennai, Tamil Nadu 600058'
-    }
-  };
+  planType: PlanType = 'cost';
+  /** The price being edited (per room / month) */
+  plan: any = null;
+  saving = false;
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      var temphotelid = params.get('id'); // Get the 'id' from the URL
-      this.hotelId = Number(temphotelid);
-      //console.log('Hotel ID:', this.hotelId);
-      if (this.hotelId != 0) {
-        this.getCustomerById()// Debugging
+      this.hotelId = Number(params.get('id'));
+      if (this.hotelId) {
+        this.load();
       }
-      else {
-        this.getAllSubscriptions();
-      }
-
     });
-
   }
 
-  calculateDiscount(plan: any) {
-    // Ensure Room Cost is a whole integer
+  /** Customer's saved price when there is one, otherwise the general plan for the property */
+  private async load(): Promise<void> {
+    try {
+      this.customerdata = await this.getCustomerById();
+    } catch {
+      return;
+    }
+    const saved = this.customerdata?.subscription_detail;
+    const general = await this.getGeneralPlan();
+    if (saved && (saved.perRoomCost !== undefined || saved.price !== undefined)) {
+      // Older hotels saved the "Free" plan by name; its prices are now the after-free price
+      this.planType = saved.plan_type === 'free' || saved.name === 'Free' ? 'free' : 'cost';
+      this.plan = {
+        ...saved,
+        name: saved.name && saved.name !== 'Free' ? saved.name : (general?.name || 'RoomPricing'),
+        perRoomCost: saved.perRoomCost ?? saved.price ?? 0,
+        gstAmount: saved.gstAmount ?? saved.gst_amount
+      };
+    } else {
+      this.planType = 'cost';
+      this.plan = general ? { ...general } : {
+        name: 'RoomPricing', perRoomCost: 0, discountType: 'percentage', discountValue: 0, currency_type: '$'
+      };
+    }
+    this.plan.discountType = this.plan.discountType || 'percentage';
+    this.plan.discountValue = this.plan.discountValue ?? 0;
+    this.calculateDiscount();
+  }
+
+  /** The general (non-Free) plan for the property size, else the first one */
+  private getGeneralPlan(): Promise<any | null> {
+    const requestBody = {
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      extras: {
+        find: {},
+        pagination: true,
+        paginationDetails: { limit: 0, pageSize: 100 },
+        sorting: true,
+        sortingDetails: { name: 1 }
+      }
+    };
+    return new Promise((resolve) => {
+      this.PaymentDetailsService.getAllSubscriptionDetails(requestBody).subscribe({
+        next: (resp: any) => {
+          const plans = (resp?.result?.data || []).filter((p: any) => p?.name !== 'Free');
+          const size = this.customerdata?.property_details?.property_address?.property_size;
+          resolve(plans.find((p: any) => p.name === size) || plans[0] || null);
+        },
+        error: () => resolve(null)
+      });
+    });
+  }
+
+  /** Validation message for the current values, or '' when they are fine */
+  private validationError(): string {
+    const plan = this.plan;
+    const discountValue = Number(plan.discountValue) || 0;
+    if (plan.discountType === 'percentage' && discountValue > 100) {
+      return 'Discount percentage cannot exceed 100%';
+    }
+    if (plan.discountType === 'flat' && discountValue > (Number(plan.perRoomCost) || 0)) {
+      return 'Flat discount cannot be greater than the room cost';
+    }
+    const gstValue = plan.gst_percentage;
+    if (gstValue !== null && gstValue !== undefined && gstValue !== '' &&
+      (!Number.isFinite(Number(gstValue)) || Number(gstValue) < 0 || Number(gstValue) > 100)) {
+      return 'GST must be between 0% and 100%';
+    }
+    return '';
+  }
+
+  /** Recalculates GST and the final price per room / month */
+  calculateDiscount(): boolean {
+    const plan = this.plan;
+    if (!plan) {
+      return false;
+    }
     if (plan.perRoomCost) {
       plan.perRoomCost = Math.floor(plan.perRoomCost);
     }
-    const roomCount = Number(plan.roomCount) || 1;
-    const discountType = plan.discountType || 'selected';
-    let discountValue = Number(plan.discountValue) || 0;
-
-    if (discountType === 'percentage' && discountValue > 100) {
-      this.alertService.error(`Discount percentage cannot exceed 100% for ${plan.name}`, this.options);
-      return;
+    const error = this.validationError();
+    if (error) {
+      this.alertService.error(error, this.options);
+      return false;
     }
-    if (discountType === 'flat' && discountValue > (Number(plan.perRoomCost) || 0)) {
-      this.alertService.error(`Flat discount cannot be greater than the room cost for ${plan.name}`, this.options);
-      return;
-    }
-
-    // If "SingleRoomPricing" → update all plans
-    if (plan.name === 'SingleRoomPricing') {
-      const newCost = Number(plan.perRoomCost) || 0;
-
-      this.plans.forEach((p: any) => {
-        p.perRoomCost = newCost;
-
-        const roomCount = Number(p.roomCount) || 1;
-        const total = newCost * roomCount; // ✅ total for all rooms
-
-        let currentDiscountValue = Number(p.discountValue) || 0;
-        let isInvalid = false;
-        if (p.discountType === 'percentage' && currentDiscountValue > 100) {
-          isInvalid = true;
-          this.alertService.error(`Discount percentage cannot exceed 100% for ${p.name}`, this.options);
-        }
-        if (p.discountType === 'flat' && currentDiscountValue > newCost) {
-          isInvalid = true;
-          this.alertService.error(`Flat discount cannot be greater than the room cost for ${p.name}`, this.options);
-        }
-
-        let discount = 0;
-        if (!isInvalid) {
-          if (p.discountType === 'percentage') {
-            discount = (total * currentDiscountValue) / 100;
-          } else if (p.discountType === 'flat') {
-            discount = currentDiscountValue;
-          }
-        }
-
-        const discountedTotal = total - discount;
-
-        const yearlyTotal = discountedTotal * 12;
-
-        // ✅ GST (18% of yearly total)
-        p.gstAmount = +(discountedTotal * 0.18).toFixed(2);
-
-
-        // ✅ Final price = yearly total + GST
-        p.finalPrice = +(discountedTotal + p.gstAmount).toFixed(2);
-        p.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
-        p.peryearcost = +(yearlyTotal + p.gstAmount).toFixed(2);
-      });
-
-    }
-    else {
-      // For individual plan update
-      const total = (Number(plan.perRoomCost) || 0) * roomCount;
-      let discount = 0;
-
-      if (discountType === 'percentage') {
-        discount = (total * discountValue) / 100;
-      } else if (discountType === 'flat') {
-        discount = discountValue;
-      }
-
-      const discountedTotal = total - discount;
-
-      const yearlyTotal = discountedTotal * 12;
-
-      // ✅ GST (18% of yearly total)
-      plan.gstAmount = +(discountedTotal * 0.18).toFixed(2);
-
-
-      // ✅ Final price = yearly total + GST
-      plan.finalPrice = +(discountedTotal + plan.gstAmount).toFixed(2);
-      plan.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
-      plan.peryearcost = +(yearlyTotal + plan.gstAmount).toFixed(2);
-
-
-    }
+    const total = Number(plan.perRoomCost) || 0;
+    const discountValue = Number(plan.discountValue) || 0;
+    const discount = plan.discountType === 'percentage' ? (total * discountValue) / 100
+      : plan.discountType === 'flat' ? discountValue : 0;
+    const discounted = total - discount;
+    const yearly = discounted * 12;
+    plan.gstAmount = gstFor(discounted, plan);
+    plan.finalPrice = +(discounted + plan.gstAmount).toFixed(2);
+    plan.peryeargstAmount = gstFor(yearly, plan);
+    plan.peryearcost = +(yearly + plan.peryeargstAmount).toFixed(2);
+    return true;
   }
 
-
-
-  // calculateDiscount(plan: any) {
-  //   console.log(plan, "plan");
-
-  //   const total = (plan.perRoomCost || 0) * (plan.roomCount || 1);
-  //   let discount = 0;
-
-  //   if (plan.discountType === 'percentage') {
-  //     discount = (total * (plan.discountValue || 0)) / 100;
-  //   } else if (plan.discountType === 'flat') {
-  //     discount = plan.discountValue || 0;
-  //   }
-
-  //   const discountedTotal = total - discount;
-
-  //   // GST 18%
-  //   const gstRate = 18;
-  //   const gstAmount = (discountedTotal * gstRate) / 100;
-
-  //   plan.gstAmount = gstAmount;
-  //   plan.finalPrice = discountedTotal + gstAmount;
-
-
-
-  // console.log(plan,"plan");
-
-
-
-
-  // }
-  calculateDiscount1(plan: any) {
-    // Ensure Room Cost is a whole integer
-    if (plan.perRoomCost) {
-      plan.perRoomCost = Math.floor(plan.perRoomCost);
-    }
-
-    const roomCount = Number(plan.roomCount) || 1;
-    const discountType = plan.discountType || 'selected';
-    let discountValue = Number(plan.discountValue) || 0;
-
-    if (discountType === 'percentage' && discountValue > 100) {
-      this.alertService.error(`Discount percentage cannot exceed 100% for ${plan.name}`, this.options);
+  save(): void {
+    if (!this.plan || this.saving || !this.calculateDiscount()) {
       return;
     }
-    if (discountType === 'flat' && discountValue > (Number(plan.perRoomCost) || 0)) {
-      this.alertService.error(`Flat discount cannot be greater than the room cost for ${plan.name}`, this.options);
-      return;
-    }
-
-    // If "SingleRoomPricing" → update all plans
-    if (plan.name === 'SingleRoomPricing') {
-      const newCost = Number(plan.perRoomCost) || 0;
-
-      this.plans.forEach((p: any) => {
-        p.perRoomCost = newCost;
-
-        const roomCount = Number(p.roomCount) || 1;
-        const total = newCost * roomCount; // ✅ total for all rooms
-
-        let currentDiscountValue = Number(p.discountValue) || 0;
-        let isInvalid = false;
-        if (p.discountType === 'percentage' && currentDiscountValue > 100) {
-          isInvalid = true;
-          this.alertService.error(`Discount percentage cannot exceed 100% for ${p.name}`, this.options);
-        }
-        if (p.discountType === 'flat' && currentDiscountValue > newCost) {
-          isInvalid = true;
-          this.alertService.error(`Flat discount cannot be greater than the room cost for ${p.name}`, this.options);
-        }
-
-        let discount = 0;
-        if (!isInvalid) {
-          if (p.discountType === 'percentage') {
-            discount = (total * currentDiscountValue) / 100;
-          } else if (p.discountType === 'flat') {
-            discount = currentDiscountValue;
-          }
-        }
-
-        const discountedTotal = total - discount;
-        const yearlyTotal = discountedTotal * 12;
-
-        // ✅ GST (18% of yearly total)
-        p.gstAmount = +(yearlyTotal * 0.18).toFixed(2);
-
-        // ✅ Final price = yearly total + GST
-        p.finalPrice = +(yearlyTotal + p.gstAmount).toFixed(2);
-
-        p.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
-        p.peryearcost = +(yearlyTotal + p.gstAmount).toFixed(2);
-      });
-    }
-    else {
-      // For individual plan update
-      const total = (Number(plan.perRoomCost) || 0) * roomCount;
-      let discount = 0;
-
-      if (discountType === 'percentage') {
-        discount = (total * discountValue) / 100;
-      } else if (discountType === 'flat') {
-        discount = discountValue;
-      }
-
-      const discountedTotal = total - discount;
-
-      const yearlyTotal = discountedTotal * 12;
-
-      // ✅ GST (18% of yearly total)
-      plan.gstAmount = +(discountedTotal * 0.18).toFixed(2);
-
-      // ✅ Final price = yearly total + GST
-      plan.finalPrice = +(discountedTotal + plan.gstAmount).toFixed(2);
-
-      plan.peryeargstAmount = +(yearlyTotal * 0.18).toFixed(2);
-      plan.peryearcost = +(yearlyTotal + plan.gstAmount).toFixed(2);
-
-    }
-
-
-
-    let subscription_creation = {
-      // "per_room_cost":plan.perRoomCost,
-      // "discount_type":plan.discountType,
-      // "discount_amount":plan.discountValue,
-      // "gst":plan.gstAmount,
-      // "total_amount":plan.finalPrice
-
+    const plan = this.plan;
+    const subscriptionDetail = {
       name: plan.name,
-      price: plan.perRoomCost,
-      perRoomCost: plan.perRoomCost,
-      roomCount: 1,
-      discountType: plan.discountType, // 'percentage' or 'flat'
-      discountValue: plan.discountValue,
-      finalPrice: plan.finalPrice,
-      gst_amount: plan.gstAmount,
-      // features: ['Feature 1', 'Feature 2']
-
-    }
-    this.customerdata.subscription_detail = {
-      name: plan.name,
+      plan_type: this.planType,
       price: plan.perRoomCost,
       perRoomCost: plan.perRoomCost,
       roomCount: 1,
       discountType: plan.discountType,
       discountValue: plan.discountValue,
       finalPrice: plan.finalPrice,
-      gst_amount: plan.gstAmount
+      gst_amount: plan.gstAmount,
+      gst_percentage: gstPercentageOf(plan),
+      currency_type: plan.currency_type || '$',
+      inr_per_usd: inrPerUsdOf(plan)
     };
-    const paymentPlan = this.buildPaymentPlan(plan);
-    if (paymentPlan) {
-      this.customerdata.payment_plan = paymentPlan;
-    }
+    const paymentPlan = this.buildPaymentPlan();
 
-    let requestBody = {
+    const requestBody = {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
       payload: {
         customer_update: {
-          subscription_detail: this.customerdata.subscription_detail,
+          subscription_detail: subscriptionDetail,
           ...(paymentPlan ? { payment_plan: paymentPlan } : {})
         }
       },
-      extras: {
-        find: {
-          id: this.hotelId
-        }
-      }
-    }
-    //console.log("123")
+      extras: { find: { id: this.hotelId } }
+    };
+    this.saving = true;
     this.hotelenrollmenttabviewService.updateCustomer(requestBody).subscribe(
       resp => {
-        // this.loaderService.emitComplete();
-        if (resp) {
-          if (resp.success === 1 && resp.status_code === 200) {
-            // //console.log(resp);
-            this.plans.forEach((p: any) => p.isCurrent = p === plan);
-            this.hotelenrollmenttabviewService.clearAdminFormEvent();
-            //console.log("alerttttt")
-            this.alertService.success(resp.message || "Record Successfully Updated", this.options);
-            // this.payNow();
-            // setTimeout(() => {
-            //   this.router.navigate([`/all-customers`], { skipLocationChange: false });
-            // }, 1000);
-            // this.router.navigate(['/all-customers'], { state: { result: resp.message }, relativeTo: this.activatedRoute, skipLocationChange: false });
-
+        this.saving = false;
+        if (resp?.success === 1 && resp.status_code === 200) {
+          this.customerdata.subscription_detail = subscriptionDetail;
+          if (paymentPlan) {
+            this.customerdata.payment_plan = paymentPlan;
           }
-          else if (resp.success === 0) {
-            if (resp.message) {
-              this.alertService.error(resp.message, this.options);
-            }
-          }
-          else if (resp.message && resp.status_code !== 200) {
-            this.alertService.error(resp.message, this.options);
-          }
-          else {
-            this.alertService.error('Something bad happened. Please try again!', this.options);
-          }
+          this.hotelenrollmenttabviewService.clearAdminFormEvent();
+          this.alertService.success(resp.message || 'Record Successfully Updated', this.options);
+        } else {
+          this.alertService.error(resp?.message || 'Something bad happened. Please try again!', this.options);
         }
       },
       err => {
-        // this.loaderService.emitComplete();
-        if (err.error.statusCode === 403) {
-          this.alertService.error('Session Time Out! Please login Again', this.options)
+        this.saving = false;
+        if (err?.error?.statusCode === 403) {
+          this.alertService.error('Session Time Out! Please login Again', this.options);
           this.router.navigate([`/login`], { skipLocationChange: false });
-        }
-        else if (err.error.message) {
-          this.alertService.error(err.error.message, this.options)
-        }
-        else {
-          this.alertService.error('Something bad happened. Please try again!', this.options);
+        } else {
+          this.alertService.error(err?.error?.message || 'Something bad happened. Please try again!', this.options);
         }
       }
-    )
-
-
-
-
-
-
-
+    );
   }
 
-  isFreePlan(plan: any): boolean {
-    return plan?.name === 'Free';
-  }
-
-  /** Last day of the customer's free period (DD-MM-YYYY), when one is set */
+  /** Last day of the free period (DD-MM-YYYY): the saved one, or the one saving Free now would set */
   get freePeriodEndDate(): string {
-    return this.customerdata?.payment_plan?.free_period?.end_date || '';
-  }
-
-  /**
-   * register_status decides when it is set, so false always means not registered.
-   * Older customers have no status: they count as registered once their
-   * Registered Office details are saved.
-   */
-  private isRegistered(customer: any): boolean {
-    const status = customer?.register_status;
-    if (status === undefined || status === null) {
-      return customer?.is_office_details_exists === true;
+    if (this.planType !== 'free') {
+      return '';
     }
-    return status === true || status === 'true' || status === 1;
+    return this.buildPaymentPlan()?.free_period?.end_date
+      || this.customerdata?.payment_plan?.free_period?.end_date || '';
   }
 
   private parseDate(value: string): Date | null {
@@ -427,21 +235,21 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
   }
 
   /**
-   * payment_plan to save with the chosen plan, or null if it does not change.
-   * Free adds a three-month free_period, which the hotel admin app reads to switch
-   * payment off. Saving Free again keeps the running period's start date, so it cannot
-   * be extended by accident. Any other plan removes the period. Paid dates are never touched.
+   * payment_plan to save, or null if it does not change.
+   * Free: a three-month free_period from today, which the hotel admin app reads to switch
+   * payment off. Saving Free again keeps a running period's start date, so it cannot be
+   * extended by accident. Cost removes the period. Paid dates are never touched.
    */
-  private buildPaymentPlan(plan: any): any | null {
+  private buildPaymentPlan(): any | null {
     const { free_period, ...rest } = this.customerdata?.payment_plan || {};
-    if (!this.isFreePlan(plan)) {
+    if (this.planType !== 'free') {
       return free_period ? rest : null;
     }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const addFreeMonths = (start: Date) => {
       const end = new Date(start);
-      end.setMonth(end.getMonth() + 3);
+      end.setMonth(end.getMonth() + FREE_MONTHS);
       return end;
     };
     const currentStart = this.parseDate(free_period?.start_date);
@@ -452,8 +260,14 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
     };
   }
 
-  goBack() {
-    this.routerUrl.navigate(['/settings']);
+  /** Currency symbol from the plan's currency_type ("dollar" -> "$"). */
+  currencySymbol(plan: any): string {
+    return currencySymbolOf(plan);
+  }
+
+  /** The plan's GST percentage (18 when not set). */
+  gstPercentage(plan: any): number {
+    return gstPercentageOf(plan);
   }
 
   preventDecimal(event: KeyboardEvent) {
@@ -462,231 +276,32 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
     }
   }
 
-  getAllSubscriptions() {
-    // this.loaderService.emitLoading();
-    // MAKE A SERVICE CALL HERE...
-    let requestBody = {
+  private getCustomerById(): Promise<any> {
+    const requestBody = {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
-      "extras": {
-        "find": {
-
-        },
-        "pagination": true,
-        "paginationDetails": {
-          "limit": 0,
-          "pageSize": 100
-        },
-        "sorting": true,
-        "sortingDetails": {
-          "email": -1
-        }
-      }
-    }
-    this.PaymentDetailsService.getAllSubscriptionDetails(requestBody).subscribe(
-      resp => {
-        // this.loaderService.emitComplete();
-        if (resp) {
-
-          // console.log("customer data", this.customerdata)
-          if (this.showAllPlans) {
-            // The customer's saved plan keeps its own prices and is marked as current
-            const saved = this.customerdata?.subscription_detail;
-            this.plans = (resp.result.data || []).map((p: any) => saved?.name === p.name
-              ? { ...p, ...saved, gstAmount: saved.gstAmount ?? saved.gst_amount, isCurrent: true }
-              : { ...p, isCurrent: false });
-          }
-          else if (this.customerdata?.property_details?.property_address?.property_size == "01-50 Rooms") {
-            // console.log("11");
-
-            this.plans = [];
-            this.plans.push(resp.result.data[1]);
-
-          }
-          else if (this.customerdata?.property_details?.property_address?.property_size == "51-100 Rooms") {
-            // console.log("12")
-            this.plans = [];
-            // console.log("test test")
-            this.plans.push(resp.result.data[2]);
-            // console.log(this.plans, "test")
-
-          }
-          else if (this.customerdata?.property_details?.property_address?.property_size == "101-150 Rooms") {
-            // console.log("13")
-            this.plans = [];
-            this.plans.push(resp.result.data[3]);
-
-          }
-          else if (this.customerdata?.property_details?.property_address?.property_size == "150 and above Rooms") {
-            this.plans = [];
-            // console.log("14")
-            this.plans.push(resp.result.data[4]);
-
-          }
-          else {
-            // console.log("15")
-            this.plans = resp.result.data;
-
-          }
-          // console.log(this.plans, "   ");
-          // this.customerList = resp.result.data;
-          // Filter out records that contain 'staff_employee_number' key
-
-
-        }
-      },
-      err => {
-        if (err.error.statusCode === 403) {
-          this.alertService.error('Session Time Out! Please login Again', this.options)
-          // this.router.navigate([`/login`], { skipLocationChange: false });
-        }
-        else if (err.error.message) {
-          this.alertService.error(err.error.message, this.options)
-        }
-        else {
-          this.alertService.error('Something bad happened. Please try again!', this.options);
-        }
-      }
-    )
-  }
-
-  ngonchanges() {
-
-  }
-
-  getCustomerById(): Promise<void> {
+      extras: { find: { id: this.hotelId } }
+    };
     return new Promise((resolve, reject) => {
-      let requestBody = {
-        domain_name: this.authTokenService.getDomain(),
-        user_id: this.authTokenService.getUserId(),
-        extras: {
-          find: {
-            id: this.hotelId
-          }
-        }
-      };
-
       this.hotelenrollmenttabviewService.getCustomerById(requestBody).subscribe(
-        resp => {
-          // this.loaderService.emitComplete();
-          if (resp) {
-            this.customerdata = resp.result.data[0];
-            this.planName = this.customerdata?.property_details?.property_address?.property_size;
-            this.showAllPlans = !this.isRegistered(this.customerdata);
-            if (this.showAllPlans) {
-              this.getAllSubscriptions();
-            }
-            else if (this.customerdata?.property_details?.property_address?.property_size != undefined) {
-              this.plans = [];
-              if (this.customerdata.subscription_detail) {  //newly added
-                this.plans.push(this.customerdata.subscription_detail);
-              }
-              // console.log(this.plans, "plan")
-              if (this.plans == undefined || this.plans.length == 0 || this.plans[0] == undefined) {
-                // console.log("ccchh")
-                this.plans = []; // newly added
-                this.getAllSubscriptions();
-
-              }
-
-            }
-
-            // console.log(this.plans, "555555555555555")
-            //console.log(this.customerdata, "RESPDATA");
-            //console.log(Array.isArray(this.customerdata)); 
-            resolve();  // Resolve promise when data is set
-          }
-        },
+        resp => resolve(resp?.result?.data?.[0] || {}),
         err => {
-          // this.loaderService.emitComplete();
-          if (err.error.statusCode === 403) {
+          if (err?.error?.statusCode === 403) {
             this.alertService.error('Session Time Out! Please login Again', this.options);
             this.router.navigate([`/login`], { skipLocationChange: false });
-          } else if (err.error.message) {
-            this.alertService.error(err.error.message, this.options);
           } else {
-            this.alertService.error('Something bad happened. Please try again!', this.options);
+            this.alertService.error(err?.error?.message || 'Something bad happened. Please try again!', this.options);
           }
-          reject(err);  // Reject promise if there is an error
+          reject(err);
         }
       );
     });
   }
-  updateCustomer() {
-    delete this.customerdata._id;
-    delete this.customerdata.password_to_customer;
-    delete this.customerdata.password;
-    let requestBody = {
-      domain_name: this.authTokenService.getDomain(),
-      user_id: this.authTokenService.getUserId(),
-      payload: {
-        customer_updation: this.customerdata
-      },
-      extras: {
-        find: {
-          id: this.hotelId
-        }
-      }
-    }
-    //console.log("123")
-    this.hotelenrollmenttabviewService.updateCustomer(requestBody).subscribe(
-      resp => {
-        // this.loaderService.emitComplete();
-        if (resp) {
-          if (resp.success === 1 && resp.status_code === 200) {
-            // //console.log(resp);
-            this.hotelenrollmenttabviewService.clearAdminFormEvent();
-            //console.log("alerttttt")
-            this.alertService.success(resp.message, this.options);
-            // this.payNow();
-            // setTimeout(() => {
-            //   this.router.navigate([`/all-customers`], { skipLocationChange: false });
-            // }, 1000);
-            // this.router.navigate(['/all-customers'], { state: { result: resp.message }, relativeTo: this.activatedRoute, skipLocationChange: false });
-
-          }
-          else if (resp.success === 0) {
-            if (resp.message) {
-              this.alertService.error(resp.message, this.options);
-            }
-          }
-          else if (resp.message && resp.status_code !== 200) {
-            this.alertService.error(resp.message, this.options);
-          }
-          else {
-            this.alertService.error('Something bad happened. Please try again!', this.options);
-          }
-        }
-      },
-      err => {
-        // this.loaderService.emitComplete();
-        if (err.error.statusCode === 403) {
-          this.alertService.error('Session Time Out! Please login Again', this.options)
-          this.router.navigate([`/login`], { skipLocationChange: false });
-        }
-        else if (err.error.message) {
-          this.alertService.error(err.error.message, this.options)
-        }
-        else {
-          this.alertService.error('Something bad happened. Please try again!', this.options);
-        }
-      }
-    )
-  }
-
-
-  // nextTab() {
-  //   this.alertService.success("Hotel Enrollment Completed Successfully", this.options);
-  //   setTimeout(() => {
-  //     this.router.navigate(['/hotel-list']);
-  //   }, 1500);
-  // }
 
   previousTab() {
-    let nextTab = document.getElementById('hierarchy-tab');
-    if (nextTab) {
-      (nextTab as HTMLAnchorElement).click();
+    const tab = document.getElementById('hierarchy-tab');
+    if (tab) {
+      (tab as HTMLAnchorElement).click();
     }
   }
-
 }

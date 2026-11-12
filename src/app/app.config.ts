@@ -12,6 +12,8 @@ export const API_URL = environment.devURL
 export const API_URL1 = "https://www.guestezee.com"
 export const DOMAIN_NAME = "https://www.guestezee.com"
 export const ENDPOINTS = {
+  /** Onboarding stage emails: { templateName, to, variables: { hotelName } } */
+  ONBOARDING_EMAIL: API_URL + ':9430/onboardingemail',
   GETNEWACCESSTOKEN: API_URL + ':5200/refreshtoken',
   VARIABLES: API_URL + ':5413/variables/create',
   VARIABLESUPDATE: API_URL + ':5413/variables/update',

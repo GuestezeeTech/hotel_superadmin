@@ -4,98 +4,89 @@
     <img src="../../assets/images/guestezee/logo.png" alt="Guestezee Logo" class="sidebar-logo" />
   </div>
 
-  <hr style="width: 80%;" class="center-hr" /> <!-- Horizontal line below the menu -->
-  <ul style="padding: 6px 6px 6px 32px;">
+  <hr class="center-hr" />
+  <ul class="sidenav-menu">
     <li class="list_container" [class.active]="isDashboardActive()" routerLink="/dashboard"
-      (click)="sendValue('Dashboard')" *ngIf="userAccess?.DASHBOARD?.has_read_permission==true">
-      <img src="../../assets/images/guestezee/layout.png">
+      (click)="sendValue('Dashboard')" *ngIf="userAccess?.DASHBOARD?.has_read_permission==true"
+      title="Dashboard">
+      <i class="bi bi-speedometer2 menu-icon" aria-hidden="true"></i>
       <span>Dashboard</span>
-      <!-- <a routerLink="/dashboard" (click)="sendValue('Dashboard')">Dashboard</a> -->
     </li>
-    <li class="list_container" [class.active]="isHotelActive()" routerLink="/hotel-list" (click)="sendValue('Hotels')"
-      *ngIf="userAccess?.CUSTOMERS?.has_read_permission==true">
-      <img src="../../assets/images/guestezee/hotel (2).png">
-      <span>Hotels</span>
-      <!-- <a routerLink="/hotel-list" (click)="sendValue('Hotels')">Hotels</a> -->
+
+    <li class="list_container" [class.active]="isPlatformOverviewActive()" routerLink="/platform-overview"
+      (click)="sendValue('Platform Overview')" *ngIf="userAccess?.DASHBOARD?.has_read_permission==true"
+      title="Platform Overview">
+      <i class="bi bi-building menu-icon" aria-hidden="true"></i>
+      <span>Platform Overview</span>
     </li>
-    <!-- <li style="display: flex; align-items: center; gap: 8px;">
-           <img src="../../assets/images/guestezee/" style="height: 20px;">
-           <a href="#">Marketing</a>
-         </li> -->
-    <li class="list_container" [class.active]="isPaymentActive()" routerLink="/payment-tab-view"
-      (click)="sendValue('Payment')" *ngIf="userAccess?.PAYMENT?.has_read_permission==true">
-      <img src="../../assets/images/guestezee/check.png">
-      <span>Payment</span>
-      <!-- <a routerLink="/payment-tab-view" (click)="sendValue('Payment')">Payment</a> -->
-    </li>
-    <!-- <li  class="list_container"  [class.active]="isUserAccessActive()"  *ngIf="userAccess?.USERACCESS?.has_read_permission==true">
-           <img src="../../assets/images/guestezee/secure-access (1).png" >
-           <a  (click)="toggleSubmenu()"   data-toggle="collapse" data-target="#demo" >User Access</a>
-           
-         </li> -->
 
-    <!-- <li id="demo" class="collapse sub-menu" style="text-align: center" >
-            <div class="submenu">
-            <a class="submenu-item"></a>
-            <a class="submenu-item"></a>
-            <a class="submenu-item"  routerLink="/role-list" style=" color: #B1B1B1"   (click)="sendValue('Roles')">Roles</a>
-            <a  class="submenu-item" routerLink="/user-list" style=" color: #B1B1B1"   (click)="sendValue('Users')">Users</a>
-            <a class="submenu-item" routerLink="/staff" style=" color: #B1B1B1" (click)="sendValue('Staff')">Staff</a>        </div>
-      </li> -->
-
-
-    <li class="list_container" *ngIf="userAccess?.SYSTEMSETTINGS?.has_read_permission==true" data-target="#sys_settings"
-      (click)="sendValue1('System Settings')" style="white-space: nowrap;" data-toggle="collapse">
-
-      <img src="../../assets/images/guestezee/setting.png">
-      <span>System Settings</span>
-      <!-- <a (click)="sendValue1('System Settings')" style="white-space: nowrap;" data-toggle="collapse"
-        data-target="#sys_settings">System Settings</a> -->
-
-      <!-- @if (isSubmenuOpen) {
-            <ul  class="submenu">
-              <li><a href="#" (click)="sendValue('General Settings')">General Settings</a></li>
-              <li><a href="#" (click)="sendValue('Security Settings')">Security Settings</a></li>
-              <li><a href="#" (click)="sendValue('Backup & Restore')">Backup & Restore</a></li>
-          </ul>
-           }
-            -->
-
-    </li>
-    <li id="sys_settings" class="collapse sub-menu" style="text-align: center">
-      <div class="submenu">
-        <a class="submenu-item"></a>
-        <a class="submenu-item"></a>
-        <!--  <a class="submenu-item"  [class.active]="isserviceSettingsActive()"   routerLink="/service-list" style=" color: #B1B1B1"   (click)="sendValue('Service Settings')">Service Settings</a>
-          <a  class="submenu-item" [class.active]="isthierarchySettingsActive()"    routerLink="/hierarchy-list" style=" color: #B1B1B1"   (click)="sendValue('Hierarchy')">Hierarchy</a> -->
-        <a class="submenu-item" [class.active]="istechnicalSettingsActive()" routerLink="/tech-info-list"
-          style=" color: #B1B1B1" (click)="sendValue('Technical Info')">Technical Info</a>
-        <!-- Newly added & commented out for rename prupose(url, header) -->
-        <!--    <a class="submenu-item" [class.active]="issubscriptionSettingsActive()" routerLink="/subscription"
-          style=" color: #B1B1B1" (click)="sendValue('Subscription')">Payment Settings</a> -->
-        <a class="submenu-item" [class.active]="issubscriptionSettingsActive()" routerLink="/payment-subscription"
-          style=" color: #B1B1B1" (click)="sendValue('Payment Subscription')">Payment Settings</a>
-        <!-- End of newly added & commented out for rename prupose(url, header) -->
-        <a class="submenu-item" [class.active]="ispaymentActivationActive()" routerLink="/payment-activation"
-          style=" color: #B1B1B1" (click)="sendValue('Payment Activation')">Payment Activation</a>
+    <li class="list_container" [class.active]="isHotelsOverviewMenuActive()"
+      *ngIf="userAccess?.DASHBOARD?.has_read_permission==true"
+      (click)="toggleHotelsOverviewSubmenu($event)" title="Hotels Overview">
+      <div class="list-content">
+        <div class="left-content">
+          <i class="bi bi-clipboard-data menu-icon" aria-hidden="true"></i>
+          <span>Hotels Overview</span>
+        </div>
+        <i class="fas fa-chevron-down dropdown-icon" [ngClass]="{ 'rotate': isHotelsOverviewSubmenuOpen }"></i>
       </div>
     </li>
-    <!-- 
-    <li class="list_container" [class.active]="isHotelActive()">
-      <img src="../../assets/images/guestezee/bookings.png">
-      <a routerLink="/bookings" (click)="sendValue('Bookings')">Bookings</a>
+
+    <li class="sub-menu" *ngIf="isHotelsOverviewSubmenuOpen && userAccess?.DASHBOARD?.has_read_permission==true">
+      <div class="submenu">
+        <a class="submenu-item" [class.active]="isHotelOverviewActive()" routerLink="/overview-dashboard"
+          (click)="selectHotelsOverviewLeaf('Hotel Overview', $event)">Hotel Overview</a>
+        <a class="submenu-item" [class.active]="isFbDashboardActive()" routerLink="/fb/dashboard"
+          (click)="selectHotelsOverviewLeaf('F&B Dashboard', $event)">F&amp;B Dashboard</a>
+        <a class="submenu-item" [class.active]="isFoDashboardActive()" routerLink="/fo/dashboard"
+          (click)="selectHotelsOverviewLeaf('Front Office Dashboard', $event)">Front Office (FD)</a>
+        <a class="submenu-item" [class.active]="isHkDashboardActive()" routerLink="/hk/dashboard"
+          (click)="selectHotelsOverviewLeaf('Housekeeping Dashboard', $event)">Housekeeping (HK)</a>
+      </div>
     </li>
 
-    <li class="list_container">
-      <img src="../../assets/images/guestezee/taskManagement.png" style="height: 20px;">
-      <a routerLink="/task-management">Task Management</a>
-    </li> -->
-    <li class="list_container" [class.active]="isEmailTemplateActive()" (click)="goToEmailTemplate()">
-      <img src="../../assets/images/guestezee/layout.png">
+    <li class="list_container" [class.active]="isHotelActive()" routerLink="/hotel-list"
+      (click)="sendValue('Hotels')" *ngIf="userAccess?.CUSTOMERS?.has_read_permission==true"
+      title="Hotels">
+      <i class="bi bi-buildings menu-icon" aria-hidden="true"></i>
+      <span>Hotels</span>
+    </li>
+
+    <li class="list_container" [class.active]="isPaymentActive()" routerLink="/payment-tab-view"
+      (click)="sendValue('Payment')" *ngIf="userAccess?.PAYMENT?.has_read_permission==true"
+      title="Payment">
+      <i class="bi bi-credit-card menu-icon" aria-hidden="true"></i>
+      <span>Payment</span>
+    </li>
+
+    <li class="list_container" [class.active]="isSystemSettingsMenuActive()"
+      *ngIf="userAccess?.SYSTEMSETTINGS?.has_read_permission==true"
+      (click)="toggleSettingsSubmenu($event)" title="System Settings">
+      <div class="list-content">
+        <div class="left-content">
+          <i class="bi bi-gear menu-icon" aria-hidden="true"></i>
+          <span>System Settings</span>
+        </div>
+        <i class="fas fa-chevron-down dropdown-icon" [ngClass]="{ 'rotate': isSettingsSubmenuOpen }"></i>
+      </div>
+    </li>
+
+    <li class="sub-menu" *ngIf="isSettingsSubmenuOpen && userAccess?.SYSTEMSETTINGS?.has_read_permission==true">
+      <div class="submenu">
+        <a class="submenu-item" [class.active]="istechnicalSettingsActive()" routerLink="/tech-info-list"
+          (click)="selectSettingsLeaf('Technical Info', $event)">Technical Info</a>
+        <a class="submenu-item" [class.active]="issubscriptionSettingsActive()" routerLink="/payment-subscription"
+          (click)="selectSettingsLeaf('Payment Subscription', $event)">Payment Settings</a>
+        <a class="submenu-item" [class.active]="ispaymentActivationActive()" routerLink="/payment-activation"
+          (click)="selectSettingsLeaf('Payment Activation', $event)">Payment Activation</a>
+      </div>
+    </li>
+
+    <li class="list_container" [class.active]="isEmailTemplateActive()" (click)="goToEmailTemplate()"
+      title="Email Template">
+      <i class="bi bi-envelope-paper menu-icon" aria-hidden="true"></i>
       <span>Email Template</span>
     </li>
   </ul>
-
-
 
 </div>

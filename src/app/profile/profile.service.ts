@@ -3,7 +3,7 @@ import { AuthTokenService } from '../../app/auth-services/auth-token.service';
 import { throwError, Observable } from 'rxjs';
 import { Router } from "@angular/router";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { ENDPOINTS } from "../app.config";
+import { DOMAIN_NAME, ENDPOINTS, USER_ID } from "../app.config";
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -24,6 +24,20 @@ export class ProfileService {
     private router: Router,
     private http: HttpClient,
   ) { }
+
+  getAdminProfileDetails(hotelId: Number, customerType: any) {
+    const jsonObj = {
+      domain_name: DOMAIN_NAME,
+      user_id: USER_ID,
+      extras: {
+        find:
+          customerType == 'Staff'
+            ? { staff_id: hotelId }
+            : { id: hotelId }
+      }
+    };
+    return this.postApiCall(jsonObj, ENDPOINTS.GET_LOGIN_CUSTOMER);
+  }
 
   updatePassword(jsonObj: any): Observable<any> {
     if (this.authTokenService.isTokenExpired()) {

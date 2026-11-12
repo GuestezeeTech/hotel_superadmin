@@ -1,0 +1,14 @@
+<div class="ds-hotel-wrap">
+  <select
+    class="ds-hotel"
+    [ngModel]="selectedMemberId"
+    (ngModelChange)="onHotelModelChange($event)"
+    [disabled]="disabled || loading || !hotels.length"
+    [attr.aria-label]="'Hotel filter'"
+  >
+    <option *ngIf="!hotels.length" value="">{{ loadError || 'No approved hotels' }}</option>
+    <option *ngFor="let hotel of hotels" [value]="hotel.memberId">
+      {{ hotel.name }} ({{ hotel.memberId }})
+    </option>
+  </select>
+</div>

@@ -3,3 +3,102 @@
 @import './assets/scss/btsp-themes';
 // @import './assets/scss/layouts/layouts';
 @import './assets/scss/themes/guestezee/fonts';
+@import './assets/scss/dashboard-shimmer';
+@import './assets/scss/dashboard-tables';
+
+:root {
+  --sidebar-width: 19%;
+  /* Same stack as hotel admin: Urbanist primary, Roboto sans fallback */
+  --app-font: 'Urbanist', Roboto, sans-serif;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Force one font across the whole Superadmin app (Bootstrap + components). */
+html,
+body,
+button,
+input,
+select,
+textarea,
+h1, h2, h3, h4, h5, h6,
+p, label, span, a, small, strong, em, li, td, th,
+.btn,
+.form-control,
+.form-select,
+.form-check-label,
+.nav-link,
+.dropdown-item,
+.modal,
+.modal-title,
+.modal-body,
+.table,
+.card,
+.alert,
+.badge,
+.list-group-item,
+.pagination,
+.page-link,
+.custom-select,
+.custom-control-label {
+  font-family: var(--app-font) !important;
+}
+
+*,
+*::before,
+*::after {
+  font-family: inherit;
+}
+
+body,
+.p-component,
+.ui-widget,
+.mat-typography,
+.mat-body,
+.cdk-overlay-container,
+.sidenav,
+.header,
+.main,
+.menu-name,
+.username,
+.profile-settings,
+.profile-menu-item,
+.account-toggle,
+.centered-container,
+.container,
+.nav-tabs,
+.tab-content {
+  font-family: var(--app-font) !important;
+}
+
+/* Split / mid screens: icon-only drawer so labels don't crush */
+@media (max-width: 1280px) {
+  :root {
+    --sidebar-width: 72px;
+  }
+}
+
+.main,
+.header {
+  margin-left: var(--sidebar-width) !important;
+  width: calc(100% - var(--sidebar-width)) !important;
+  max-width: calc(100% - var(--sidebar-width)) !important;
+  box-sizing: border-box !important;
+  transition: margin-left 0.2s ease, width 0.2s ease;
+}
+
+.main {
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+.main .centered-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}

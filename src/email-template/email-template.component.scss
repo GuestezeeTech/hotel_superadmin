@@ -16,7 +16,7 @@
 
   display: block;
   height: 100%;
-  font-family: 'Urbanist', sans-serif;
+  font-family: 'Urbanist', Roboto, sans-serif;
   color: var(--body);
 }
 
@@ -147,7 +147,7 @@
 }
 .editor:focus { border-color: var(--brand); }
 .editor.code { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; white-space: pre; }
-.editor.content { font-family: 'Urbanist', sans-serif; }
+.editor.content { font-family: 'Urbanist', Roboto, sans-serif; }
 
 .hint { font-size: 11.5px; color: var(--muted); margin: 0; }
 .hint.warn { color: #b7791f; }

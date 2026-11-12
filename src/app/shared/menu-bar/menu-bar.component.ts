@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { RouterModule } from '@angular/router';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { EventEmitter, Output } from '@angular/core';
 import { filter } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 import { UserAccessService } from '../../user-access/user-access.service';
 import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-menu-bar',
   standalone: true,
@@ -16,124 +16,219 @@ import { CommonModule } from '@angular/common';
 export class MenuBarComponent implements OnInit {
   private currentRoute$ = new BehaviorSubject<string>('');
   @Output() menuSelected = new EventEmitter<string>();
-  isSubmenuOpen: boolean = false; // Track submenu state
-  currentRoute: string = '';
-
+  isSubmenuOpen = false;
+  isSettingsSubmenuOpen = false;
+  isHotelsOverviewSubmenuOpen = false;
+  /** Skip one route-driven submenu close after intentionally opening Settings. */
+  private keepSettingsOpenOnce = false;
+  /** Skip one route-driven submenu close after intentionally opening Hotels Overview. */
+  private keepHotelsOverviewOpenOnce = false;
+  currentRoute = '';
 
   showSidebar = false;
-  isUserAccessOpen: boolean = false;
-  isSettingsOpen: boolean = false;
+  isUserAccessOpen = false;
+  isSettingsOpen = false;
   userAccess: any;
-  // private routesWithSidebar = ['/hotel-list', '/add-new-hotel']; 
-  constructor(private route: ActivatedRoute, private router: Router, private userAccessService: UserAccessService) {
-    this.currentRoute$ = new BehaviorSubject<string>(this.router.url); // ✅
 
-    // this.router.events.subscribe(event => {
-    //   if (event instanceof NavigationEnd) {
-    //     this.showSidebar = this.routesWithSidebar.some(route => {
-    //       return route.includes(':id') ? event.url.startsWith(route.split('/:id')[0]) : route === event.url;
-    //     });
-    //     //console.log( this.showSidebar," this.showSidebar")
-    //   }
-    // });
+  constructor(
+    private router: Router,
+    private userAccessService: UserAccessService
+  ) {
+    this.currentRoute$ = new BehaviorSubject<string>(this.router.url);
   }
 
   ngOnInit(): void {
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.currentRoute$.next(event.urlAfterRedirects); // ✅ Update BehaviorSubject
-        //console.log("Current Route Updated:", event.urlAfterRedirects);
+        this.currentRoute$.next(event.urlAfterRedirects);
+        if (this.keepSettingsOpenOnce) {
+          this.keepSettingsOpenOnce = false;
+          return;
+        }
+        if (this.keepHotelsOverviewOpenOnce) {
+          this.keepHotelsOverviewOpenOnce = false;
+          return;
+        }
+        // Close flyout after real navigation away from opening click
+        if (!this.isSystemSettingsRoute(event.urlAfterRedirects)) {
+          this.isSettingsSubmenuOpen = false;
+        }
+        if (!this.isHotelsOverviewRoute(event.urlAfterRedirects)) {
+          this.isHotelsOverviewSubmenuOpen = false;
+        }
       });
 
     this.userAccessService.userAccess$.subscribe((access) => {
       if (access) {
         this.userAccess = access;
-        //console.log(this.userAccess, '🔁 Updated user access from service');
       }
     });
-    // this.userAccess = this.userAccessService.userAccessList;
     this.userAccess = this.userAccessService.getUserAccess();
 
-    //console.log(this.userAccess, "this.userAccess");
     const currentRoute = this.currentRoute$.value;
-    const targetElement = document.getElementById("sys_settings");
-    //console.log("log12",targetElement,currentRoute)
-    if ((currentRoute.includes('service') || currentRoute.includes('hierar') || currentRoute.includes('subscription') || currentRoute.includes('tech') || currentRoute.includes('payment-activation')) && targetElement) {
-
-      targetElement.className = 'sub-menu collapse show';
+    if (this.isSystemSettingsRoute(currentRoute)) {
+      this.isSettingsSubmenuOpen = true;
     }
+    if (this.isHotelsOverviewRoute(currentRoute)) {
+      this.isHotelsOverviewSubmenuOpen = true;
+    }
+  }
 
-  }
   sendValue(value: string) {
-    this.menuSelected.emit(value); // Emit value to parent
+    this.menuSelected.emit(value);
+    this.isSettingsSubmenuOpen = false;
+    this.isHotelsOverviewSubmenuOpen = false;
+  }
+
+  sendValue1(_value: string) {
     this.toggleSubmenu();
   }
-  sendValue1(value: string) {
-    // this.menuSelected.emit(value); // Emit value to parent
-    this.toggleSubmenu();
-  }
+
   toggleSubmenu() {
-    this.isSubmenuOpen = !this.isSubmenuOpen; // Toggle submenu open/close
-    //console.log("123456")
+    this.isSubmenuOpen = !this.isSubmenuOpen;
+  }
+
+  toggleSettingsSubmenu(event?: Event) {
+    this.setSubmenuFlyoutTop(event);
+    this.isSettingsSubmenuOpen = !this.isSettingsSubmenuOpen;
+    if (this.isSettingsSubmenuOpen) {
+      this.keepSettingsOpenOnce = true;
+      this.isHotelsOverviewSubmenuOpen = false;
+    }
+  }
+
+  selectSettingsLeaf(label: string, event?: Event) {
+    event?.stopPropagation();
+    this.menuSelected.emit(label);
+    this.isHotelsOverviewSubmenuOpen = false;
+    // Desktop: keep open. Mobile flyout: close after choosing.
+    this.isSettingsSubmenuOpen = !this.isMobileMenu();
+  }
+
+  toggleHotelsOverviewSubmenu(event?: Event) {
+    this.setSubmenuFlyoutTop(event);
+    this.isHotelsOverviewSubmenuOpen = !this.isHotelsOverviewSubmenuOpen;
+    if (this.isHotelsOverviewSubmenuOpen) {
+      this.keepHotelsOverviewOpenOnce = true;
+      this.isSettingsSubmenuOpen = false;
+    }
+  }
+
+  selectHotelsOverviewLeaf(label: string, event?: Event) {
+    event?.stopPropagation();
+    this.menuSelected.emit(label);
+    this.isSettingsSubmenuOpen = false;
+    // Desktop: keep open. Mobile flyout: close after choosing.
+    this.isHotelsOverviewSubmenuOpen = !this.isMobileMenu();
   }
 
   goToEmailTemplate() {
+    this.isSettingsSubmenuOpen = false;
+    this.isHotelsOverviewSubmenuOpen = false;
+    this.menuSelected.emit('Email Template');
     window.location.href = '/email-template/email-preview/';
   }
 
   isHotelActive(): boolean {
     const currentRoute = this.currentRoute$.value;
-    // Included specifically the management routes; excluded details/reviews
-    return currentRoute.includes('hotel-list') ||
+    return (
+      currentRoute.includes('hotel-list') ||
       currentRoute.includes('add-new-hotel') ||
       currentRoute.includes('edit-new-hotel') ||
-      currentRoute.includes('hotel-preview');
+      currentRoute.includes('hotel-preview')
+    );
   }
 
   isDashboardActive(): boolean {
     const currentRoute = this.currentRoute$.value;
-    // Dashboard includes analytics flows: reviews, details, and individual ratings
-    return currentRoute.includes('dashboard') ||
+    if (
+      currentRoute.includes('platform-overview') ||
+      this.isHotelsOverviewRoute(currentRoute)
+    ) {
+      return false;
+    }
+    return (
+      currentRoute.includes('dashboard') ||
       currentRoute.includes('hotel-reviews') ||
       currentRoute.includes('hotel-details') ||
       currentRoute.includes('expiry-details') ||
-      currentRoute.includes('rating');
+      currentRoute.includes('rating')
+    );
   }
+
+  isPlatformOverviewActive(): boolean {
+    return this.currentRoute$.value.includes('platform-overview');
+  }
+
+  isHotelsOverviewMenuActive(): boolean {
+    return this.isHotelsOverviewRoute(this.currentRoute$.value) || this.isHotelsOverviewSubmenuOpen;
+  }
+
+  isHotelOverviewActive(): boolean {
+    const r = this.currentRoute$.value;
+    return r.includes('overview-dashboard') || r.includes('kot-dashboard');
+  }
+
+  isFbDashboardActive(): boolean {
+    return this.currentRoute$.value.includes('/fb/dashboard') || this.currentRoute$.value.includes('fb/dashboard');
+  }
+
+  isFoDashboardActive(): boolean {
+    return this.currentRoute$.value.includes('/fo/dashboard') || this.currentRoute$.value.includes('fo/dashboard');
+  }
+
+  isHkDashboardActive(): boolean {
+    return this.currentRoute$.value.includes('/hk/dashboard') || this.currentRoute$.value.includes('hk/dashboard');
+  }
+
+  private isHotelsOverviewRoute(route: string): boolean {
+    const r = String(route || '').toLowerCase();
+    return (
+      r.includes('overview-dashboard') ||
+      r.includes('kot-dashboard') ||
+      r.includes('/fb/dashboard') ||
+      r.includes('fb/dashboard') ||
+      r.includes('/fo/dashboard') ||
+      r.includes('fo/dashboard') ||
+      r.includes('/hk/dashboard') ||
+      r.includes('hk/dashboard')
+    );
+  }
+
   isEmailTemplateActive(): boolean {
     const currentRoute = this.currentRoute$.value;
-    return currentRoute.includes('email-template-list');
+    return currentRoute.includes('email-template') || currentRoute.includes('emailtemplate');
   }
+
   isUserAccessActive(): boolean {
     const currentRoute = this.currentRoute$.value;
-    //console.log("user",this.currentRoute.includes('user'));
-    return (currentRoute.includes('user') || currentRoute.includes('role'));
+    return currentRoute.includes('user') || currentRoute.includes('role');
   }
+
   isSystemSettingsActive(): boolean {
-    const currentRoute = this.currentRoute$.value;
-
-    return (currentRoute.includes('service') || currentRoute.includes('technical') || currentRoute.includes('hierarchy') || currentRoute.includes('subscription') || currentRoute.includes('payment-activation'));
+    return this.isSystemSettingsRoute(this.currentRoute$.value);
   }
+
+  isSystemSettingsMenuActive(): boolean {
+    return this.isSystemSettingsActive() || this.isSettingsSubmenuOpen;
+  }
+
   ispaymentActivationActive(): boolean {
-    const currentRoute = this.currentRoute$.value;
-
-    return (currentRoute.includes('payment-activation'));
+    return this.currentRoute$.value.includes('payment-activation');
   }
-  isserviceSettingsActive(): boolean {
-    const currentRoute = this.currentRoute$.value;
 
-    return (currentRoute.includes('service'));
+  isserviceSettingsActive(): boolean {
+    return this.currentRoute$.value.includes('service');
   }
 
   istechnicalSettingsActive(): boolean {
     const currentRoute = this.currentRoute$.value;
-
-    return (currentRoute.includes('technical') || currentRoute.includes('tech'));
+    return currentRoute.includes('technical') || currentRoute.includes('tech');
   }
-  isthierarchySettingsActive(): boolean {
-    const currentRoute = this.currentRoute$.value;
 
-    return (currentRoute.includes('hierarchy'));
+  isthierarchySettingsActive(): boolean {
+    return this.currentRoute$.value.includes('hierarchy');
   }
 
   toggleSubmenu1() {
@@ -144,17 +239,44 @@ export class MenuBarComponent implements OnInit {
     this.isSettingsOpen = !this.isSettingsOpen;
   }
 
-  // Nelwy added & commented url checking line
   isPaymentActive(): boolean {
     const currentRoute = this.currentRoute$.value;
-    // return currentRoute.includes('payment');
-    return (currentRoute.includes('payment-tab-view') || currentRoute.includes('payment-details') || currentRoute.includes('payment-summary'));
+    return (
+      currentRoute.includes('payment-tab-view') ||
+      currentRoute.includes('payment-details') ||
+      currentRoute.includes('payment-summary')
+    );
   }
 
   issubscriptionSettingsActive(): boolean {
-    const currentRoute = this.currentRoute$.value;
-    // return (currentRoute.includes('subscription'));
-    return (currentRoute.includes('payment-subscription'));
+    return this.currentRoute$.value.includes('payment-subscription');
   }
-  // End of newly added & commented url checking line
+
+  private isSystemSettingsRoute(route: string): boolean {
+    const r = String(route || '').toLowerCase();
+    return (
+      r.includes('service') ||
+      r.includes('technical') ||
+      r.includes('tech-info') ||
+      r.includes('hierarchy') ||
+      r.includes('subscription') ||
+      r.includes('payment-subscription') ||
+      r.includes('payment-activation')
+    );
+  }
+
+  private isMobileMenu(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth <= 1280;
+  }
+
+  private setSubmenuFlyoutTop(event?: Event): void {
+    const el = event?.currentTarget as HTMLElement | undefined;
+    if (!el || !this.isMobileMenu()) {
+      return;
+    }
+    const rectTop = Math.round(el.getBoundingClientRect().top);
+    const maxTop = Math.max(8, window.innerHeight - 220);
+    const top = Math.min(Math.max(8, rectTop), maxTop);
+    document.documentElement.style.setProperty('--submenu-flyout-top', `${top}px`);
+  }
 }

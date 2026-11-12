@@ -60,6 +60,13 @@ export const routes: Routes = [
     loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule),
   },
   {
+    path: 'platform-overview',
+    loadComponent: () =>
+      import('./platform-overview-dashboard/platform-overview-dashboard.component').then(
+        (m) => m.PlatformOverviewDashboardComponent
+      )
+  },
+  {
     path: '',
     loadChildren: () => import('./hotel-reviews/hotel-reviews.module').then(m => m.HotelReviewsModule),
   },

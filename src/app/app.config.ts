@@ -11,6 +11,7 @@ export const appConfig: ApplicationConfig = {
 export const API_URL = environment.devURL
 export const API_URL1 = "https://www.guestezee.com"
 export const DOMAIN_NAME = "https://www.guestezee.com"
+export const USER_ID = 16
 export const ENDPOINTS = {
   GETNEWACCESSTOKEN: API_URL + ':5200/refreshtoken',
   VARIABLES: API_URL + ':5413/variables/create',
@@ -551,5 +552,19 @@ export const ENDPOINTS = {
 
   // Newly commented for delete customer
   // DELETE_CUSTOMER: API_URL + ":5430/customer/delete",
-  DELETE_CUSTOMER: API_URL + ":8007/customer/delete"
+  DELETE_CUSTOMER: API_URL + ":8007/customer/delete",
+
+  // Hotel-ops dashboards (read-only GETs) — use guestezee.com like hotel admin
+  GET_ALL_SERVICES: API_URL1 + ':9979/services/getall',
+  GET_All_STAVES: API_URL1 + ':3406/staff/getall',
+  GET_ALL_TASK: API_URL1 + ':3411/task/getall',
+  MOBILE_KEY_CREATE: API_URL1 + ':5410/keyrecord/create',
+  MOBILE_KEY_UPDATE: API_URL1 + ':5410/keyrecord/update',
+  MOBILE_KEY_GETALL: API_URL1 + ':5411/keycount/getall',
+  GET_TASK_RATINGS: API_URL1 + ':9545/productreviews/getall',
+  GET_CHECKOUT_BY_ID: API_URL1 + ':1220/checkout/getbyid',
+  GET_GUEST_DETAILS: API_URL1 + ':1218/report/getallevent',
+  GET_ALL_OUTLETS: API_URL1 + ':9514/outlet/getall',
+  GET_PRODUCT_BY_OUTLET: API_URL1 + ':9674/product/getall',
+  GET_OFFERS_BY_OUTLET: API_URL1 + ':1299/offer/getall'
 }

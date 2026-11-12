@@ -1,5 +1,5 @@
 .main {
-    font-family: 'Urbanist', sans-serif;
+    font-family: 'Urbanist', Roboto, sans-serif;
 }
 
 .centered-container {
@@ -41,7 +41,7 @@
     background-color: white;
     font-size: 14px;
     font-weight: 500;
-    font-family: 'Urbanist', sans-serif;
+    font-family: 'Urbanist', Roboto, sans-serif;
     border: 1px solid #dedede;
 }
 
@@ -70,7 +70,7 @@
             display: flex;
             align-items: center;
             margin-bottom: 10px;
-            font-family: 'Urbanist', sans-serif;
+            font-family: 'Urbanist', Roboto, sans-serif;
 
             .label {
                 flex: 1;

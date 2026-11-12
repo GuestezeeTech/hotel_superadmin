@@ -102,6 +102,18 @@ export class HeaderComponent implements OnInit {
       return (this.selectedMenu = "Users");
 
     }
+    else if (currentRoute.includes('platform-overview')) {
+      return (this.selectedMenu = "Platform Overview");
+
+    }
+    else if (currentRoute.includes('profile')) {
+      return (this.selectedMenu = "Profile");
+
+    }
+    else if (currentRoute.includes('email-template') || currentRoute.includes('emailtemplate')) {
+      return (this.selectedMenu = "Email Template");
+
+    }
     else if (currentRoute.includes('dashboard')) {
       return (this.selectedMenu = "Dashboard");
 
@@ -178,7 +190,8 @@ export class HeaderComponent implements OnInit {
     this.userAccessService.removeUserAccess();
   }
 
-  toggleLogout() {
+  toggleLogout(event?: Event) {
+    event?.stopPropagation();
     this.showAccount = !this.showAccount;
   }
   toggleNotification() {

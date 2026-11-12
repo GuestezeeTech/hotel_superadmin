@@ -1,99 +1,215 @@
-/* Header Styling */
+/* Header / app bar — Urbanist to match admin */
 .header {
-    display: flex;
-    justify-content: space-between; /* Ensures menu name is on the left and icons on the right */
-    align-items: center;
-    background-color:white; /* Header background */
-    color: white;
-    padding: 10px 20px;
-    background-color: #fff; /* Set background color */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* Add a soft shadow at the bottom */
-    border-bottom: 1px solid transparent;
-    margin-left: 18%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background-color: #fff;
+  color: #173a5b;
+  padding: 10px 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid transparent;
+  margin-left: var(--sidebar-width, 19%);
+  width: calc(100% - var(--sidebar-width, 19%));
+  max-width: calc(100% - var(--sidebar-width, 19%));
+  box-sizing: border-box;
+  transition: margin-left 0.2s ease, width 0.2s ease;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  min-width: 0;
+  font-family: 'Urbanist', Roboto, sans-serif !important;
+}
 
-    position: sticky;
-    top: 0;
-    // width: 100%;
-    z-index: 99;
-    
+.menu-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.menu-name h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-family: 'Urbanist', Roboto, sans-serif !important;
+
+  img {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
   }
-  
-  .menu-name h1 {
-    margin: 0;
-    font-size: 1.5rem;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: inherit !important;
   }
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  margin-left: auto;
+  position: relative;
+  font-family: 'Urbanist', Roboto, sans-serif !important;
+}
+
+.account-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  max-width: min(240px, 42vw);
+  min-width: 0;
+  color: inherit;
+  font-family: 'Urbanist', Roboto, sans-serif !important;
+}
+
+.profile-icon {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+  background-color: #ffffff;
+  border: 1px solid #e2e7ea;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.username {
+  font-size: 15px;
+  font-weight: 500;
+  color: #000;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Urbanist', Roboto, sans-serif !important;
+}
+
+.account-chevron {
+  color: #000;
+  font-size: 12px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.profile-settings {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: max-content;
+  min-width: 148px;
+  max-width: min(220px, calc(100vw - 24px));
+  background-color: #fff;
+  border: 1px solid #e2e7ea;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(16, 43, 59, 0.14);
+  z-index: 1000;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: 'Urbanist', Roboto, sans-serif !important;
+}
+
+.profile-menu-item {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  color: #243746;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-family: 'Urbanist', Roboto, sans-serif !important;
+
+  i {
+    color: #800020;
+    font-size: 15px;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
   }
-  
-  .user-info .username {
-    font-size: 16px;
-    color: black;
+
+  span {
+    font-family: inherit !important;
   }
-  
-  .user-info img {
-    height: 40px; /* Adjust size of icons */
-    cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: #f7f1f3;
+    color: #800020;
+    outline: none;
   }
+}
+
+@media (max-width: 767px) {
   .header {
-    display: flex;
-    justify-content: space-between; /* Ensures menu name is on the left and icons on the right */
+    flex-direction: row;
     align-items: center;
-    background-color: #fff; /* Set background color */
-    padding: 10px 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* Add a soft shadow at the bottom */
-    border-bottom: 1px solid transparent;
+    padding: 8px 12px;
+    gap: 8px;
   }
 
-  /* Styling for the menu name */
   .menu-name h1 {
-    margin: 0;
-    font-size: 1.5rem;
+    font-size: 16px;
+    gap: 8px;
+
+    img {
+      width: 18px;
+      height: 18px;
+    }
   }
 
-  /* User Info Section Styling */
   .user-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+    margin-top: 0;
+    gap: 8px;
   }
 
-  /* Icon size */
-  .user-info img {
-    height: 40px; /* Adjust size of icons */
-    cursor: pointer;
+  .account-toggle {
+    max-width: none;
   }
 
-  /* For small screens: stack the icons and the username in a column */
-  @media (max-width: 767px) {
-    .header {
-      flex-direction: column; /* Stack header content vertically */
-      align-items: flex-start;
-    }
-
-    .user-info {
-      margin-top: 10px;
-      gap: 10px;
-    }
-
-    .user-info .username {
-      font-size: 14px;
-      color: black;
-    }
+  .username {
+    display: none;
   }
 
-  /* For medium screens and above, display the username */
-  @media (min-width: 768px) {
-    .user-info .username {
-      font-size: 16px;
-      color: black;
-    }
+  .profile-icon {
+    width: 32px;
+    height: 32px;
   }
+
   .profile-settings {
-    button:hover {
-      color: #800020;
-    }
+    right: 0;
+    top: calc(100% + 6px);
+    min-width: 160px;
   }
+}
+
+@media (min-width: 768px) {
+  .username {
+    display: inline;
+  }
+}

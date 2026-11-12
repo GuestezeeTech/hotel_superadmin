@@ -1,63 +1,69 @@
 body {
-    font-family: 'Urbanist', sans-serif !important;
+    font-family: 'Urbanist', Roboto, sans-serif !important;
 }
 
 .sidenav {
     height: 100%;
-    width: 18%;
+    width: var(--sidebar-width, 19%);
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
     background-color: #6D575C;
+    padding: 20px 10px 24px 12px;
     overflow-x: hidden;
-    padding-top: 20px;
-}
-
-.sidenav a {
-    text-decoration: none;
-    font-size: 16px;
-    color: #FFFFFF;
-    display: block;
-    margin-left: 5%;
-}
-
-.sidenav span{
-    text-decoration: none;
-        font-size: 16px;
-        color: #FFFFFF;
-        display: block;
-        margin-left: 5%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    box-sizing: border-box;
+    transition: width 0.2s ease, padding 0.2s ease;
+    font-family: 'Urbanist', Roboto, sans-serif !important;
 }
 
 .logo-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px 16px 10px 16px;
+    padding: 10px 12px;
     background: #FFFFFF;
     border-radius: 10px;
-    margin: 0 12px 6px 12px;
+    margin: 0 8px 6px;
+    min-height: 72px;
+    box-sizing: border-box;
 }
 
 .sidebar-logo {
-    max-width: 140px;
-    width: 100%;
+    max-width: 100%;
+    max-height: 80px;
+    width: auto;
     height: auto;
     object-fit: contain;
+    display: block;
 }
 
+.menu-icon {
+    color: #E8C3A7;
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    line-height: 1;
+}
 
-// .sidenav a {
-//     color: #f1f1f1;
-//     background-color: #800020;
-// }
-
-
+.list_container.active .menu-icon,
+.list_container:hover .menu-icon {
+    color: #ffffff;
+}
 
 @media screen and (max-height: 450px) {
-    .sidenav { padding-top: 15px; }
-    .sidenav a { font-size: 14px; }
+    .sidenav {
+        padding-top: 15px;
+    }
+
+    .sidenav a,
+    .sidenav span {
+        font-size: 14px;
+    }
 }
 
 hr {
@@ -69,8 +75,8 @@ hr {
 
 .center-hr {
     width: 80%;
-    margin: 20px auto;  /* This centers the hr element */
-    border: 1px solid #fff;  /* Style the horizontal line */
+    margin: 20px auto;
+    border: 1px solid #fff;
 }
 
 ul {
@@ -78,70 +84,49 @@ ul {
     padding: 0;
 }
 
+.sidenav-menu {
+    padding: 4px 0 12px;
+    margin: 0;
+}
+
 .list_container {
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 14px 12px;
+    margin: 0 6px 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-family: 'Urbanist', Roboto, sans-serif !important;
+    border-radius: 7px;
+    box-sizing: border-box;
     cursor: pointer;
-    padding: 14px 14px;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease, color 0.3s ease; /* Add transition for smoother hover effect */
-    font-family: 'Urbanist', sans-serif !important;
 }
 
 .list_container:hover,
 .list_container:active {
     color: #f1f1f1;
-    background: #800020; /* Change background on hover */
+    background: #800020;
     border-radius: 5px;
-}
-.active {
-    color: #f1f1f1;
-    background: #800020; /* Change background on hover */
-    border-radius: 5px;
-}
-.list_container img {
-    height: 20px; /* Set image size for consistency */
 }
 
-.list_container a {
-    color: #fff; /* Default color for links */
-    text-decoration: none;
-    font-size: 16px; /* Font size for links */
-    font-family: 'Urbanist', sans-serif !important;
+.active {
+    color: #f1f1f1;
+    background: #800020;
+    border-radius: 5px;
 }
+
+.list_container img {
+    height: 20px;
+}
+
 .rotate {
     transform: rotate(180deg);
 }
-.sub-menu{
-    font-size: 14px; /* Font size for links */
-    font-family: 'Urbanist', sans-serif !important;
 
+.sub-menu {
+    font-size: 13px;
+    font-family: 'Urbanist', Roboto, sans-serif !important;
 }
-/* Submenu styles */
-// .submenu {
-//     list-style: none;
-//     padding-left: 40px;
-//     margin-top: 5px;
-//     overflow: hidden;
-//     transition: max-height 0.3s ease-in-out;
-// }
-
-// .submenu li {
-//     padding: 5px 0;
-// }
-
-// .submenu a {
-//     font-size: 14px;
-//     color: #555;
-// }
-
-// .submenu a:hover {
-//     color: #007bff;
-// }
-
-
-
 
 .sidebar {
     width: 250px;
@@ -168,45 +153,167 @@ ul {
     margin-left: 40px;
     border-left: 1px solid #bbb;
     padding-left: 8px;
-    margin-top: -35px;
-    position: relative; /* Required for absolute positioning of dots */
-  
-}
-
-/* Top Dot */
-.submenu::before {
-    content: "";
-    position: absolute;
-    left: -3px; /* Align with the vertical line */
-    top: 0;
-    width: 6px;
-    height: 6px;
-    background: #bbb; /* Same color as the line */
-    border-radius: 50%;
-}
-
-/* Bottom Dot */
-.submenu::after {
-    content: "";
-    position: absolute;
-    left: -3px; /* Align with the vertical line */
-    bottom: 0;
-    width: 6px;
-    height: 6px;
-    background: #bbb; /* Same color as the line */
-    border-radius: 50%;
+    margin-top: -20px;
+    position: relative;
 }
 
 .submenu-item {
     display: block;
     text-decoration: none;
     color: #ccc;
-    padding: 5px 14px;
+    padding: 5px 0;
     transition: color 0.3s ease-in-out;
     text-align: left;
     font-size: 13px;
+    cursor: pointer;
+    font-family: 'Urbanist', Roboto, sans-serif !important;
 }
 
-.submenu-item:hover {
+.submenu-item:hover,
+.submenu-item.active {
     color: white;
+}
+
+.list-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.left-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-icon {
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    flex-shrink: 0;
+}
+
+.sidenav::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.sidenav a,
+.sidenav span {
+    text-decoration: none;
+    font-size: 14px;
+    color: #FFFFFF;
+    display: block;
+    cursor: pointer;
+    font-family: 'Urbanist', Roboto, sans-serif !important;
+}
+
+.list_container a,
+.list_container span {
+    color: #fff;
+    text-decoration: none;
+    font-size: 15px;
+    font-family: 'Urbanist', Roboto, sans-serif !important;
+}
+
+/* Icon-only drawer on split / narrower screens — no label crush */
+@media (max-width: 1280px) {
+    .sidenav {
+        padding: 14px 6px 16px;
+    }
+
+    .logo-container {
+        margin: 0 2px 8px;
+        min-height: 48px;
+        padding: 8px 4px;
+    }
+
+    .sidebar-logo {
+        max-height: 40px;
+    }
+
+    .center-hr {
+        width: 56%;
+        margin: 10px auto;
+    }
+
+    .list_container {
+        justify-content: center;
+        gap: 0;
+        padding: 12px 8px;
+        margin: 0 2px 8px;
+    }
+
+    .list_container > span,
+    .left-content > span,
+    .left-content > a,
+    .dropdown-icon {
+        display: none !important;
+    }
+
+    .list-content,
+    .left-content {
+        justify-content: center;
+        width: 100%;
+        gap: 0;
+    }
+
+    .menu-icon {
+        margin: 0;
+        font-size: 18px;
+        width: 22px;
+    }
+
+    /* Flyout submenus so nested labels stay readable beside the rail */
+    .sub-menu {
+        position: fixed;
+        left: var(--sidebar-width, 72px);
+        top: var(--submenu-flyout-top, 120px);
+        z-index: 1200;
+        width: min(220px, calc(100vw - var(--sidebar-width, 72px) - 12px));
+        max-width: calc(100vw - var(--sidebar-width, 72px) - 12px);
+        max-height: min(70vh, calc(100vh - var(--submenu-flyout-top, 120px) - 16px));
+        margin: 0;
+        padding: 8px 0;
+        background: #6D575C;
+        border-radius: 0 10px 10px 0;
+        box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.28);
+        overflow-x: hidden;
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    .sub-menu .submenu {
+        margin-left: 0;
+        margin-top: 0;
+        border-left: none;
+        padding-left: 0;
+        max-width: 100%;
+    }
+
+    .sub-menu .submenu,
+    .sub-menu .submenu-item {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .sub-menu .submenu-item {
+        display: block;
+        padding: 10px 14px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 768px) {
+    .sub-menu {
+        left: var(--sidebar-width, 72px);
+        right: 8px;
+        width: auto;
+        max-width: none;
+        border-radius: 0 10px 10px 0;
+    }
 }

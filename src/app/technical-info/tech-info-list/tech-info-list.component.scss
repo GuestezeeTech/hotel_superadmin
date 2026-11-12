@@ -1,5 +1,5 @@
 body {
-  font-family: urbanist;
+  font-family: 'Urbanist', Roboto, sans-serif;
 }
 
 .nav-tabs {
@@ -7,6 +7,7 @@ body {
   padding: 8px 8px;
   /* Set background color for the tab container */
   border-radius: 10px;
+  gap: 1rem;
 }
 
 .nav-link {
@@ -14,7 +15,11 @@ body {
   font-size: 16px;
   /* Set color for inactive tabs */
   font-weight: 600;
-  font-family: urbanist;
+  font-family: 'Urbanist', Roboto, sans-serif;
+  border-radius: 10px;
+  /* Keep size stable — padding must NOT change on hover/active */
+  padding: 10px 14px;
+  transition: background-color 0.2s ease, color 0.2s ease;
   // background-color: #800020; /* Set background color for inactive tabs */
   // border: 1px solid #800020;
 }
@@ -22,7 +27,8 @@ body {
 .nav-link:hover {
   background-color: #800020;
   border-radius: 10px;
-  padding: 10px 10px;
+  // padding unchanged — matches admin (avoids tab jump)
+  font-size: 16px;
   color: white;
   /* Hover color for inactive tabs */
 }
@@ -34,8 +40,8 @@ body {
   /* Highlight active tab background */
   border-color: #800020;
   border-radius: 10px;
-  padding: 10px 10px
-    /* Border color for active tab */
+  // padding unchanged — matches admin
+  /* Border color for active tab */
 }
 
 /* Optional: Style the tab content area */
@@ -96,7 +102,7 @@ body {
   border-radius: 4px;
   font-size: 14px;
   color: #800020;
-  font-family: urbanist;
+  font-family: 'Urbanist', Roboto, sans-serif;
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   position: relative;

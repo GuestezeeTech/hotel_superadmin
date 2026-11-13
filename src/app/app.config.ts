@@ -14,6 +14,8 @@ export const DOMAIN_NAME = "https://www.guestezee.com"
 export const ENDPOINTS = {
   /** Onboarding stage emails: { templateName, to, variables: { hotelName } } */
   ONBOARDING_EMAIL: API_URL + ':9430/onboardingemail',
+  /** Sent as the x-api-key header to ONBOARDING_EMAIL */
+  ONBOARDING_EMAIL_API_KEY: '505e1ba70a5b1e95ae3af6ac90ece2d91d461b4208653cc6624f76a6ca92951c',
   GETNEWACCESSTOKEN: API_URL + ':5200/refreshtoken',
   VARIABLES: API_URL + ':5413/variables/create',
   VARIABLESUPDATE: API_URL + ':5413/variables/update',

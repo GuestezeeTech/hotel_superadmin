@@ -150,10 +150,10 @@ ul {
 }
 
 .submenu {
-    margin-left: 40px;
+    /* line sits under the parent icon, items line up with the parent label */
+    margin: -4px 0 10px 28px;
     border-left: 1px solid #bbb;
-    padding-left: 8px;
-    margin-top: -20px;
+    padding-left: 19px;
     position: relative;
 }
 
@@ -185,6 +185,7 @@ ul {
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
 }
 
 .dropdown-icon {
@@ -218,8 +219,8 @@ ul {
     font-family: 'Urbanist', Roboto, sans-serif !important;
 }
 
-/* Icon-only drawer on split / narrower screens — no label crush */
-@media (max-width: 1280px) {
+/* Icon-only drawer on tablets and phones — no label crush */
+@media (max-width: 768px) {
     .sidenav {
         padding: 14px 6px 16px;
     }

@@ -270,7 +270,7 @@ export class MenuBarComponent implements OnInit {
   }
 
   private isMobileMenu(): boolean {
-    return typeof window !== 'undefined' && window.innerWidth <= 1280;
+    return typeof window !== 'undefined' && window.innerWidth <= 768;
   }
 
   private setSubmenuFlyoutTop(event?: Event): void {

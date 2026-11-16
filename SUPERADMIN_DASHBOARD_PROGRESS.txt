@@ -1,0 +1,61 @@
+Superadmin Dashboard / Reports — Progress
+App: hotel_superadmin/
+Source: SUPERADMIN_DASHBOARD_PLAN.md + Guestezee Superadmin Dashboard sheet
+
+Legend: [x] done  [~] in progress  [ ] pending  [-] skipped for now
+
+================================================================================
+PHASE A — Shared shell (hotel-admin patterns)
+================================================================================
+[x] Period controls + shared period state (storageKey guestezee.superadmin.dashboard.period)
+[x] Refresh button (manual + 1-min soft refresh)
+[x] Shimmer tokens (_dashboard-shimmer.scss) + centered tables (dashboard-tables.scss)
+[x] Urbanist font wired globally (styles.scss / index.html)
+[x] scroll-to-top util
+[x] Country + City filters on Platform Overview
+
+================================================================================
+PHASE B — Hotels signed KPIs (1–4)  ← CURRENT
+================================================================================
+[x] Route: /platform-overview (standalone PlatformOverviewDashboardComponent)
+[x] Menu: Platform Overview
+[x] Data: customer/getall + ecom/technical info join by member_id
+[x] KPI cards: Total / Lock wise / PMS wise / Only-key (lock && !PMS)
+[x] Lock-wise + PMS-wise group panels
+[x] Drill-down hotel listing per KPI bucket
+[x] Client-side period filter on created_on (fetch all, filter in UI)
+[ ] Charts polish / export (optional later)
+
+================================================================================
+PHASE C — Subscription reports (5–7)
+================================================================================
+[-] Sub fee report — skipped for now (payment-related)
+[-] Sub validity report — skipped for now
+[-] q / h / full / custom sub report — skipped for now
+
+================================================================================
+PHASE D — Money reports (8–9)
+================================================================================
+[-] Platform revenue hotel report — skipped for now
+[-] Payment settlement report — skipped for now
+
+================================================================================
+PHASE E — Guest platform reports (10–11)
+================================================================================
+[ ] Total guest downloaded — later if API exists
+[ ] Frequent traveller report — later if API exists
+
+================================================================================
+PHASE F — Wiring
+================================================================================
+[x] app.routes.ts loadComponent for platform-overview
+[x] menu-bar entry + active state
+[x] header title mapping
+[x] This progress tracker
+
+================================================================================
+Notes
+================================================================================
+- Payment / subscription / settlement dashboards intentionally deferred.
+- Existing /dashboard home charts remain unchanged.
+- Period defaults via shared state; incomplete Date Range does not re-filter until From+To set.

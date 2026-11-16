@@ -1,0 +1,317 @@
+<div class="main">
+  <div class="centered-container">
+    <div class="sa-overview-shell" [class.ds-loading-lock]="loading && activeView === 'overview'">
+      <!-- Shimmer -->
+      <div class="sa-shimmer" *ngIf="loading && activeView === 'overview'" aria-busy="true"
+        aria-label="Loading platform overview">
+        <div class="heading">
+          <div>
+            <div class="ds-block ds-title"></div>
+            <div class="ds-block ds-subtitle"></div>
+          </div>
+          <div class="page-head-period shimmer-head-actions">
+            <div class="ds-block ds-chip"></div>
+            <div class="ds-block ds-chip"></div>
+          </div>
+        </div>
+        <div class="kpis">
+          <div class="ds-kpi" *ngFor="let _ of [1,2,3,4]">
+            <div class="ds-block ds-icon"></div>
+            <div class="ds-block ds-line short"></div>
+            <div class="ds-block ds-value"></div>
+            <div class="ds-block ds-line"></div>
+          </div>
+        </div>
+        <div class="sa-shimmer-row">
+          <div class="ds-panel" *ngFor="let __ of [1,2]">
+            <div class="ds-block ds-line medium"></div>
+            <div class="ds-block ds-line"></div>
+            <div class="ds-block ds-line short"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview -->
+      <section class="hotel-overview" *ngIf="!loading && activeView === 'overview'">
+        <div class="page-head">
+          <div class="page-head-copy">
+            <h2>Platform Overview</h2>
+            <p>Hotels signed · country &amp; city</p>
+          </div>
+          <div class="page-head-filters">
+            <select class="loc-filter" [(ngModel)]="selectedCountry" (ngModelChange)="onCountryChange()"
+              aria-label="Country filter">
+              <option value="All">All Countries</option>
+              <option *ngFor="let c of countryOptions" [value]="c">{{ c }}</option>
+            </select>
+            <select class="loc-filter" [(ngModel)]="selectedCity" (ngModelChange)="onCityChange()"
+              aria-label="City filter">
+              <option value="All">All Cities</option>
+              <option *ngFor="let c of cityOptions" [value]="c">{{ c }}</option>
+            </select>
+            <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing" [auto]="false"
+              (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
+          </div>
+        </div>
+
+        <p class="load-hint" *ngIf="loadError">{{ loadError }}</p>
+
+        <div class="kpis">
+          <button type="button" class="kpi kpi-tab" *ngFor="let kpi of kpis" [ngClass]="kpi.cssClass"
+            (click)="openKpi(kpi)">
+            <div class="kpi-top">
+              <span class="kpi-icon" aria-hidden="true"><i [class]="kpi.icon"></i></span>
+              {{ kpi.label }}
+            </div>
+            <strong>{{ kpi.value }}</strong>
+            <small>{{ kpi.note }}</small>
+          </button>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <h3>Lock Wise · integrations</h3>
+            <div class="panel-sub">{{ lockMasters.length }} lock type<span *ngIf="lockMasters.length !== 1">s</span> · tap to list hotels</div>
+            <div class="group-list" *ngIf="lockMasters.length; else noLocks">
+              <button type="button" class="group-row group-row--btn" *ngFor="let g of lockMasters"
+                (click)="openIntegrationFromOverview('lock', g)">
+                <span>{{ g.name }}</span>
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+              </button>
+            </div>
+            <ng-template #noLocks>
+              <div class="empty-note">No lock integrations in Technical Info.</div>
+            </ng-template>
+          </div>
+
+          <div class="panel">
+            <h3>PMS Wise · integrations</h3>
+            <div class="panel-sub">{{ pmsMasters.length }} PMS type<span *ngIf="pmsMasters.length !== 1">s</span> · tap to list hotels</div>
+            <div class="group-list" *ngIf="pmsMasters.length; else noPms">
+              <button type="button" class="group-row group-row--btn" *ngFor="let g of pmsMasters"
+                (click)="openIntegrationFromOverview('pos', g)">
+                <span>{{ g.name }}</span>
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+              </button>
+            </div>
+            <ng-template #noPms>
+              <div class="empty-note">No PMS integrations in Technical Info.</div>
+            </ng-template>
+          </div>
+        </div>
+      </section>
+
+      <!-- Total hotels / Only-key flat roster -->
+      <section class="hotel-overview"
+        *ngIf="!loading && (activeView === 'all-hotels' || activeView === 'only-key')">
+        <div class="page-head kpi-list-head">
+          <div class="page-head-copy">
+            <button type="button" class="back-link" (click)="backToOverview()">← Back</button>
+            <h2>{{ listTitle }}</h2>
+            <p>{{ visibleHotels.length }} hotel<span *ngIf="visibleHotels.length !== 1">s</span></p>
+          </div>
+          <div class="page-head-filters">
+            <div class="roster-search">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <input type="search" [(ngModel)]="hotelSearch" (ngModelChange)="onHotelSearchChange()"
+                placeholder="Search hotel, member id, email…" />
+            </div>
+            <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing" [auto]="false"
+              (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
+          </div>
+        </div>
+
+        <div class="roster-shell">
+          <div class="roster-meta">
+            <span>Showing {{ visibleHotels.length }} of {{ listRows.length }}</span>
+          </div>
+          <div class="roster-table-wrap">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th>Hotel Name</th>
+                  <th>Member Id</th>
+                  <th>Email</th>
+                  <th>Contact</th>
+                  <th>Country</th>
+                  <th>City</th>
+                  <th>Status</th>
+                  <th>Lock</th>
+                  <th>PMS</th>
+                  <th>Signed On</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="visibleHotels.length === 0">
+                  <td colspan="10" class="table-empty">No hotels for this filter.</td>
+                </tr>
+                <tr class="hotel-row" *ngFor="let row of visibleHotels" (click)="openHotel(row)"
+                  title="Open hotel details">
+                  <td class="name-cell">
+                    <button type="button" class="hotel-link" (click)="openHotel(row, $event)">{{ row.name }}</button>
+                  </td>
+                  <td>{{ row.memberId }}</td>
+                  <td>{{ row.email }}</td>
+                  <td>{{ row.phone }}</td>
+                  <td>{{ row.country || '—' }}</td>
+                  <td>{{ row.city || '—' }}</td>
+                  <td><span [class]="statusClass(row.status)">{{ row.status }}</span></td>
+                  <td>{{ row.lockName }}</td>
+                  <td>{{ row.pmsName }}</td>
+                  <td>{{ row.createdOn }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lock wise · Technical Info catalog -->
+      <section class="hotel-overview" *ngIf="!loading && activeView === 'lock-wise'">
+        <div class="page-head kpi-list-head">
+          <div class="page-head-copy">
+            <button type="button" class="back-link" (click)="backToOverview()">← Back</button>
+            <h2>Lock Wise Signed</h2>
+            <p>{{ visibleLockMasters.length }} lock integration<span *ngIf="visibleLockMasters.length !== 1">s</span> · tap to list hotels</p>
+          </div>
+          <div class="page-head-filters">
+            <div class="roster-search">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <input type="search" [(ngModel)]="integrationSearch" (ngModelChange)="onIntegrationSearchChange()"
+                placeholder="Search lock integration…" />
+            </div>
+            <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing" [auto]="false"
+              (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
+          </div>
+        </div>
+
+        <div class="tech-grid" *ngIf="visibleLockMasters.length; else noLockDetail">
+          <button type="button" class="tech-card" *ngFor="let item of visibleLockMasters"
+            (click)="selectIntegration('lock', item)">
+            <div class="tech-card-logo">
+              <img *ngIf="item.logo" [src]="item.logo" [alt]="item.name" />
+              <i *ngIf="!item.logo" class="bi bi-lock-fill" aria-hidden="true"></i>
+            </div>
+            <div class="tech-card-meta">
+              <h4>{{ item.name }}</h4>
+              <span class="tech-type">type · lock</span>
+            </div>
+            <i class="bi bi-chevron-right tech-card-go" aria-hidden="true"></i>
+          </button>
+        </div>
+        <ng-template #noLockDetail>
+          <div class="panel"><div class="empty-note">No lock integrations in Technical Info.</div></div>
+        </ng-template>
+      </section>
+
+      <!-- PMS wise · Technical Info catalog -->
+      <section class="hotel-overview" *ngIf="!loading && activeView === 'pms-wise'">
+        <div class="page-head kpi-list-head">
+          <div class="page-head-copy">
+            <button type="button" class="back-link" (click)="backToOverview()">← Back</button>
+            <h2>PMS Wise Signed</h2>
+            <p>{{ visiblePmsMasters.length }} PMS integration<span *ngIf="visiblePmsMasters.length !== 1">s</span> · tap to list hotels</p>
+          </div>
+          <div class="page-head-filters">
+            <div class="roster-search">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <input type="search" [(ngModel)]="integrationSearch" (ngModelChange)="onIntegrationSearchChange()"
+                placeholder="Search PMS integration…" />
+            </div>
+            <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing" [auto]="false"
+              (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
+          </div>
+        </div>
+
+        <div class="tech-grid" *ngIf="visiblePmsMasters.length; else noPmsDetail">
+          <button type="button" class="tech-card" *ngFor="let item of visiblePmsMasters"
+            (click)="selectIntegration('pos', item)">
+            <div class="tech-card-logo">
+              <img *ngIf="item.logo" [src]="item.logo" [alt]="item.name" />
+              <i *ngIf="!item.logo" class="bi bi-hdd-network-fill" aria-hidden="true"></i>
+            </div>
+            <div class="tech-card-meta">
+              <h4>{{ item.name }}</h4>
+              <span class="tech-type">type · pos</span>
+            </div>
+            <i class="bi bi-chevron-right tech-card-go" aria-hidden="true"></i>
+          </button>
+        </div>
+        <ng-template #noPmsDetail>
+          <div class="panel"><div class="empty-note">No PMS integrations in Technical Info.</div></div>
+        </ng-template>
+      </section>
+
+      <!-- Hotels for chosen lock / PMS (ecom getall → member_id join) -->
+      <section class="hotel-overview" *ngIf="!loading && activeView === 'integration-hotels'">
+        <div class="page-head kpi-list-head">
+          <div class="page-head-copy">
+            <button type="button" class="back-link" (click)="backFromIntegrationHotels()">← Back</button>
+            <h2>{{ selectedIntegration?.name || 'Integration' }}</h2>
+            <p>
+              Hotels with this {{ selectedIntegrationKind === 'lock' ? 'lock' : 'PMS' }}
+              · {{ visibleIntegrationHotels.length }} hotel<span *ngIf="visibleIntegrationHotels.length !== 1">s</span>
+            </p>
+          </div>
+          <div class="page-head-filters">
+            <div class="roster-search">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <input type="search" [(ngModel)]="hotelSearch" (ngModelChange)="onHotelSearchChange()"
+                placeholder="Search hotel, member id, email…" />
+            </div>
+            <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing || integrationLoading"
+              [auto]="false" (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
+          </div>
+        </div>
+
+        <div class="panel" *ngIf="integrationLoading">
+          <div class="empty-note">Loading hotels for {{ selectedIntegration?.name }}…</div>
+        </div>
+
+        <div class="roster-shell" *ngIf="!integrationLoading">
+          <div class="roster-meta">
+            <span>Showing {{ visibleIntegrationHotels.length }} of {{ integrationHotels.length }}</span>
+          </div>
+          <div class="roster-table-wrap">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th>Hotel Name</th>
+                  <th>Member Id</th>
+                  <th>Email</th>
+                  <th>Contact</th>
+                  <th>Country</th>
+                  <th>City</th>
+                  <th>Status</th>
+                  <th>Lock</th>
+                  <th>PMS</th>
+                  <th>Signed On</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="visibleIntegrationHotels.length === 0">
+                  <td colspan="10" class="table-empty">No hotels enabled for this integration in the current filter.</td>
+                </tr>
+                <tr class="hotel-row" *ngFor="let row of visibleIntegrationHotels" (click)="openHotel(row)"
+                  title="Open hotel details">
+                  <td class="name-cell">
+                    <button type="button" class="hotel-link" (click)="openHotel(row, $event)">{{ row.name }}</button>
+                  </td>
+                  <td>{{ row.memberId }}</td>
+                  <td>{{ row.email }}</td>
+                  <td>{{ row.phone }}</td>
+                  <td>{{ row.country || '—' }}</td>
+                  <td>{{ row.city || '—' }}</td>
+                  <td><span [class]="statusClass(row.status)">{{ row.status }}</span></td>
+                  <td>{{ row.lockName }}</td>
+                  <td>{{ row.pmsName }}</td>
+                  <td>{{ row.createdOn }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

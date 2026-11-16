@@ -1,6 +1,51 @@
+/* Local Urbanist + Roboto (TTF) — no CDN dependency */
+
 @font-face {
-    font-family: 'Urbanist';
-    src: url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap') format('truetype');
-    font-weight: 500;
-    font-style: normal;
+  font-family: 'Urbanist';
+  src: url('../../../fonts/urbanist/Urbanist-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('../../../fonts/urbanist/Urbanist-Italic-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../../../fonts/roboto/Roboto-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../../../fonts/roboto/Roboto-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../../../fonts/roboto/Roboto-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../../../fonts/roboto/Roboto-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+$theme-font-stack: 'Urbanist', Roboto, sans-serif;

@@ -115,7 +115,7 @@ export class EmailTemplateComponent implements OnInit {
 
   /* ── navigation ─────────────────────────────────────────────────────── */
   goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/platform-overview']);
   }
 
   /* ── networking ─────────────────────────────────────────────────────── */

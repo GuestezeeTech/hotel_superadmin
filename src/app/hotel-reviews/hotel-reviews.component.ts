@@ -91,7 +91,7 @@ export class HotelReviewsComponent {
   }
 
   goBack() {
-    this.routeUrl.navigate(['/dashboard']);
+    this.routeUrl.navigate(['/platform-overview']);
   }
 
   // hotel_reviews items only have hotelname - look up GETALLCUSTOMER by name to get customer_member_id

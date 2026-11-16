@@ -116,7 +116,7 @@ export class LoginComponent implements OnInit {
               this.dbSchema = resp.user.db_schema;
               // this.localService.set('db_schema', "Tams1");
               this.localService.set('domainName', resp.user.domain_name);
-              this.router.navigate([`/dashboard`], { skipLocationChange: false });
+              this.router.navigate([`/platform-overview`], { skipLocationChange: false });
 
               // Newly added
               this.localService.set('password', this.loginForm.value.password);
@@ -211,7 +211,7 @@ export class LoginComponent implements OnInit {
                     //console.log("trueee111")
 
                     {
-                      this.router.navigate([`/dashboard`], { skipLocationChange: false });
+                      this.router.navigate([`/platform-overview`], { skipLocationChange: false });
 
                     }
 

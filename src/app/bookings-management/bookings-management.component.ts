@@ -105,7 +105,7 @@ export class BookingsManagementComponent {
 
   // Add this method to handle back navigation
   goBack(): void {
-    this.routeUrl.navigate(['/dashboard']);
+    this.routeUrl.navigate(['/platform-overview']);
   }
 
 }

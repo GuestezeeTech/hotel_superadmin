@@ -23,7 +23,7 @@ export class PageNotFoundComponent {
     if (lastValid) {
       this.router.navigateByUrl(lastValid);
     } else {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/platform-overview']);
     }
   }
 

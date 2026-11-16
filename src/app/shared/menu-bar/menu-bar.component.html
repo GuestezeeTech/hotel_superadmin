@@ -6,13 +6,6 @@
 
   <hr class="center-hr" />
   <ul class="sidenav-menu">
-    <li class="list_container" [class.active]="isDashboardActive()" routerLink="/dashboard"
-      (click)="sendValue('Dashboard')" *ngIf="userAccess?.DASHBOARD?.has_read_permission==true"
-      title="Dashboard">
-      <i class="bi bi-speedometer2 menu-icon" aria-hidden="true"></i>
-      <span>Dashboard</span>
-    </li>
-
     <li class="list_container" [class.active]="isPlatformOverviewActive()" routerLink="/platform-overview"
       (click)="sendValue('Platform Overview')" *ngIf="userAccess?.DASHBOARD?.has_read_permission==true"
       title="Platform Overview">

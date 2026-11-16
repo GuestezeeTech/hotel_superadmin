@@ -55,9 +55,11 @@ export const routes: Routes = [
     path: '',
     loadChildren: () => import('./user-access/user-listing/user-listing.module').then(m => m.UserListingModule),
   }, */
+  // The old Dashboard page is retired; old links and bookmarks land on Platform Overview.
   {
-    path: '',
-    loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule),
+    path: 'dashboard',
+    redirectTo: 'platform-overview',
+    pathMatch: 'full'
   },
   {
     path: 'platform-overview',

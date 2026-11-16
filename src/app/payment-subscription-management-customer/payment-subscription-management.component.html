@@ -50,16 +50,16 @@
                 [placeholder]="plan.discountType === 'percentage' ? '0 %' : '0'" />
             </div>
 
-            <!-- GST rate: the price below is recalculated from this value -->
+            <!-- Tax rate (saved as gst_percentage): the price below is recalculated from this value -->
             <div class="mt-3">
-              <label class="fw-semibold" style="font-size: 13px;">GST (%)</label>
+              <label class="fw-semibold" style="font-size: 13px;">Tax (%)</label>
               <input type="number" class="form-control text-center" [(ngModel)]="plan.gst_percentage"
                 (input)="calculateDiscount()" step="0.01" min="0" max="100"
                 [placeholder]="gstPercentage(plan) + ' %'" />
             </div>
 
             <div class="mt-3 fw-bold">
-              GST ({{ gstPercentage(plan) }}%): {{ currencySymbol(plan) }}{{ plan.gstAmount | number:'1.2-2' }}
+              Tax ({{ gstPercentage(plan) }}%): {{ currencySymbol(plan) }}{{ plan.gstAmount | number:'1.2-2' }}
             </div>
 
             <div class="mt-3 fw-bold">

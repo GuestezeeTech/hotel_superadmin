@@ -276,7 +276,7 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
     const gstValue = plan.gst_percentage;
     if (gstValue !== null && gstValue !== undefined && gstValue !== '' &&
       (!Number.isFinite(Number(gstValue)) || Number(gstValue) < 0 || Number(gstValue) > 100)) {
-      this.alertService.error(`GST must be between 0% and 100% for ${plan.name}`, this.options);
+      this.alertService.error(`Tax must be between 0% and 100% for ${plan.name}`, this.options);
       return;
     }
 
@@ -423,7 +423,7 @@ export class PaymentSubscriptionManagementComponent implements OnInit {
     return gstPercentageOf(plan);
   }
 
-  /** Rupees per dollar used to bill Indian hotels (83 when not set). */
+  /** Backup rupees per dollar for CCAvenue (94.17 when not set). */
   inrPerUsd(plan: any): number {
     return inrPerUsdOf(plan);
   }

@@ -49,7 +49,7 @@ export function gstFor(amount: number, plan: any): number {
 }
 
 /** Used when a plan has no inr_per_usd saved yet; set the real rate on the plans page. */
-export const DEFAULT_INR_PER_USD = 83;
+export const DEFAULT_INR_PER_USD = 94.17;
 
 /** Rupees per US dollar saved on the plan (inr_per_usd), used to bill Indian hotels in INR. */
 export function inrPerUsdOf(plan: any): number {

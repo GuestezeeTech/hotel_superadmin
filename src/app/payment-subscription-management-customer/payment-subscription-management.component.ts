@@ -125,7 +125,7 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
     const gstValue = plan.gst_percentage;
     if (gstValue !== null && gstValue !== undefined && gstValue !== '' &&
       (!Number.isFinite(Number(gstValue)) || Number(gstValue) < 0 || Number(gstValue) > 100)) {
-      return 'GST must be between 0% and 100%';
+      return 'Tax must be between 0% and 100%';
     }
     return '';
   }

@@ -14,13 +14,14 @@ export const DOMAIN_NAME = "https://www.guestezee.com"
 export const USER_ID = 16
 export const ENDPOINTS = {
   /** Onboarding stage emails: { templateName, to, variables: { hotelName } } */
-  ONBOARDING_EMAIL: API_URL + ':9430/onboardingemail',
+  // Port 9430 only accepts HTTPS (plain http to the server IP gets no reply), so use the domain
+  ONBOARDING_EMAIL: API_URL1 + ':9430/onboardingemail',
   /** Sent as the x-api-key header to ONBOARDING_EMAIL */
   ONBOARDING_EMAIL_API_KEY: '505e1ba70a5b1e95ae3af6ac90ece2d91d461b4208653cc6624f76a6ca92951c',
   GETNEWACCESSTOKEN: API_URL + ':5200/refreshtoken',
   VARIABLES: API_URL + ':5413/variables/create',
   VARIABLESUPDATE: API_URL + ':5413/variables/update',
-  VARIABLESGETBYID: API_URL + ':9430/variables/getbyid',
+  VARIABLESGETBYID: API_URL1 + ':9430/variables/getbyid',
   ADD_BRANDS: API_URL + ':5433/brand/create',
   ADD_BRANDSUpdate: API_URL + ':5433/brand/update',
   INVESTOR_UPDATE: API_URL + ':3305/investor/update',

@@ -52,6 +52,7 @@
             <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing" [auto]="false"
               (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
           </div>
+          <app-dashboard-export title="Platform Overview"></app-dashboard-export>
         </div>
 
         <p class="load-hint" *ngIf="loadError">{{ loadError }}</p>
@@ -119,6 +120,7 @@
             <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing" [auto]="false"
               (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
           </div>
+          <app-dashboard-export title="Platform Overview - {{ listTitle }}"></app-dashboard-export>
         </div>
 
         <div class="roster-shell">
@@ -183,6 +185,7 @@
             <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing" [auto]="false"
               (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
           </div>
+          <app-dashboard-export title="Platform Overview - Lock Wise Signed"></app-dashboard-export>
         </div>
 
         <div class="tech-grid" *ngIf="visibleLockMasters.length; else noLockDetail">
@@ -221,6 +224,7 @@
             <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing" [auto]="false"
               (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
           </div>
+          <app-dashboard-export title="Platform Overview - PMS Wise Signed"></app-dashboard-export>
         </div>
 
         <div class="tech-grid" *ngIf="visiblePmsMasters.length; else noPmsDetail">
@@ -262,6 +266,7 @@
             <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing || integrationLoading"
               [auto]="false" (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
           </div>
+          <app-dashboard-export title="Platform Overview - {{ selectedIntegration?.name || 'Integration' }}"></app-dashboard-export>
         </div>
 
         <div class="panel" *ngIf="integrationLoading">

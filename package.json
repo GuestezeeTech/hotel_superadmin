@@ -25,6 +25,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.8",
     "crypto-js": "^4.2.0",
+    "exceljs": "^4.4.0",
     "firebase": "^9.22.2",
     "html2pdf.js": "^0.10.3",
     "js-base64": "^3.7.7",

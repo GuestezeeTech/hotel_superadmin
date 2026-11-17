@@ -1,3 +1,4 @@
+import { DashboardExportComponent } from '../../shared/dashboard-export/dashboard-export.component';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -38,7 +39,7 @@ type FoReportKey =
 @Component({
   selector: 'app-fo-operations-dashboard',
   standalone: true,
-  imports: [
+  imports: [DashboardExportComponent, 
     CommonModule,
     FormsModule,
     DashboardPeriodControlsComponent,

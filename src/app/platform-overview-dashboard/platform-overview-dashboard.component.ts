@@ -1,3 +1,4 @@
+import { DashboardExportComponent } from '../shared/dashboard-export/dashboard-export.component';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -36,7 +37,7 @@ type DetailView =
 @Component({
   selector: 'app-platform-overview-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, DashboardRefreshButtonComponent],
+  imports: [DashboardExportComponent, CommonModule, FormsModule, DashboardRefreshButtonComponent],
   templateUrl: './platform-overview-dashboard.component.html',
   styleUrl: './platform-overview-dashboard.component.scss'
 })

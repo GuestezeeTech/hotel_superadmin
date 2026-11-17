@@ -1,3 +1,4 @@
+import { DashboardExportComponent } from '../../shared/dashboard-export/dashboard-export.component';
 import { CommonModule } from '@angular/common';
 
 import { Component, OnInit } from '@angular/core';
@@ -70,7 +71,7 @@ type SummaryTile = { label: string; value: string | number };
 
   standalone: true,
 
-  imports: [
+  imports: [DashboardExportComponent, 
     CommonModule,
     FormsModule,
     DashboardPeriodControlsComponent,

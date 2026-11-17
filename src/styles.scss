@@ -109,3 +109,29 @@ body,
   margin-right: 0 !important;
   box-sizing: border-box !important;
 }
+
+/* Dashboard "Report" PDF: let scroll boxes grow so the PDF shows every row */
+.dashboard-exporting {
+  background: #fff;
+
+  .table-wrap,
+  [class*='table-wrap'],
+  [class*='scroll'] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  tr,
+  .kpi,
+  .panel {
+    break-inside: avoid;
+  }
+}
+
+/* Report / Download Excel buttons sit at the right end of each dashboard header */
+.page-head > app-dashboard-export,
+.page-heading > app-dashboard-export,
+.fnb-head > app-dashboard-export,
+.heading > app-dashboard-export {
+  margin-left: auto;
+}

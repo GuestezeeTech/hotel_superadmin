@@ -647,6 +647,54 @@ export class HotelListComponent implements OnInit {
   }
 
   /**
+   * A paid subscription starts on the day the hotel goes live, not on the payment day.
+   * Returns the payment_plan with payment_start_date = today and the end date moved to
+   * match (plan months, or the custom amount's covered days), or null when there is
+   * nothing to start: not paid (free plan, no payment), or already started on an earlier Go Live.
+   */
+  private paymentPlanStartingOnGoLive(customer: any): any | null {
+    const plan = customer?.payment_plan;
+    if (!plan || plan.status !== 'Paid' || plan.started_on_go_live) {
+      return null;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const months: Record<string, number> = { quarterly: 3, half_yearly: 6, annual: 12 };
+    const end = new Date(today);
+    if (months[plan.selected_plan]) {
+      end.setMonth(end.getMonth() + months[plan.selected_plan]);
+    } else {
+      // Custom amount: the days it covered; otherwise keep the length the payment gave
+      let days = Number(plan.covered_days) || 0;
+      if (!days) {
+        const start = this.parseDdMmYyyy(plan.payment_start_date);
+        const oldEnd = this.parseDdMmYyyy(plan.payment_subscription_end_date);
+        days = start && oldEnd ? Math.round((oldEnd.getTime() - start.getTime()) / 86400000) : 0;
+      }
+      if (days <= 0) {
+        return null;
+      }
+      end.setDate(end.getDate() + days);
+    }
+    return {
+      ...plan,
+      payment_start_date: this.formatDdMmYyyy(today),
+      payment_subscription_end_date: this.formatDdMmYyyy(end),
+      started_on_go_live: true,
+      go_live_date: today.toISOString()
+    };
+  }
+
+  private parseDdMmYyyy(value: string): Date | null {
+    const [day, month, year] = String(value || '').split('-').map(Number);
+    return day && month && year ? new Date(year, month - 1, day) : null;
+  }
+
+  private formatDdMmYyyy(date: Date): string {
+    return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+  }
+
+  /**
    * Saves go_live (true/false) on the customer; the switch flips back if the save fails.
    * Turning it on rechecks the latest customer, since the list may be out of date.
    * Turning it off is always allowed.
@@ -674,11 +722,19 @@ export class HotelListComponent implements OnInit {
         return;
       }
     }
+    // First Go Live of a paid hotel: its subscription period starts today
+    const startedPlan = goLive ? this.paymentPlanStartingOnGoLive(this.customerdata) : null;
     this.hotelEnrollmentService.updateCustomer({
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
       payload: {
-        customer_update: { go_live: goLive }
+        customer_update: {
+          go_live: goLive,
+          ...(startedPlan ? {
+            payment_plan: startedPlan,
+            subscription_end_date: startedPlan.payment_subscription_end_date
+          } : {})
+        }
       },
       extras: {
         find: { id: customer.id }
@@ -692,7 +748,18 @@ export class HotelListComponent implements OnInit {
             this.onboardingEmail.sendToCustomer('Go live Approved', { ...customer, ...(this.customerdata || {}) });
           }
           customer.go_live = goLive;
-          this.alertService.success(goLive ? 'Hotel is now live.' : 'Hotel is no longer live.', this.options);
+          if (startedPlan) {
+            customer.payment_plan = startedPlan;
+            if (this.customerdata) {
+              this.customerdata.payment_plan = startedPlan;
+            }
+          }
+          this.alertService.success(
+            !goLive ? 'Hotel is no longer live.'
+              : startedPlan ? `Hotel is now live. Subscription runs until ${startedPlan.payment_subscription_end_date}.`
+                : 'Hotel is now live.',
+            this.options
+          );
         } else {
           revert(resp?.message || 'Unable to update Go Live. Please try again.');
         }

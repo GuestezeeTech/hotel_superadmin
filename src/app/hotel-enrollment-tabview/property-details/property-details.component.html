@@ -307,19 +307,24 @@
       </div>
     </div>
   </div> -->
-  <!-- PMS and door lock type, entered in the admin onboarding popup (read-only here) -->
+  <!-- PMS and door lock, entered in the admin onboarding popup (read-only here) -->
   <div class="section">
     <h3 style="font-size: 20px;font-weight: 600;">PMS &amp; Door Lock</h3>
-    <div style="display: grid;grid-template-columns: repeat(2, minmax(0, 1fr));row-gap: 3%;">
+    <div style="display: grid;grid-template-columns: repeat(3, minmax(0, 1fr));column-gap: 3%;row-gap: 3%;">
       <div class="form-group form1_div">
         <label for="registerPmsType">PMS Type</label>
         <input id="registerPmsType" class="input_box" type="text" readonly placeholder="Not provided"
           [value]="customerdata?.register_pms_type || ''" />
       </div>
       <div class="form-group form1_div">
-        <label for="registerDoorLockType">Door Lock Type</label>
+        <label for="registerDoorLockType">Door Lock Name</label>
         <input id="registerDoorLockType" class="input_box" type="text" readonly placeholder="Not provided"
           [value]="customerdata?.register_door_lock_type || ''" />
+      </div>
+      <div class="form-group form1_div">
+        <label for="doorLockModel">Door Lock Model</label>
+        <input id="doorLockModel" class="input_box" type="text" readonly placeholder="Not provided"
+          [value]="customerdata?.door_lock_model || ''" />
       </div>
     </div>
   </div>

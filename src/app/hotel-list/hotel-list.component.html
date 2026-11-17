@@ -42,9 +42,9 @@
             <th>Hotel Name</th>
             <th>Member Id</th>
             <th>Email</th>
-            <th>Contact Number</th>
-            <th>Status</th>
-            <th>Verify</th>
+            <th>Phone</th>
+            <th>Registration</th>
+            <th>Approval</th>
             <th class="nowrap">Go Live</th>
             <th>Action</th>
           </tr>
@@ -119,6 +119,18 @@
               </div>
             </td>
 
+            <!-- Step 1: Registration (first popup details and plan checked) -->
+            <td>
+              <button *ngIf="customer.verify_status === true" class="active" style="cursor: default;">Verified</button>
+              <ng-container *ngIf="customer.verify_status !== true">
+                <button *ngIf="userRoleName=='Super Admin'" class="pending" (click)="openVerifyModal(customer)"
+                  title="Verify this hotel's registration">Verify</button>
+                <button *ngIf="userRoleName!=='Super Admin'" class="pending" style="cursor: default;">Not
+                  Verified</button>
+              </ng-container>
+            </td>
+
+            <!-- Step 2: Approval -->
             <td *ngIf="userRoleName=='Super Admin'">
               <button *ngIf="(customer.status||'').toLowerCase()==='approved'" class="active"
                 style="cursor: default;">Approved</button>
@@ -155,15 +167,6 @@
                 style="cursor: pointer; font-size: 16px; margin-left: 6px; vertical-align: middle;" data-toggle="modal"
                 data-target="#reasonModal" (click)="currentRemarks = customer.status_remarks"
                 title="View Unapproval Reason"></i>
-            </td>
-            <td>
-              <button *ngIf="customer.verify_status === true" class="active" style="cursor: default;">Verified</button>
-              <ng-container *ngIf="customer.verify_status !== true">
-                <button *ngIf="userRoleName=='Super Admin'" class="pending" (click)="openVerifyModal(customer)"
-                  title="Verify this hotel">Verify</button>
-                <button *ngIf="userRoleName!=='Super Admin'" class="pending" style="cursor: default;">Not
-                  Verified</button>
-              </ng-container>
             </td>
             <td>
               <label class="switch" [title]="goLiveTitle(customer)">
@@ -246,10 +249,11 @@
     <!-- Verify Popup -->
     <div class="verify-overlay" *ngIf="showVerifyModal">
       <div class="verify-popup" role="dialog" aria-modal="true" aria-labelledby="verifyPopupTitle">
-        <h5 id="verifyPopupTitle">{{ verifyPlanName ? 'Verify Hotel' : 'Subscription Plan Required' }}</h5>
+        <h5 id="verifyPopupTitle">{{ verifyPlanName ? 'Verify Registration' : 'Subscription Plan Required' }}</h5>
         <ng-container *ngIf="verifyPlanName; else noPlan">
           <p>Are you sure you want to verify <strong>{{ verifyCustomer?.name }}</strong>?</p>
-          <p>Subscription plan: <strong>{{ verifyPlanName }}</strong></p>
+          <p>Payment option: <strong>{{ verifyIsFreePlan ? 'Free' : 'Cost' }}</strong></p>
+          <p *ngIf="verifyIsFreePlan" class="text-muted small mb-0">No payment needed, so verifying also approves the hotel.</p>
         </ng-container>
         <ng-template #noPlan>
           <p>Choose a subscription plan for <strong>{{ verifyCustomer?.name }}</strong> in Payment Settings before

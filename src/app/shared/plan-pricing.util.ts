@@ -56,3 +56,9 @@ export function inrPerUsdOf(plan: any): number {
   const value = Number(plan?.inr_per_usd);
   return Number.isFinite(value) && value > 0 ? value : DEFAULT_INR_PER_USD;
 }
+
+/** The hotel's plan type is Free (Payment Settings); older hotels saved it by the name "Free" */
+export function isFreePlanCustomer(customer: any): boolean {
+  const detail = customer?.subscription_detail;
+  return detail?.plan_type === 'free' || detail?.name === 'Free';
+}

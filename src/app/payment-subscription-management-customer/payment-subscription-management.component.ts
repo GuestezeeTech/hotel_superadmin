@@ -8,6 +8,7 @@ import { AuthTokenService } from '../auth-services/auth-token.service';
 import { AlertsService } from '../shared/alerts/alerts.service';
 import { HotelEnrollmentTabviewService } from '../hotel-enrollment-tabview/hotel-enrollment-tabview.service';
 import { Router, ActivatedRoute } from '@angular/router';
+import { OnboardingEmailService } from '../shared/onboarding-email.service';
 
 export type PlanType = 'cost' | 'free';
 
@@ -35,6 +36,7 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
     private hotelenrollmenttabviewService: HotelEnrollmentTabviewService,
     private route: ActivatedRoute,
     private router: Router,
+    private onboardingEmail: OnboardingEmailService,
   ) { }
 
   hotelId: number | null = null;
@@ -177,6 +179,11 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
       inr_per_usd: inrPerUsdOf(plan)
     };
     const paymentPlan = this.buildPaymentPlan();
+    // Free plan on a hotel that is already verified: nothing to pay, so it is approved now.
+    // (A hotel not verified yet is approved when the superadmin verifies it.)
+    const approveNow = this.planType === 'free'
+      && this.customerdata?.verify_status === true
+      && String(this.customerdata?.status || '').toLowerCase() !== 'approved';
 
     const requestBody = {
       domain_name: this.authTokenService.getDomain(),
@@ -184,7 +191,8 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
       payload: {
         customer_update: {
           subscription_detail: subscriptionDetail,
-          ...(paymentPlan ? { payment_plan: paymentPlan } : {})
+          ...(paymentPlan ? { payment_plan: paymentPlan } : {}),
+          ...(approveNow ? { status: 'approved', status_remarks: '' } : {})
         }
       },
       extras: { find: { id: this.hotelId } }
@@ -199,6 +207,14 @@ export class PaymentSubscriptionManagementCustomerComponent implements OnInit {
             this.customerdata.payment_plan = paymentPlan;
           }
           this.hotelenrollmenttabviewService.clearAdminFormEvent();
+          if (approveNow) {
+            this.customerdata.status = 'approved';
+            this.customerdata.status_remarks = '';
+            // Same email the hotel list sends when a status changes to Approved
+            this.onboardingEmail.sendToCustomer('Complete Onboarding', this.customerdata);
+            this.alertService.success('Free plan saved and the hotel is now Approved.', this.options);
+            return;
+          }
           this.alertService.success(resp.message || 'Record Successfully Updated', this.options);
         } else {
           this.alertService.error(resp?.message || 'Something bad happened. Please try again!', this.options);

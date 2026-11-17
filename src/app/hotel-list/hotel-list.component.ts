@@ -16,6 +16,7 @@ import { LocalStorageService } from '../auth-services/local-storage.service';
 import { SharedDataService } from '../shared/shared-data.service';
 import { firstValueFrom } from 'rxjs';
 import { OnboardingEmailService } from '../shared/onboarding-email.service';
+import { isFreePlanCustomer } from '../shared/plan-pricing.util';
 
 @Component({
   selector: 'app-hotel-list',
@@ -551,6 +552,11 @@ export class HotelListComponent implements OnInit {
     this.showVerifyModal = true;
   }
 
+  /** Payment option chosen in Payment Settings for the hotel being verified (Free or Cost) */
+  get verifyIsFreePlan(): boolean {
+    return isFreePlanCustomer(this.customerdata);
+  }
+
   closeVerifyModal() {
     this.showVerifyModal = false;
     this.verifyCustomer = null;
@@ -568,12 +574,20 @@ export class HotelListComponent implements OnInit {
       return;
     }
     this.isVerifying = true;
+    // Free plan: nothing to pay, so verifying also approves the hotel
+    const freePlan = isFreePlanCustomer(this.customerdata);
+    const wasApproved = String(this.customerdata?.status || this.verifyCustomer?.status || '').toLowerCase() === 'approved';
+    const approveNow = freePlan && !wasApproved;
     const requestBody = {
       domain_name: this.authTokenService.getDomain(),
       user_id: this.authTokenService.getUserId(),
       payload: {
         // register_status unlocks the hotel's admin: it moves on to the subscription payment
-        customer_update: { verify_status: true, register_status: true }
+        customer_update: {
+          verify_status: true,
+          register_status: true,
+          ...(approveNow ? { status: 'approved', status_remarks: '' } : {})
+        }
       },
       extras: {
         find: { id: this.verifyCustomer.id }
@@ -583,12 +597,26 @@ export class HotelListComponent implements OnInit {
       next: (resp: any) => {
         this.isVerifying = false;
         if (resp?.success === 1) {
-          // Hotel can now pay: "Subscription Request" to the hotel
-          this.onboardingEmail.sendToCustomer('Subscription Request', { ...this.verifyCustomer, ...(this.customerdata || {}) });
+          const customer = { ...this.verifyCustomer, ...(this.customerdata || {}) };
+          if (freePlan) {
+            // Free plan: no payment step, so "Complete Onboarding" (sent on approval) instead of "Subscription Request"
+            if (approveNow) {
+              this.onboardingEmail.sendToCustomer('Complete Onboarding', customer);
+            }
+          } else {
+            // Hotel can now pay: "Subscription Request" to the hotel
+            this.onboardingEmail.sendToCustomer('Subscription Request', customer);
+          }
           this.verifyCustomer.verify_status = true;
           this.verifyCustomer.register_status = true;
+          if (approveNow) {
+            this.verifyCustomer.status = 'approved';
+          }
           this.closeVerifyModal();
-          this.alertService.success('Hotel verified successfully.', this.options);
+          this.alertService.success(
+            approveNow ? 'Hotel verified and approved (Free plan).' : 'Hotel verified successfully.',
+            this.options
+          );
         } else {
           this.alertService.error(resp?.message || 'Unable to verify the hotel. Please try again.', this.options);
         }

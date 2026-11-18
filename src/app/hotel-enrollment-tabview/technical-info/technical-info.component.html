@@ -345,10 +345,9 @@
                     </div>
                 </div>
                 <div class="ecom-modal-footer">
-                    <button type="button" class="ecom-cancel-btn" (click)="closeEcomIntegrationModal()">{{
-                        (isViewMode || this.customerStatus === 'approved') ? 'Close' : 'Cancel' }}</button>
+                    <button type="button" class="ecom-cancel-btn" (click)="closeEcomIntegrationModal()">Cancel</button>
                     <button type="button" class="ecom-save-btn"
-                        *ngIf="!isViewMode && this.customerStatus !== 'approved' && ((selectedTab === 'pos') || (selectedTab === 'lock' && getEcomTechnicalInfoControls().controls.length > 0))"
+                        *ngIf="(selectedTab === 'pos') || (selectedTab === 'lock' && getEcomTechnicalInfoControls().controls.length > 0)"
                         (click)="saveEcomIntegration()">Save</button>
                 </div>
             </div>

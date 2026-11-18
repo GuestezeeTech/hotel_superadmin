@@ -1008,7 +1008,9 @@ export class HotelTechnicalInfoComponent implements OnInit {
   // if key is entered, value becomes required.
   // We disable the key field for all attributes across both Lock and PMS tabs.
   createEcomAttributeGroup(key: string = '', value: string = ''): FormGroup {
-    const isValueDisabled = this.customerStatus === 'approved' || this.isViewMode;
+    // Hotels cannot change integration values in their admin, so the superadmin can always
+    // edit them, also for approved hotels and from the view page
+    const isValueDisabled = false;
     const group = this.fb.group({
       key: [{ value: key, disabled: true }],
       value: [{ value: value, disabled: isValueDisabled }]

@@ -39,9 +39,10 @@ export const routes: Routes = [
     path: '',
     loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule),  // Lazy-load LoginModule
   },
-  /* {
+  // User Access: Role Permission (/role-list, /role) and Users (/user-list, /user)
+  {
     path: '',
-    loadChildren: () => import('./user-access/user/user.module').then(m => m.UserModule),  // Lazy-load LoginModule
+    loadChildren: () => import('./user-access/user/user.module').then(m => m.UserModule),
   },
   {
     path: '',
@@ -54,7 +55,7 @@ export const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./user-access/user-listing/user-listing.module').then(m => m.UserListingModule),
-  }, */
+  },
   // The old Dashboard page is retired; old links and bookmarks land on Platform Overview.
   {
     path: 'dashboard',

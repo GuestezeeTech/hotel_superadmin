@@ -19,6 +19,9 @@ export class MenuBarComponent implements OnInit {
   isSubmenuOpen = false;
   isSettingsSubmenuOpen = false;
   isHotelsOverviewSubmenuOpen = false;
+  isUserAccessSubmenuOpen = false;
+  /** Skip one route-driven submenu close after intentionally opening User Access. */
+  private keepUserAccessOpenOnce = false;
   /** Skip one route-driven submenu close after intentionally opening Settings. */
   private keepSettingsOpenOnce = false;
   /** Skip one route-driven submenu close after intentionally opening Hotels Overview. */
@@ -50,6 +53,13 @@ export class MenuBarComponent implements OnInit {
           this.keepHotelsOverviewOpenOnce = false;
           return;
         }
+        if (this.keepUserAccessOpenOnce) {
+          this.keepUserAccessOpenOnce = false;
+          return;
+        }
+        if (!this.isUserAccessRoute(event.urlAfterRedirects)) {
+          this.isUserAccessSubmenuOpen = false;
+        }
         // Close flyout after real navigation away from opening click
         if (!this.isSystemSettingsRoute(event.urlAfterRedirects)) {
           this.isSettingsSubmenuOpen = false;
@@ -73,12 +83,16 @@ export class MenuBarComponent implements OnInit {
     if (this.isHotelsOverviewRoute(currentRoute)) {
       this.isHotelsOverviewSubmenuOpen = true;
     }
+    if (this.isUserAccessRoute(currentRoute)) {
+      this.isUserAccessSubmenuOpen = true;
+    }
   }
 
   sendValue(value: string) {
     this.menuSelected.emit(value);
     this.isSettingsSubmenuOpen = false;
     this.isHotelsOverviewSubmenuOpen = false;
+    this.isUserAccessSubmenuOpen = false;
   }
 
   sendValue1(_value: string) {
@@ -95,6 +109,7 @@ export class MenuBarComponent implements OnInit {
     if (this.isSettingsSubmenuOpen) {
       this.keepSettingsOpenOnce = true;
       this.isHotelsOverviewSubmenuOpen = false;
+      this.isUserAccessSubmenuOpen = false;
     }
   }
 
@@ -112,6 +127,7 @@ export class MenuBarComponent implements OnInit {
     if (this.isHotelsOverviewSubmenuOpen) {
       this.keepHotelsOverviewOpenOnce = true;
       this.isSettingsSubmenuOpen = false;
+      this.isUserAccessSubmenuOpen = false;
     }
   }
 
@@ -194,6 +210,44 @@ export class MenuBarComponent implements OnInit {
       r.includes('/hk/dashboard') ||
       r.includes('hk/dashboard')
     );
+  }
+
+  // ---- User Access (Role Permission, Users) ----
+
+  toggleUserAccessSubmenu(event?: Event) {
+    this.setSubmenuFlyoutTop(event);
+    this.isUserAccessSubmenuOpen = !this.isUserAccessSubmenuOpen;
+    if (this.isUserAccessSubmenuOpen) {
+      this.keepUserAccessOpenOnce = true;
+      this.isSettingsSubmenuOpen = false;
+      this.isHotelsOverviewSubmenuOpen = false;
+    }
+  }
+
+  selectUserAccessLeaf(label: string, event?: Event) {
+    event?.stopPropagation();
+    this.menuSelected.emit(label);
+    this.isSettingsSubmenuOpen = false;
+    this.isHotelsOverviewSubmenuOpen = false;
+    // Desktop: keep open. Mobile flyout: close after choosing.
+    this.isUserAccessSubmenuOpen = !this.isMobileMenu();
+  }
+
+  /** /role, /role/:id, /role-list, /user, /user/:id, /user-list */
+  private isUserAccessRoute(route: string): boolean {
+    return /^\/(role|user)(-list)?(\/|\?|$)/.test(String(route || '').toLowerCase());
+  }
+
+  isUserAccessMenuActive(): boolean {
+    return this.isUserAccessRoute(this.currentRoute$.value) || this.isUserAccessSubmenuOpen;
+  }
+
+  isRolePermissionActive(): boolean {
+    return /^\/role(-list)?(\/|\?|$)/.test(this.currentRoute$.value.toLowerCase());
+  }
+
+  isUsersActive(): boolean {
+    return /^\/user(-list)?(\/|\?|$)/.test(this.currentRoute$.value.toLowerCase());
   }
 
   isEmailTemplateActive(): boolean {

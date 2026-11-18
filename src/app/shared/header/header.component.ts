@@ -95,7 +95,7 @@ export class HeaderComponent implements OnInit {
 
     }
     else if (currentRoute.includes('role')) {
-      return (this.selectedMenu = "Roles");
+      return (this.selectedMenu = "Role Permission");
 
     }
     else if (currentRoute.includes('user')) {

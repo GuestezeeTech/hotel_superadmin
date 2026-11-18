@@ -82,6 +82,27 @@
       </div>
     </li>
 
+    <li class="list_container" [class.active]="isUserAccessMenuActive()"
+      *ngIf="userAccess?.USERACCESS?.has_read_permission==true"
+      (click)="toggleUserAccessSubmenu($event)" title="User Access">
+      <div class="list-content">
+        <div class="left-content">
+          <i class="bi bi-shield-lock menu-icon" aria-hidden="true"></i>
+          <span>User Access</span>
+        </div>
+        <i class="fas fa-chevron-down dropdown-icon" [ngClass]="{ 'rotate': isUserAccessSubmenuOpen }"></i>
+      </div>
+    </li>
+
+    <li class="sub-menu" *ngIf="isUserAccessSubmenuOpen && userAccess?.USERACCESS?.has_read_permission==true">
+      <div class="submenu">
+        <a class="submenu-item" [class.active]="isRolePermissionActive()" routerLink="/role-list"
+          (click)="selectUserAccessLeaf('Role Permission', $event)">Role Permission</a>
+        <a class="submenu-item" [class.active]="isUsersActive()" routerLink="/user-list"
+          (click)="selectUserAccessLeaf('Users', $event)">Users</a>
+      </div>
+    </li>
+
     <li class="list_container" [class.active]="isEmailTemplateActive()" (click)="goToEmailTemplate()"
       title="Email Template">
       <i class="bi bi-envelope-paper menu-icon" aria-hidden="true"></i>

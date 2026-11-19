@@ -858,11 +858,20 @@ export class HotelListComponent implements OnInit {
 
 
 
-  /** Save worked: success 1/true with a 2xx status (customer/update answers 201), like the Verify save */
-  private isUpdateOk(resp: any): boolean {
-    const okFlag = resp?.success === 1 || resp?.success === true;
-    const code = Number(resp?.status_code ?? resp?.statusCode ?? 200);
-    return okFlag && code >= 200 && code < 300;
+  /**
+   * The update call came back 2xx; it only failed if the body says so
+   * (success 0/false, or a 4xx/5xx status_code). An empty body means it saved.
+   */
+  private isUpdateFailure(resp: any): boolean {
+    if (resp === null || resp === undefined || typeof resp !== 'object') {
+      return false;
+    }
+    const flag = resp.success;
+    if (flag === 0 || flag === false || flag === '0' || flag === 'false') {
+      return true;
+    }
+    const code = Number(resp.status_code ?? resp.statusCode ?? 0);
+    return code >= 400;
   }
 
   async customerUpdate(status: string) {
@@ -891,58 +900,46 @@ export class HotelListComponent implements OnInit {
         }
       }
     }
-    //console.log("123")
+    // Everything that follows a saved status: close the popup, emails, message, refresh
+    const onSaved = (message?: string) => {
+      const closeButton = document.getElementById("closeapproval");
+      if (closeButton) {
+        closeButton.click();
+      }
+      if (nowApproved && !wasApproved) {
+        // Status just changed to approved: "Complete Onboarding" to the hotel
+        this.onboardingEmail.sendToCustomer('Complete Onboarding', approvedCustomer);
+      }
+      if (nowUnapproved) {
+        // Unapproved: "Action Required" to the hotel with the superadmin's reason
+        this.onboardingEmail.sendToCustomer('Action Required', approvedCustomer, { rejectionReason });
+      }
+      this.alertService.success(message || 'Status updated successfully.', this.options);
+      this.getAllCustomers();
+    };
+
     this.hotellistservice.updateCustomer(requestBody).subscribe(
       resp => {
         this.loaderService.emitComplete();
-        if (resp) {
-          // customer/update answers 201 (Created), not only 200
-          if (this.isUpdateOk(resp)) {
-            const closeButton = document.getElementById("closeapproval");
-            if (closeButton) {
-              closeButton.click();  // Only call click if closeButton is not null
-            } else {
-              //console.error("Element with id 'closeapproval' not found.");
-            }
-
-
-            if (nowApproved && !wasApproved) {
-              // Status just changed to approved: "Complete Onboarding" to the hotel
-              this.onboardingEmail.sendToCustomer('Complete Onboarding', approvedCustomer);
-            }
-            if (nowUnapproved) {
-              // Unapproved: "Action Required" to the hotel with the superadmin's reason
-              this.onboardingEmail.sendToCustomer('Action Required', approvedCustomer, { rejectionReason });
-            }
-            this.alertService.success(resp.message, this.options);
-            this.getAllCustomers();
-
-            // setTimeout(() => {
-            //   this.router.navigate([`/all-customers`], { skipLocationChange: false });
-            // }, 1000);
-            // this.router.navigate(['/all-customers'], { state: { result: resp.message }, relativeTo: this.activatedRoute, skipLocationChange: false });
-
-          }
-          else if (resp.success === 0) {
-            if (resp.message) {
-              this.alertService.error(resp.message, this.options);
-            }
-          }
-          else if (resp.message && !this.isUpdateOk(resp)) {
-            this.alertService.error(resp.message, this.options);
-          }
-          else {
-            this.alertService.error('Something bad happened. Please try again!', this.options);
-          }
+        // customer/update answers 201, sometimes with an empty body: only an explicit failure is an error
+        if (this.isUpdateFailure(resp)) {
+          this.alertService.error(resp?.message || 'Something bad happened. Please try again!', this.options);
+          return;
         }
+        onSaved(resp?.message);
       },
       err => {
         this.loaderService.emitComplete();
-        if (err.error.statusCode === 403) {
+        // A 2xx whose body isn't JSON still saved the status
+        if (err?.status >= 200 && err?.status < 300) {
+          onSaved();
+          return;
+        }
+        if (err?.error?.statusCode === 403 || err?.status === 403) {
           this.alertService.error('Session Time Out! Please login Again', this.options)
           this.router.navigate([`/login`], { skipLocationChange: false });
         }
-        else if (err.error.message) {
+        else if (err?.error?.message) {
           this.alertService.error(err.error.message, this.options)
         }
         else {

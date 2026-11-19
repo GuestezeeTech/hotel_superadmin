@@ -6,6 +6,9 @@ import { HotelListService } from '../hotel-list/hotel-list.service';
 import { HotelEnrollmentTabviewService } from '../hotel-enrollment-tabview/hotel-enrollment-tabview.service';
 import { TechnicalInfoService } from '../technical-info/technical-info.service';
 import { ENDPOINTS } from '../app.config';
+import { PaymentDetailsService } from '../payment-details/payment-details.service';
+import { currencySymbolOf } from '../shared/plan-pricing.util';
+import { parseMoneyAmount } from '../shared/inr-format.util';
 
 export type HotelSignedBucket = 'all' | 'lock' | 'pms' | 'only-key';
 
@@ -35,6 +38,42 @@ export type IntegrationHotelGroup = {
   hotels: PlatformHotelRow[];
 };
 
+/** One hotel subscription order (not guest / F&B orders). */
+export type SubscriptionPaymentRow = {
+  orderId: number | string;
+  hotelId: number | string;
+  hotelName: string;
+  memberId: string;
+  country: string;
+  city: string;
+  plan: string;
+  currency: string;
+  symbol: string;
+  total: number;
+  paid: number;
+  pending: number;
+  status: string;
+  lastPaid: string;
+  lastPaidMs: number;
+  validTill: string;
+};
+
+/** One guest / app order that earned a hotel revenue. */
+export type HotelRevenueRow = {
+  orderId: number | string;
+  memberId: string;
+  hotelName: string;
+  purpose: string;
+  guestName: string;
+  roomNumber: string;
+  paymentMethod: string;
+  amount: number;
+  date: string;
+  sortTime: number;
+};
+
+export type SubscriptionTotal ={ currency: string; symbol: string; paid: number; pending: number };
+
 /** Master integration row from Technical Info catalog (no member_id). */
 export type MasterIntegration = {
   id: number | string;
@@ -52,7 +91,8 @@ export class PlatformOverviewDashboardService {
     private authTokenService: AuthTokenService,
     private hotelListService: HotelListService,
     private enrollmentService: HotelEnrollmentTabviewService,
-    private technicalInfoService: TechnicalInfoService
+    private technicalInfoService: TechnicalInfoService,
+    private paymentDetailsService: PaymentDetailsService
   ) {}
 
   fetchAllHotels(): Observable<any[]> {
@@ -494,6 +534,262 @@ export class PlatformOverviewDashboardService {
         hotels: [...hotels].sort((a, b) => a.name.localeCompare(b.name))
       }))
       .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }
+
+  /**
+   * Every Order Confirmed order (order/getall), loaded once and split into
+   * subscription orders and hotel revenue (guest / app) orders.
+   */
+  fetchConfirmedOrders(): Observable<any[]> {
+    const requestBody = {
+      domain_name: this.authTokenService.getDomain(),
+      user_id: this.authTokenService.getUserId(),
+      extras: {
+        find: { status: 'Order Confirmed' },
+        pagination: false,
+        sorting: true,
+        sortingDetails: { id: -1 }
+      }
+    };
+    return this.paymentDetailsService.getAllOrderDetails(requestBody).pipe(
+      map((resp: any) => {
+        if (!(resp?.success === 1 || resp?.success === true)) {
+          return [];
+        }
+        return (resp?.result?.data || []).filter(
+          (o: any) => String(o?.status ?? '').trim() === 'Order Confirmed'
+        );
+      }),
+      catchError(() => of([]))
+    );
+  }
+
+  /**
+   * Hotel revenue orders: guests' orders through the app (food, offers, late checkout …),
+   * never subscription orders.
+   */
+  isHotelRevenueOrder(order: any): boolean {
+    if (!order || String(order.status ?? '').trim() !== 'Order Confirmed' || this.isSubscriptionOrder(order)) {
+      return false;
+    }
+    const fromApp = order.from_app === true || order.from_app === 'true';
+    const hasGuest = 'guest_id' in order;
+    const hasPurpose = !!String(order.purpose ?? '').trim();
+    return (fromApp || hasGuest || hasPurpose) && !!String(order.customer_member_id ?? '').trim();
+  }
+
+  buildRevenueRows(orders: any[], hotels: PlatformHotelRow[]): HotelRevenueRow[] {
+    const hotelByMember = new Map<string, PlatformHotelRow>();
+    for (const h of hotels || []) {
+      hotelByMember.set(String(h.memberId).trim().toLowerCase(), h);
+    }
+    return (orders || [])
+      .filter((o) => this.isHotelRevenueOrder(o))
+      .map((o) => {
+        const memberId = String(o?.customer_member_id ?? '').trim();
+        const hotel = hotelByMember.get(memberId.toLowerCase());
+        const purposeRaw = String(o?.purpose ?? '').trim().toLowerCase();
+        const at = this.toDate(o?.orderConfirmDate || o?.created_on || o?.modified_on);
+        return {
+          orderId: o?.id ?? '—',
+          memberId: memberId || '—',
+          hotelName: hotel?.name || String(o?.customer_name || o?.hotel_name || '—').trim() || '—',
+          purpose: this.revenuePurposeLabel(purposeRaw),
+          guestName: String(o?.guest?.guest_name || o?.guest_name || '—').trim() || '—',
+          roomNumber:
+            String(o?.room_no || o?.delivery?.room_no || o?.guest?.room_no || '—').trim() || '—',
+          paymentMethod: this.revenuePaymentLabel(o?.payment_type),
+          amount: this.revenueAmount(o),
+          date: at ? this.formatShortDate(at) + ' ' + at.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '—',
+          sortTime: at ? at.getTime() : 0
+        };
+      })
+      .sort((a, b) => b.sortTime - a.sortTime);
+  }
+
+  searchRevenue(rows: HotelRevenueRow[], query: string): HotelRevenueRow[] {
+    const q = String(query || '').trim().toLowerCase();
+    if (!q) {
+      return [...(rows || [])];
+    }
+    return (rows || []).filter((r) =>
+      [r.orderId, r.hotelName, r.memberId, r.purpose, r.guestName, r.roomNumber, r.paymentMethod]
+        .join(' ')
+        .toLowerCase()
+        .includes(q)
+    );
+  }
+
+  /** Same amount rule as the hotel's Revenue Report Through the App. */
+  private revenueAmount(order: any): number {
+    const summary = order?.order_review?.order_summary || {};
+    const fromSummary = parseMoneyAmount(summary.order_total_amount);
+    if (fromSummary > 0) {
+      return fromSummary;
+    }
+    const fromPayment = parseMoneyAmount(order?.payment?.amount ?? order?.payment?.order_total_amount);
+    if (fromPayment > 0) {
+      return fromPayment;
+    }
+    return parseMoneyAmount(order?.order_total_amount ?? order?.total_amount);
+  }
+
+  private revenuePurposeLabel(key: string): string {
+    const labels: Record<string, string> = {
+      food: 'Food',
+      offer: 'Offer',
+      'late checkout': 'Late Checkout',
+      checkout: 'Checkout'
+    };
+    return labels[key] || (key ? key.replace(/\b\w/g, (c) => c.toUpperCase()) : 'Other');
+  }
+
+  private revenuePaymentLabel(paymentType: any): string {
+    const raw = String(paymentType ?? '').trim().toLowerCase().replace(/_/g, ' ');
+    if (raw === 'bill to room') {
+      return 'Bill To Room';
+    }
+    if (raw === 'online payment') {
+      return 'Online Payment';
+    }
+    return String(paymentType ?? '').trim() || '—';
+  }
+
+  isSubscriptionOrder(order: any): boolean {
+    if (!order || order.status !== 'Order Confirmed') {
+      return false;
+    }
+    if ('guest_id' in order || order.from_app === true || order.from_app === 'true') {
+      return false;
+    }
+    const hasPlan = Array.isArray(order.payment_split) || !!order.payment_type || !!order.subscription_end_date;
+    return hasPlan && !!String(order.customer_member_id ?? '').trim();
+  }
+
+  /** One row per subscription order, joined to the hotel for its name and location. */
+  buildSubscriptionRows(allOrders: any[], hotels: PlatformHotelRow[]): SubscriptionPaymentRow[] {
+    const orders = (allOrders || []).filter((o) => this.isSubscriptionOrder(o));
+    const hotelByMember = new Map<string, PlatformHotelRow>();
+    for (const h of hotels || []) {
+      hotelByMember.set(String(h.memberId).trim().toLowerCase(), h);
+    }
+
+    return (orders || []).map((o) => {
+      const memberId = String(o?.customer_member_id ?? '').trim();
+      const hotel = hotelByMember.get(memberId.toLowerCase());
+      const installments = this.installmentsOf(o);
+      const isFree = String(o?.payment_type ?? '').toLowerCase() === 'free';
+
+      let paid = 0;
+      let pending = 0;
+      let lastPaidMs = 0;
+      let validTill = '';
+      for (const inst of installments) {
+        const amount = Number(inst?.order_total_amount) || 0;
+        if (inst?.status === 'Paid') {
+          paid += amount;
+          validTill = String(inst?.subscription_end_date || validTill);
+          const paidAt = this.toDate(inst?.paid_on || inst?.payment_date || inst?.modified_on);
+          if (paidAt && paidAt.getTime() > lastPaidMs) {
+            lastPaidMs = paidAt.getTime();
+          }
+        } else {
+          pending += amount;
+        }
+      }
+      if (!installments.length) {
+        const total = Number(o?.order_total_amount ?? o?.total_amount ?? 0) || 0;
+        paid = total;
+      }
+
+      const orderedAt = this.toDate(o?.orderConfirmDate || o?.created_on || o?.modified_on);
+      const latestMs = lastPaidMs || (orderedAt ? orderedAt.getTime() : 0);
+      const currency = String(o?.currency || '').trim().toUpperCase() || 'USD';
+
+      return {
+        orderId: o?.id ?? '',
+        hotelId: hotel?.id ?? '',
+        hotelName: hotel?.name || String(o?.customer_name || o?.hotel_name || '—').trim() || '—',
+        memberId: memberId || '—',
+        country: hotel?.country || '',
+        city: hotel?.city || '',
+        plan: isFree ? 'Free' : this.planLabel(o),
+        currency,
+        symbol: currencySymbolOf({ currency_type: currency }),
+        total: paid + pending,
+        paid,
+        pending,
+        status: isFree ? 'Free' : pending <= 0 ? 'Paid' : paid > 0 ? 'Partly paid' : 'Not paid',
+        lastPaid: latestMs ? this.formatShortDate(new Date(latestMs)) : '—',
+        lastPaidMs: latestMs,
+        validTill: validTill || String(o?.subscription_end_date || '') || '—'
+      };
+    }).sort((a, b) => b.lastPaidMs - a.lastPaidMs);
+  }
+
+  /** Totals per currency, e.g. [{ currency: 'USD', symbol: '$', paid, pending }] */
+  subscriptionTotals(rows: SubscriptionPaymentRow[]): SubscriptionTotal[] {
+    const byCurrency = new Map<string, SubscriptionTotal>();
+    for (const r of rows || []) {
+      const t = byCurrency.get(r.currency) || { currency: r.currency, symbol: r.symbol, paid: 0, pending: 0 };
+      t.paid += r.paid;
+      t.pending += r.pending;
+      byCurrency.set(r.currency, t);
+    }
+    return [...byCurrency.values()].sort((a, b) => b.paid - a.paid);
+  }
+
+  searchSubscriptions(rows: SubscriptionPaymentRow[], query: string): SubscriptionPaymentRow[] {
+    const q = String(query || '').trim().toLowerCase();
+    if (!q) {
+      return [...(rows || [])];
+    }
+    return (rows || []).filter((r) =>
+      [r.hotelName, r.memberId, r.plan, r.status, r.country, r.city, r.currency]
+        .join(' ')
+        .toLowerCase()
+        .includes(q)
+    );
+  }
+
+  private installmentsOf(order: any): any[] {
+    const split = Array.isArray(order?.payment_split) ? order.payment_split : [];
+    const out: any[] = [];
+    for (const item of split) {
+      if (Array.isArray(item?.installments)) {
+        out.push(...item.installments);
+      } else if (item && (item.status || item.order_total_amount !== undefined)) {
+        out.push(item);
+      }
+    }
+    return out;
+  }
+
+  private planLabel(order: any): string {
+    const split = Array.isArray(order?.payment_split) ? order.payment_split : [];
+    const raw = String(split[0]?.name || order?.payment_type || '').trim().toLowerCase();
+    const labels: Record<string, string> = {
+      full: 'Annual',
+      annual: 'Annual',
+      quarterly: 'Quarterly',
+      half_yearly: 'Half-Yearly',
+      custom: 'Custom'
+    };
+    if (!raw) {
+      return '—';
+    }
+    return labels[raw] || raw.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  /** ISO dates and DD-MM-YYYY (as saved on subscription installments). */
+  private toDate(value: any): Date | null {
+    const s = String(value ?? '').trim();
+    if (!s) {
+      return null;
+    }
+    const dmy = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    const d = dmy ? new Date(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1])) : new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
   }
 
   searchHotels(rows: PlatformHotelRow[], query: string): PlatformHotelRow[] {

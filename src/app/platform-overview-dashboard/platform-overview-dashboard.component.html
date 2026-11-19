@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="kpis">
-          <div class="ds-kpi" *ngFor="let _ of [1,2,3,4]">
+          <div class="ds-kpi" *ngFor="let _ of [1,2,3,4,5,6]">
             <div class="ds-block ds-icon"></div>
             <div class="ds-block ds-line short"></div>
             <div class="ds-block ds-value"></div>
@@ -161,6 +161,171 @@
                   <td>{{ row.lockName }}</td>
                   <td>{{ row.pmsName }}</td>
                   <td>{{ row.createdOn }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Subscription payments · hotel subscription orders only (no guest / F&B orders) -->
+      <section class="hotel-overview" *ngIf="!loading && activeView === 'subscriptions'">
+        <div class="page-head kpi-list-head">
+          <div class="page-head-copy">
+            <button type="button" class="back-link" (click)="backToOverview()">← Back</button>
+            <h2>Subscription Payments</h2>
+            <p>All hotels' subscription orders · {{ visibleSubscriptions.length }} order<span *ngIf="visibleSubscriptions.length !== 1">s</span></p>
+          </div>
+          <div class="page-head-filters">
+            <div class="roster-search">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <input type="search" [(ngModel)]="subscriptionSearch" (ngModelChange)="onSubscriptionSearchChange()"
+                placeholder="Search hotel, member id, plan…" />
+            </div>
+            <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing || subscriptionsLoading"
+              [auto]="false" (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
+          </div>
+          <app-dashboard-export title="Platform Overview - Subscription Payments"></app-dashboard-export>
+        </div>
+
+        <div class="sub-totals" *ngIf="subscriptionTotals.length">
+          <div class="sub-total" *ngFor="let t of subscriptionTotals">
+            <span>Received ({{ t.currency }})</span>
+            <strong>{{ money(t.symbol, t.paid) }}</strong>
+          </div>
+          <div class="sub-total" *ngFor="let t of subscriptionTotals">
+            <span>Still to come ({{ t.currency }})</span>
+            <strong>{{ money(t.symbol, t.pending) }}</strong>
+          </div>
+          <div class="sub-total">
+            <span>Hotels · orders</span>
+            <strong>{{ subscriptionHotelCount }} · {{ subscriptionRows.length }}</strong>
+          </div>
+        </div>
+
+        <div class="panel" *ngIf="subscriptionsLoading && !subscriptionRows.length">
+          <div class="empty-note">Loading subscription payments…</div>
+        </div>
+
+        <div class="roster-shell" *ngIf="!(subscriptionsLoading && !subscriptionRows.length)">
+          <div class="roster-meta">
+            <span>Showing {{ visibleSubscriptions.length }} of {{ subscriptionRows.length }}</span>
+          </div>
+          <div class="roster-table-wrap">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th>Hotel Name</th>
+                  <th>Member Id</th>
+                  <th>Plan</th>
+                  <th>Total</th>
+                  <th>Paid</th>
+                  <th>Still to come</th>
+                  <th>Status</th>
+                  <th>Last Paid</th>
+                  <th>Valid Till</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="visibleSubscriptions.length === 0">
+                  <td colspan="9" class="table-empty">No subscription payments for this filter.</td>
+                </tr>
+                <tr class="hotel-row" *ngFor="let row of visibleSubscriptions" (click)="openSubscription(row)"
+                  title="Open this hotel's payments">
+                  <td class="name-cell">
+                    <button type="button" class="hotel-link" (click)="openSubscription(row, $event)">{{ row.hotelName }}</button>
+                  </td>
+                  <td>{{ row.memberId }}</td>
+                  <td>{{ row.plan }}</td>
+                  <td>{{ money(row.symbol, row.total) }}</td>
+                  <td>{{ money(row.symbol, row.paid) }}</td>
+                  <td>{{ money(row.symbol, row.pending) }}</td>
+                  <td><span [class]="subscriptionStatusClass(row.status)">{{ row.status }}</span></td>
+                  <td>{{ row.lastPaid }}</td>
+                  <td>{{ row.validTill }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hotels revenue · guests' app orders, one hotel at a time or all -->
+      <section class="hotel-overview" *ngIf="!loading && activeView === 'revenue'">
+        <div class="page-head kpi-list-head">
+          <div class="page-head-copy">
+            <button type="button" class="back-link" (click)="backToOverview()">← Back</button>
+            <h2>Hotels Revenue</h2>
+            <p>{{ selectedRevenueHotelLabel }} · {{ visibleRevenue.length }} order<span *ngIf="visibleRevenue.length !== 1">s</span></p>
+          </div>
+          <div class="page-head-filters">
+            <select class="loc-filter revenue-hotel-filter" [(ngModel)]="selectedRevenueHotel"
+              (ngModelChange)="onRevenueFilterChange()" aria-label="Hotel">
+              <option value="All">All hotels</option>
+              <option *ngFor="let h of revenueHotelOptions" [value]="h.memberId">{{ h.label }}</option>
+            </select>
+            <div class="roster-search">
+              <i class="bi bi-search" aria-hidden="true"></i>
+              <input type="search" [(ngModel)]="revenueSearch" (ngModelChange)="onRevenueFilterChange()"
+                placeholder="Search order, guest, room…" />
+            </div>
+            <app-dashboard-refresh class="page-head-refresh" [refreshing]="refreshing || subscriptionsLoading"
+              [auto]="false" (refresh)="onDashboardRefresh($event)"></app-dashboard-refresh>
+          </div>
+          <app-dashboard-export title="Platform Overview - Hotels Revenue - {{ selectedRevenueHotelLabel }}"></app-dashboard-export>
+        </div>
+
+        <div class="sub-totals">
+          <div class="sub-total">
+            <span>Total revenue</span>
+            <strong>{{ inr(revenueTotal) }}</strong>
+          </div>
+          <div class="sub-total" *ngFor="let p of revenueByPurpose">
+            <span>{{ p.label }} · {{ p.count }} order<span *ngIf="p.count !== 1">s</span></span>
+            <strong>{{ inr(p.amount) }}</strong>
+          </div>
+        </div>
+
+        <div class="panel" *ngIf="subscriptionsLoading && !revenueRows.length">
+          <div class="empty-note">Loading hotel orders…</div>
+        </div>
+
+        <div class="roster-shell" *ngIf="!(subscriptionsLoading && !revenueRows.length)">
+          <div class="roster-meta">
+            <span>Showing {{ visibleRevenue.length }} order<span *ngIf="visibleRevenue.length !== 1">s</span></span>
+          </div>
+          <div class="roster-table-wrap">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th>Order Id</th>
+                  <th>Date</th>
+                  <th>Hotel Name</th>
+                  <th>Member Id</th>
+                  <th>Type</th>
+                  <th>Guest</th>
+                  <th>Room</th>
+                  <th>Payment</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="visibleRevenue.length === 0">
+                  <td colspan="9" class="table-empty">No orders for this hotel.</td>
+                </tr>
+                <tr *ngFor="let row of visibleRevenue">
+                  <td>{{ row.orderId }}</td>
+                  <td>{{ row.date }}</td>
+                  <td class="name-cell">
+                    <button type="button" class="hotel-link" (click)="openRevenueHotelPayments(row, $event)"
+                      title="Open hotel details">{{ row.hotelName }}</button>
+                  </td>
+                  <td>{{ row.memberId }}</td>
+                  <td>{{ row.purpose }}</td>
+                  <td>{{ row.guestName }}</td>
+                  <td>{{ row.roomNumber }}</td>
+                  <td>{{ row.paymentMethod }}</td>
+                  <td class="amount-cell">{{ inr(row.amount) }}</td>
                 </tr>
               </tbody>
             </table>

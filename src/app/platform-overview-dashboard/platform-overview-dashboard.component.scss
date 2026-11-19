@@ -197,7 +197,7 @@
 
 .kpis {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 10px;
   width: 100%;
@@ -264,7 +264,21 @@
     font-variant-numeric: tabular-nums;
   }
 
-  &.primary strong {
+  // Subscription Payments: same solid style as Total Hotels Signed
+  &.payments {
+    background: #0b6b55;
+    color: #fff;
+  }
+
+  // Hotels Revenue
+  &.revenue {
+    background: #6b2f8a;
+    color: #fff;
+  }
+
+  &.primary strong,
+  &.payments strong,
+  &.revenue strong {
     font-size: 18px;
   }
 
@@ -301,8 +315,59 @@
   }
 }
 
-.kpi.primary .kpi-icon {
+.kpi.primary .kpi-icon,
+.kpi.payments .kpi-icon,
+.kpi.revenue .kpi-icon {
   color: #fff;
+}
+
+.revenue-hotel-filter {
+  min-width: 240px;
+  max-width: 320px;
+  width: auto;
+}
+
+@media (max-width: 576px) {
+  .revenue-hotel-filter {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+  }
+}
+
+.amount-cell {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sub-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sub-total {
+  background: #fff;
+  border: 1px solid #e5eaed;
+  border-radius: 9px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  span {
+    font-size: 11px;
+    color: #5b6b75;
+    font-weight: 600;
+  }
+
+  strong {
+    font-size: 18px;
+    color: #102b3b;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 .kpi.blue .kpi-icon {
@@ -778,6 +843,12 @@ table {
     .loc-filter {
       flex: 0 1 150px;
       max-width: 170px;
+    }
+
+    // Hotel picker needs room for "member id - hotel name"
+    .loc-filter.revenue-hotel-filter {
+      flex: 0 1 260px;
+      max-width: 300px;
     }
 
     .page-head-refresh {

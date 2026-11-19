@@ -866,9 +866,11 @@ export class HotelListComponent implements OnInit {
     //console.log(this.customerdata, "this.customerdata")
     const wasApproved = String(this.customerdata.status || '').toLowerCase() === 'approved';
     const nowApproved = String(status || '').toLowerCase() === 'approved';
+    const nowUnapproved = String(status || '').toLowerCase() === 'unapproved';
+    const rejectionReason = nowUnapproved ? String(this.unapprovalReason || '').trim() : '';
     const approvedCustomer = this.customerdata;
     this.customerdata.status = status;
-    this.customerdata.status_remarks = (status || '').toLowerCase() === 'unapproved' ? this.unapprovalReason : '';
+    this.customerdata.status_remarks = nowUnapproved ? this.unapprovalReason : '';
 
     let requestBody = {
       domain_name: this.authTokenService.getDomain(),
@@ -899,6 +901,10 @@ export class HotelListComponent implements OnInit {
             if (nowApproved && !wasApproved) {
               // Status just changed to approved: "Complete Onboarding" to the hotel
               this.onboardingEmail.sendToCustomer('Complete Onboarding', approvedCustomer);
+            }
+            if (nowUnapproved) {
+              // Unapproved: "Action Required" to the hotel with the superadmin's reason
+              this.onboardingEmail.sendToCustomer('Action Required', approvedCustomer, { rejectionReason });
             }
             this.alertService.success(resp.message, this.options);
             this.getAllCustomers();

@@ -11,7 +11,8 @@ export type OnboardingTemplate =
   | 'Complete Onboarding'
   | 'Awaiting Final Approval'
   | 'Final Approval Verification'
-  | 'Go live Approved';
+  | 'Go live Approved'
+  | 'Action Required';
 
 /**
  * Sends the onboarding stage emails (:9430/onboardingemail) to the hotel.
@@ -25,8 +26,11 @@ export class OnboardingEmailService {
     return String(customer?.name || customer?.property_details?.property_name || customer?.first_name || '').trim();
   }
 
-  /** Sends a template to the customer's own email */
-  sendToCustomer(templateName: OnboardingTemplate, customer: any): void {
+  /**
+   * Sends a template to the customer's own email.
+   * extraVariables are added next to hotelName (e.g. { rejectionReason } for "Action Required").
+   */
+  sendToCustomer(templateName: OnboardingTemplate, customer: any, extraVariables: Record<string, string> = {}): void {
     const to = String(customer?.email || '').trim();
     if (!to) {
       console.warn(`Onboarding email "${templateName}" skipped: hotel has no email`);
@@ -38,7 +42,7 @@ export class OnboardingEmailService {
     this.http.post(ENDPOINTS.ONBOARDING_EMAIL, {
       templateName,
       to,
-      variables: { hotelName: this.hotelNameOf(customer) }
+      variables: { hotelName: this.hotelNameOf(customer), ...extraVariables }
     }, { headers }).subscribe({
       error: (err) => console.error(`Onboarding email "${templateName}" failed`, err)
     });

@@ -858,6 +858,13 @@ export class HotelListComponent implements OnInit {
 
 
 
+  /** Save worked: success 1/true with a 2xx status (customer/update answers 201), like the Verify save */
+  private isUpdateOk(resp: any): boolean {
+    const okFlag = resp?.success === 1 || resp?.success === true;
+    const code = Number(resp?.status_code ?? resp?.statusCode ?? 200);
+    return okFlag && code >= 200 && code < 300;
+  }
+
   async customerUpdate(status: string) {
 
     delete this.customerdata._id;
@@ -889,7 +896,8 @@ export class HotelListComponent implements OnInit {
       resp => {
         this.loaderService.emitComplete();
         if (resp) {
-          if (resp.success === 1 && resp.status_code === 200) {
+          // customer/update answers 201 (Created), not only 200
+          if (this.isUpdateOk(resp)) {
             const closeButton = document.getElementById("closeapproval");
             if (closeButton) {
               closeButton.click();  // Only call click if closeButton is not null
@@ -920,7 +928,7 @@ export class HotelListComponent implements OnInit {
               this.alertService.error(resp.message, this.options);
             }
           }
-          else if (resp.message && resp.status_code !== 200) {
+          else if (resp.message && !this.isUpdateOk(resp)) {
             this.alertService.error(resp.message, this.options);
           }
           else {

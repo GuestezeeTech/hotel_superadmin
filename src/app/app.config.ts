@@ -574,6 +574,9 @@ export const ENDPOINTS = {
   GET_TASK_RATINGS: API_URL1 + ':9545/productreviews/getall',
   GET_CHECKOUT_BY_ID: API_URL1 + ':1220/checkout/getbyid',
   GET_GUEST_DETAILS: API_URL1 + ':1218/report/getallevent',
+  // Guests menu: hotel guests and their reservations (same APIs as the hotel admin)
+  GET_ALL_GUESTS: API_URL1 + ':1205/guest/getall',
+  GET_ALL_RESERVATIONS: API_URL1 + ':4676/reservation/getall',
   GET_ALL_OUTLETS: API_URL1 + ':9514/outlet/getall',
   GET_PRODUCT_BY_OUTLET: API_URL1 + ':9674/product/getall',
   GET_OFFERS_BY_OUTLET: API_URL1 + ':1299/offer/getall'

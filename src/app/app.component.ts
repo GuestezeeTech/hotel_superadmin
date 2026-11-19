@@ -183,8 +183,10 @@ export class AppComponent implements OnInit, OnDestroy {
           this.selectedMenuItem = "Hotels";
         } else if (url === '/platform-overview') {
           this.selectedMenuItem = "Platform Overview";
+        } else if (url === '/guests') {
+          this.selectedMenuItem = "Guests";
         } else if (url === '/overview-dashboard' || url === '/kot-dashboard') {
-          this.selectedMenuItem = "Hotels Overview - Hotel Overview";
+          this.selectedMenuItem = "Hotels Overview - Dashboard";
         } else if (url === '/fb/dashboard') {
           this.selectedMenuItem = "Hotels Overview - F&B Dashboard";
         } else if (url === '/fo/dashboard') {

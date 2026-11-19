@@ -156,6 +156,10 @@ export class MenuBarComponent implements OnInit {
     );
   }
 
+  isGuestsActive(): boolean {
+    return /^\/guests(\/|\?|$)/.test(this.currentRoute$.value.toLowerCase());
+  }
+
   isDashboardActive(): boolean {
     const currentRoute = this.currentRoute$.value;
     if (

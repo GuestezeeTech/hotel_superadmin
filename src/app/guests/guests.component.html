@@ -1,0 +1,157 @@
+<div class="main">
+  <div class="g-page">
+    <div class="g-head">
+      <div>
+        <h2>Guests</h2>
+        <p *ngIf="activeTab === 'guests'">All guests</p>
+        <p *ngIf="activeTab !== 'guests'">{{ selectedHotelLabel }} · {{ activeTab === 'reservations' ? 'reservations' : 'frequent guests' }}</p>
+      </div>
+      <div class="g-filters">
+        <select *ngIf="activeTab !== 'guests'" class="g-select g-hotel" [(ngModel)]="selectedHotel"
+          (ngModelChange)="onHotelChange()" aria-label="Hotel">
+          <option *ngFor="let h of hotelOptions" [value]="h.memberId">{{ h.label }}</option>
+        </select>
+        <div class="g-search">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <input type="search" [(ngModel)]="search" (ngModelChange)="onFilterChange()"
+            placeholder="Search name, mobile, email, room…" />
+        </div>
+      </div>
+    </div>
+
+    <div class="g-stats">
+      <div class="g-stat"><span>All guests</span><strong>{{ guests.length }}</strong></div>
+      <div class="g-stat"><span>Reservations · selected hotel</span><strong>{{ reservations.length }}</strong></div>
+      <div class="g-stat"><span>In-house now · selected hotel</span><strong>{{ inHouseCount }}</strong></div>
+      <div class="g-stat"><span>Upcoming arrivals · selected hotel</span><strong>{{ upcomingCount }}</strong></div>
+      <div class="g-stat"><span>Frequent guests · selected hotel</span><strong>{{ frequent.length }}</strong></div>
+    </div>
+
+    <div class="g-tabs" role="tablist">
+      <button type="button" role="tab" [class.active]="activeTab === 'guests'" (click)="setTab('guests')">
+        Guest Details <span>{{ visibleGuests.length }}</span>
+      </button>
+      <button type="button" role="tab" [class.active]="activeTab === 'reservations'" (click)="setTab('reservations')">
+        Reservations <span>{{ visibleReservations.length }}</span>
+      </button>
+      <button type="button" role="tab" [class.active]="activeTab === 'frequent'" (click)="setTab('frequent')">
+        Frequent Guests <span>{{ visibleFrequent.length }}</span>
+      </button>
+      <select *ngIf="activeTab === 'reservations'" class="g-select g-status" [(ngModel)]="statusFilter"
+        (ngModelChange)="onFilterChange()" aria-label="Reservation status">
+        <option value="All">All statuses</option>
+        <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+
+    <div class="g-card">
+      <div class="g-loading" *ngIf="loading">Loading {{ activeTab === 'guests' ? 'guests' : selectedHotelLabel }}…</div>
+
+      <div class="g-table-wrap" *ngIf="!loading">
+        <!-- Guest details -->
+        <table class="g-table" *ngIf="activeTab === 'guests'">
+          <thead>
+            <tr>
+              <th>Guest Name</th>
+              <th>Mobile</th>
+              <th>Email</th>
+              <th>Hotel</th>
+              <th>KYC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!pagedRows.length"><td colspan="5" class="g-empty">No guests found.</td></tr>
+            <tr *ngFor="let g of pagedRows">
+              <td class="fw-semibold">{{ g.name }}</td>
+              <td>{{ g.mobile }}</td>
+              <td>{{ g.email }}</td>
+              <td>{{ g.hotelName }} <small *ngIf="g.memberId !== '—' && g.memberId !== g.hotelName">{{ g.memberId }}</small></td>
+              <td>
+                <button *ngIf="g.kycUrl" type="button" class="g-link" (click)="viewKyc(g.kycUrl)">View KYC</button>
+                <span *ngIf="!g.kycUrl" class="g-muted">No document</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Reservations -->
+        <table class="g-table" *ngIf="activeTab === 'reservations'">
+          <thead>
+            <tr>
+              <th>Reservation</th>
+              <th>Guest</th>
+              <th>Room</th>
+              <th>Pax</th>
+              <th>Arrival</th>
+              <th>Departure</th>
+              <th>Nights</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!pagedRows.length"><td colspan="8" class="g-empty">No reservations for {{ selectedHotelLabel }}.</td></tr>
+            <tr *ngFor="let r of pagedRows">
+              <td>{{ r.id }}</td>
+              <td class="fw-semibold">{{ r.guestName }} <small>{{ r.mobile !== '—' ? r.mobile : '' }}</small></td>
+              <td>{{ r.room }}</td>
+              <td>{{ r.pax }}</td>
+              <td>{{ r.arrival }}</td>
+              <td>{{ r.departure }}</td>
+              <td>{{ r.nights || '—' }}</td>
+              <td><span [class]="statusClass(r.status)">{{ r.status }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Frequent guests -->
+        <ng-container *ngIf="activeTab === 'frequent'">
+          <p class="g-note">Guests who stayed 2 or more times at the same hotel (cancelled bookings not counted), most stays first.</p>
+          <table class="g-table">
+            <thead>
+              <tr>
+                <th>Guest</th>
+                <th>Mobile</th>
+                <th>Email</th>
+                <th>Stays</th>
+                <th>Nights</th>
+                <th>First Stay</th>
+                <th>Last Stay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="!pagedRows.length"><td colspan="7" class="g-empty">No repeat guests for {{ selectedHotelLabel }} yet.</td></tr>
+              <tr *ngFor="let f of pagedRows">
+                <td class="fw-semibold">{{ f.guestName }}</td>
+                <td>{{ f.mobile }}</td>
+                <td>{{ f.email }}</td>
+                <td><span class="g-pill g-pill--freq">{{ f.stays }}×</span></td>
+                <td>{{ f.nights }}</td>
+                <td>{{ f.firstStay }}</td>
+                <td>{{ f.lastStay }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+      </div>
+
+      <div class="g-pager" *ngIf="!loading && currentList.length">
+        <span class="g-pager-info">Showing {{ pageStart }}–{{ pageEnd }} of {{ currentList.length }}</span>
+        <button type="button" (click)="prevPage()" [disabled]="page === 1">Previous</button>
+        <span>Page {{ page }} of {{ totalPages }}</span>
+        <button type="button" (click)="nextPage()" [disabled]="page === totalPages">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KYC preview -->
+<div class="g-overlay" *ngIf="kycUrl" (click)="closeKyc()">
+  <div class="g-modal" (click)="$event.stopPropagation()">
+    <div class="g-modal-head">
+      <h5>KYC Document</h5>
+      <button type="button" class="g-close" (click)="closeKyc()" title="Close">&times;</button>
+    </div>
+    <iframe *ngIf="kycIsPdf" [src]="kycUrl" title="KYC document"></iframe>
+    <img *ngIf="!kycIsPdf" [src]="kycRawUrl" alt="KYC document" />
+  </div>
+</div>

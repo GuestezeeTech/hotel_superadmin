@@ -106,6 +106,9 @@ export class HeaderComponent implements OnInit {
       return (this.selectedMenu = "Platform Overview");
 
     }
+    else if (/^\/guests(\/|\?|$)/.test(currentRoute)) {
+      return (this.selectedMenu = "Guests");
+    }
     else if (currentRoute.includes('profile')) {
       return (this.selectedMenu = "Profile");
 

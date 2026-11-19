@@ -28,7 +28,7 @@
     <li class="sub-menu" *ngIf="isHotelsOverviewSubmenuOpen && userAccess?.DASHBOARD?.has_read_permission==true">
       <div class="submenu">
         <a class="submenu-item" [class.active]="isHotelOverviewActive()" routerLink="/overview-dashboard"
-          (click)="selectHotelsOverviewLeaf('Hotel Overview', $event)">Hotel Overview</a>
+          (click)="selectHotelsOverviewLeaf('Dashboard', $event)">Dashboard</a>
         <a class="submenu-item" [class.active]="isFbDashboardActive()" routerLink="/fb/dashboard"
           (click)="selectHotelsOverviewLeaf('F&B Dashboard', $event)">F&amp;B Dashboard</a>
         <a class="submenu-item" [class.active]="isFoDashboardActive()" routerLink="/fo/dashboard"
@@ -43,6 +43,13 @@
       title="Hotels">
       <i class="bi bi-buildings menu-icon" aria-hidden="true"></i>
       <span>Hotels</span>
+    </li>
+
+    <li class="list_container" [class.active]="isGuestsActive()" routerLink="/guests"
+      (click)="sendValue('Guests')" *ngIf="userAccess?.CUSTOMERS?.has_read_permission==true"
+      title="Guests">
+      <i class="bi bi-people menu-icon" aria-hidden="true"></i>
+      <span>Guests</span>
     </li>
 
     <li class="list_container" [class.active]="isPaymentActive()" routerLink="/payment-tab-view"

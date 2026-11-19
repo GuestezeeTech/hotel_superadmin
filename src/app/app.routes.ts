@@ -148,6 +148,11 @@ export const routes: Routes = [
     loadComponent: () => import('./payment-activation/payment-activation.component').then(m => m.PaymentActivationComponent)
   },
   {
+    // Guests of every hotel: details, reservations and frequent guests
+    path: 'guests',
+    loadComponent: () => import('./guests/guests.component').then(m => m.GuestsComponent)
+  },
+  {
     path: 'countries-states',
     loadComponent: () => import('./countries-states/countries-states.component').then(m => m.CountriesStatesComponent)
   },
